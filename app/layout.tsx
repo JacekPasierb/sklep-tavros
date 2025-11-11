@@ -1,6 +1,12 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type {Metadata} from "next";
+import {Geist, Geist_Mono} from "next/font/google";
 import "./globals.css";
+import Header from "./sections/Header";
+import PromoBar from "./sections/PromoBar";
+import SocialMedia from "./sections/SocialMedia";
+import LegalLinks from "./sections/LegalLinks";
+import PaymentMethods from "./sections/PaymentMethod";
+import Footer from "./sections/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +33,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Header />
+        <main>
+          <PromoBar />
+          {children}
+          <section className="grid grid-cols md:grid-cols-2 py-10">
+            <SocialMedia />
+            <LegalLinks />
+          </section>
+          <PaymentMethods />
+          <Footer />
+        </main>
       </body>
     </html>
   );
