@@ -20,6 +20,13 @@ console.log("req", req);
 
     const sortKey = (sp.get("sort") as SortKey) || "newest";
 
+    const sizes  = (sp.get("sizes")  || "").split(",").filter(Boolean);   // ["M","L"]
+    const colors = (sp.get("colors") || "").split(",").filter(Boolean);   // ["black","white"]
+    const inStock = sp.get("inStock") === "true";
+    const bestseller = sp.get("bestseller") === "true";
+
+
+
     // whitelist — tylko dozwolone sorty
     const sortMap: Record<SortKey, Record<string, 1 | -1>> = {
         newest:     { createdAt: -1 },
@@ -29,19 +36,31 @@ console.log("req", req);
         title_asc:  { title: 1 },
       };
 
-    const where: any = {};
-    if (gender) where.gender = gender.toUpperCase();
-    if (collection) where.collectionSlug = collection;
+   const where: any = {};
+if (gender) where.gender = gender.toUpperCase();
+if (collection) where.collectionSlug = collection;
+if (bestseller) where.isBestseller = true;
 
-    const [items, total] = await Promise.all([
-      Product.find(where)
-        .sort(sortMap[sortKey] ?? sortMap.newest)
-        .skip(skip)
-        .limit(limit)
-        .select("title slug price images")
-        .lean(),
-      Product.countDocuments(where),
-    ]);
+// 🔹 budujemy filtr na variants
+const variantMatch: any = {};
+if (sizes.length)  variantMatch.size  = { $in: sizes };
+if (colors.length) variantMatch.color = { $in: colors };
+if (inStock)       variantMatch.stock = { $gt: 0 };
+
+
+if (Object.keys(variantMatch).length > 0) {
+  where.variants = { $elemMatch: variantMatch };
+}
+
+const [items, total] = await Promise.all([
+  Product.find(where)
+    .sort(sortMap[sortKey] ?? sortMap.newest)
+    .skip(skip)
+    .limit(limit)
+    .select("title slug price images variants") // możesz dodać variants jeśli ci potrzebne
+    .lean(),
+  Product.countDocuments(where),
+]);
 
     return NextResponse.json({ok: true, data: items, total, page, limit});
   } catch (e) {
