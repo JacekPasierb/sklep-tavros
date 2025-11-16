@@ -26,7 +26,7 @@ const ProductCard = ({
   const img = product.images?.[0] ?? "/placeholder.png";
 
   return (
-    <Link href={`/product/${product._id}`} className="block group">
+    <Link href={`/product/${product.slug}`} className="block group">
       <article className="group overflow-hidden bg-transparent transition">
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-100">
           <Image

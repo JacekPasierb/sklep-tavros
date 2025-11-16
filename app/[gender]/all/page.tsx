@@ -2,6 +2,7 @@ import ProductCard from "../../components/ProductCard";
 import SortSelect from "../../components/SortSelect";
 import Pagination from "../../components/Pagination";
 import FiltersBar from "../../components/FiltersBar";
+import EmptyProducts from "../../components/EmptyProducts";
 
 type Product = {
   _id: string;
@@ -61,14 +62,16 @@ export default async function Page({
   params,
   searchParams,
 }: {
-  params: Promise<{ gender: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  params: Promise<{gender: string}>;
+  searchParams: Promise<{[key: string]: string | string[] | undefined}>;
 }) {
-  const { gender } = await params;
+  const {gender} = await params;
   const sp = await searchParams;
 
   // Helper function to get string value from searchParams
-  const getString = (value: string | string[] | undefined): string | undefined => {
+  const getString = (
+    value: string | string[] | undefined
+  ): string | undefined => {
     if (Array.isArray(value)) return value[0];
     return value;
   };
@@ -85,7 +88,7 @@ export default async function Page({
   const colors = colorsParam ? colorsParam.split(",").filter(Boolean) : [];
   const inStock = getString(sp.inStock) === "true";
 
-  const { data, total } = await getProducts(gender, page, limit, sort, {
+  const {data, total} = await getProducts(gender, page, limit, sort, {
     sizes,
     colors,
     inStock,
@@ -96,12 +99,16 @@ export default async function Page({
   const basePath = `/${gender}/all`;
 
   return (
-    <section className="container mx-auto max-w-7xl px-4 py-8">
+    <section className="container mx-auto px-4 py-8">
       <div className="text-center py-4">
         <h1 className="mb-6 text-2xl font-semibold">
           {gender === "mens" ? "MEN’S — CLOTHING" : "WOMEN’S — CLOTHING"}
         </h1>
-        <p>Opis kolekcji...</p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores
+          incidunt fugit ratione ducimus porro praesentium temporibus nam
+          consequuntur earum aspernatur?
+        </p>
       </div>
 
       <hr className="my-8 border-neutral-300" />
@@ -109,23 +116,28 @@ export default async function Page({
       {/* SORTOWANIE + ILOŚĆ */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <p className="text-sm text-neutral-500">
-          All Products: <span className="font-medium text-neutral-800">{total}</span>
+          All Products:{" "}
+          <span className="font-medium text-neutral-800">{total}</span>
         </p>
 
         <SortSelect currentSort={sort} />
       </div>
 
-      <hr className="my-8 border-neutral-300" />
+      {/* <hr className="my-8 border-neutral-300" /> */}
 
       {/* FILTRY */}
       <FiltersBar />
 
       {/* LISTA PRODUKTÓW */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 mt-6">
-        {data.map((p) => (
-          <ProductCard key={p._id} product={p} showHeart />
-        ))}
-      </div>
+      {data.length === 0 ? (
+        <EmptyProducts path={basePath} />
+      ) : (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 mt-6">
+          {data.map((p) => (
+            <ProductCard key={p._id} product={p} showHeart />
+          ))}
+        </div>
+      )}
 
       {/* PAGINACJA */}
       <Pagination

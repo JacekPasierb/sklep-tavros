@@ -17,13 +17,8 @@ export default function FiltersBar() {
 
   const currentSizes = (sp.get("sizes") || "").split(",").filter(Boolean);
   const currentColors = (sp.get("colors") || "").split(",").filter(Boolean);
-  const inStock = sp.get("inStock") === "true";
 
-  const updateFilters = (opts: {
-    sizes?: string[];
-    colors?: string[];
-    inStock?: boolean;
-  }) => {
+  const updateFilters = (opts: {sizes?: string[]; colors?: string[]}) => {
     const params = new URLSearchParams(sp.toString());
 
     if (opts.sizes) {
@@ -33,10 +28,6 @@ export default function FiltersBar() {
     if (opts.colors) {
       if (opts.colors.length) params.set("colors", opts.colors.join(","));
       else params.delete("colors");
-    }
-    if (typeof opts.inStock === "boolean") {
-      if (opts.inStock) params.set("inStock", "true");
-      else params.delete("inStock");
     }
 
     // przy zmianie filtra resetujemy na page 1
@@ -48,7 +39,7 @@ export default function FiltersBar() {
   return (
     <div className="mb-6 flex flex-col gap-4 border-b border-neutral-200 pb-4">
       {/* Rozmiary */}
-      <div className="flex flex-wrap items-center gap-2 text-sm">
+      <div className="flex flex-wrap items-center text-sm">
         <span className="mr-2 font-medium">Size:</span>
         {AVAILABLE_SIZES.map((size) => {
           const active = currentSizes.includes(size);
@@ -59,7 +50,7 @@ export default function FiltersBar() {
               onClick={() =>
                 updateFilters({sizes: toggleInArray(currentSizes, size)})
               }
-              className={`rounded-full border px-3 py-1 ${
+              className={` border px-3 py-1 hover: cursor-pointer ${
                 active
                   ? "border-black bg-black text-white"
                   : "border-neutral-300 text-neutral-700 hover:border-neutral-500"
@@ -72,7 +63,7 @@ export default function FiltersBar() {
       </div>
 
       {/* Kolory */}
-      <div className="flex flex-wrap items-center gap-2 text-sm">
+      <div className="flex flex-wrap items-center text-sm">
         <span className="mr-2 font-medium">Color:</span>
         {AVAILABLE_COLORS.map((color) => {
           const active = currentColors.includes(color);
@@ -83,7 +74,7 @@ export default function FiltersBar() {
               onClick={() =>
                 updateFilters({colors: toggleInArray(currentColors, color)})
               }
-              className={`rounded-full border px-3 py-1 capitalize ${
+              className={`border px-3 py-1 capitalize hover: cursor-pointer ${
                 active
                   ? "border-black bg-black text-white"
                   : "border-neutral-300 text-neutral-700 hover:border-neutral-500"
@@ -94,16 +85,6 @@ export default function FiltersBar() {
           );
         })}
       </div>
-
-      {/* Tylko dostępne */}
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={inStock}
-          onChange={(e) => updateFilters({inStock: e.target.checked})}
-        />
-        <span>Only in stock</span>
-      </label>
     </div>
   );
 }

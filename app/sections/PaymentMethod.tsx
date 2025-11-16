@@ -24,10 +24,10 @@ export default function PaymentMethods() {
             <Image
               src={m.src}
               alt={m.alt}
-              width={70}
-              height={40}
+              width={0}
+              height={0}
               sizes="100vw"
-              className="h-6 w-auto object-contain sm:h-8 md:h-10"
+              className="h-6 sm:h-8 md:h-10 w-auto object-contain"
             />
           </div>
         ))}
