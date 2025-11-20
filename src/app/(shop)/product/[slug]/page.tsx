@@ -5,7 +5,7 @@ import ProductInfo from "../../components/ProductInfo";
 import {InterfaceProduct} from "../../types/globalTypes";
 
 import Slider from "../../components/Slider";
-import {getProductBySlug, getRelatedProducts} from "../../lib/products";
+import {getProductBySlug, getRelatedProducts} from "../../lib/products1";
 
 const ProductPage = async ({params}: {params: Promise<{slug: string}>}) => {
   const {slug} = await params;
