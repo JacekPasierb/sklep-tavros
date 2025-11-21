@@ -1,175 +1,23 @@
 "use client";
 
 import Image from "next/image";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
-import {ChevronLeft, ChevronRight, X} from "lucide-react";
+import {useMemo, useRef, useState, type ReactNode} from "react";
+import {X} from "lucide-react";
+import {getSafeSrc} from "./getSafeSrc";
+import {useGallery} from "./useGallery";
+import {useLightbox} from "./useLightBox";
+import NavButton from "./NavButton";
+import SliderDots from "./SliderDots";
+import Thumb from "./Thumb";
+import ImageDisplay from "./ImageDisplay";
 
-// ---------- utils ----------
-const getSafeSrc = (src?: string | null) =>
-  typeof src === "string" && src.trim()
-    ? src
-    : "/placeholder.png";
-
-// ---------- hook: gallery state ----------
-function useGallery(length: number) {
-  const [index, setIndex] = useState(0);
-
-  const clamp = useCallback(
-    (i: number) => Math.max(0, Math.min(length - 1, i)),
-    [length]
-  );
-
-  return {
-    index,
-    setIndex: (i: number) => setIndex(clamp(i)),
-    next: () => setIndex((i) => clamp(i + 1)),
-    prev: () => setIndex((i) => clamp(i - 1)),
-    clamp,
-  };
-}
-
-// ---------- hook: lightbox ----------
-function useLightbox(
-  isOpen: boolean,
-  close: () => void,
-  onLeft: () => void,
-  onRight: () => void
-) {
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-      if (e.key === "ArrowLeft") onLeft();
-      if (e.key === "ArrowRight") onRight();
-    };
-
-    document.addEventListener("keydown", onKey);
-
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [isOpen, close, onLeft, onRight]);
-}
-
-// ---------- subcomponents ----------
-const NavButton = ({
-  side,
-  disabled,
-  onClick,
-}: {
-  side: "left" | "right";
-  disabled?: boolean;
-  onClick: (e?: React.MouseEvent) => void;
-}) => (
-  <button
-    onClick={onClick}
-    disabled={disabled}
-    aria-label={side === "left" ? "Previous image" : "Next image"}
-    className={`absolute top-1/2 z-10 -translate-y-1/2 bg-white/80 backdrop-blur 
-    rounded-full p-2 shadow hover:bg-white disabled:opacity-40 
-    ${side === "left" ? "left-2" : "right-2"}`}
-  >
-    {side === "left" ? (
-      <ChevronLeft className="h-6 w-6" />
-    ) : (
-      <ChevronRight className="h-6 w-6" />
-    )}
-  </button>
-);
-
-const SliderDots = ({
-  length,
-  active,
-  onSelect,
-}: {
-  length: number;
-  active: number;
-  onSelect: (i: number) => void;
-}) => (
-  <div className="absolute bottom-3 inset-x-0 flex justify-center gap-2">
-    {Array.from({length}).map((_, i) => (
-      <button
-        key={i}
-        aria-label={`Go to image ${i + 1}`}
-        onClick={() => onSelect(i)}
-        className={`h-2 w-2 rounded-full transition
-          ${i === active ? "bg-black" : "bg-black/30 hover:bg-black/50"}`}
-      />
-    ))}
-  </div>
-);
-
-const Thumb = ({
-  src,
-  active,
-  onClick,
-  index,
-  title,
-}: {
-  src: string;
-  index: number;
-  active: boolean;
-  title: string;
-  onClick: () => void;
-}) => (
-  <button
-    onClick={onClick}
-    aria-label={`Show image ${index + 1}`}
-    className={`relative w-full overflow-hidden aspect-square border-2 transition 
-      ${active ? "border-black" : "border-transparent hover:border-black/40"}`}
-  >
-    <Image
-      src={src}
-      alt={`${title} thumb ${index + 1}`}
-      fill
-      sizes="20vw"
-      className="object-cover"
-    />
-  </button>
-);
-
-const ImageDisplay = ({
-  src,
-  alt,
-  onClick,
-  priority,
-}: {
-  src: string;
-  alt: string;
-  onClick?: () => void;
-  priority?: boolean;
-}) => (
-  <Image
-    src={src}
-    alt={alt}
-    fill
-    priority={priority}
-    className={`object-cover ${onClick ? "cursor-zoom-in" : ""}`}
-    sizes="100vw"
-    onClick={onClick}
-  />
-);
-
-// ---------- MAIN COMPONENT ----------
 type Props = {
   images?: string[];
   title?: string;
   overlay?: ReactNode;
 };
 
-export default function ProductGallery({
+export default function Index({
   images = [],
   title = "Product",
   overlay,
@@ -212,14 +60,19 @@ export default function ProductGallery({
           }}
         >
           {safe.map((src, i) => (
-            <div key={i} className="relative w-full aspect-square shrink-0 snap-start bg-gray-100">
+            <div
+              key={i}
+              className="relative w-full aspect-square shrink-0 snap-start bg-gray-100"
+            >
               <ImageDisplay
                 src={src}
                 alt={`${title} ${i + 1}`}
                 onClick={openLightbox}
                 priority={i === 0}
               />
-              {overlay && <div className="absolute top-2 right-2">{overlay}</div>}
+              {overlay && (
+                <div className="absolute top-2 right-2">{overlay}</div>
+              )}
             </div>
           ))}
         </div>
@@ -227,8 +80,16 @@ export default function ProductGallery({
         {safe.length > 1 && (
           <>
             <NavButton side="left" disabled={index === 0} onClick={prev} />
-            <NavButton side="right" disabled={index === safe.length - 1} onClick={next} />
-            <SliderDots length={safe.length} active={index} onSelect={setIndex} />
+            <NavButton
+              side="right"
+              disabled={index === safe.length - 1}
+              onClick={next}
+            />
+            <SliderDots
+              length={safe.length}
+              active={index}
+              onSelect={setIndex}
+            />
           </>
         )}
       </div>
@@ -322,8 +183,22 @@ export default function ProductGallery({
 
           {safe.length > 1 && (
             <>
-              <NavButton side="left" disabled={index === 0} onClick={(e) => { e?.stopPropagation(); prev(); }} />
-              <NavButton side="right" disabled={index === safe.length - 1} onClick={(e) => { e?.stopPropagation(); next(); }} />
+              <NavButton
+                side="left"
+                disabled={index === 0}
+                onClick={(e) => {
+                  e?.stopPropagation();
+                  prev();
+                }}
+              />
+              <NavButton
+                side="right"
+                disabled={index === safe.length - 1}
+                onClick={(e) => {
+                  e?.stopPropagation();
+                  next();
+                }}
+              />
             </>
           )}
         </div>

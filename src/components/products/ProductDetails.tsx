@@ -1,50 +1,51 @@
 "use client";
 import {useState} from "react";
 // import {useUserCart} from "../../lib/useUserCart";
-import {InterfaceProduct} from "../types/globalTypes";
+
+import {TypeProduct} from "../../types/product";
 
 interface ProductInfoProps {
-  product: InterfaceProduct;
+  product: TypeProduct;
 }
 
-const ProductInfo = ({product}: ProductInfoProps) => {
+const ProductDetails = ({product}: ProductInfoProps) => {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [sizeError, setSizeError] = useState(false);
 
   const variants = product?.variants ?? [];
 
-    // const {addItem, isLoading} = useUserCart();
+  // const {addItem, isLoading} = useUserCart();
 
   const handleAddToCart = async () => {
-      //  if (isAdding || isLoading) return;
-      //   // Sprawdź czy rozmiar jest wymagany ale nie wybrany
-      //   if (variants.length > 0 && !selectedSize) {
-      //     setSizeError(true);
-      //     setTimeout(() => setSizeError(false), 3000);
-      //     return;
-      //   }
-      //   setSizeError(false);
-      //   setIsAdding(true);
-      //   try {
-      //     const cartItem = {
-      //       _id: product._id,
-      //       title: product.title,
-      //       price: product.price,
-      //       imag e: product.images?.[0],
-      //       qty: 1,
-      //       slug: product.slug || product._id,
-      //       size: selectedSize || undefined,
-      //       sku: selectedSize
-      //         ? variants.find((v) => v.size === selectedSize)?.sku
-      //         : undefined,
-      //     };
-      //     await addItem(cartItem);
-      //   } catch (error) {
-      //     console.error("Error adding to cart:", error);
-      //   } finally {
-      //     setIsAdding(false);
-      //   }
+    //  if (isAdding || isLoading) return;
+    //   // Sprawdź czy rozmiar jest wymagany ale nie wybrany
+    //   if (variants.length > 0 && !selectedSize) {
+    //     setSizeError(true);
+    //     setTimeout(() => setSizeError(false), 3000);
+    //     return;
+    //   }
+    //   setSizeError(false);
+    //   setIsAdding(true);
+    //   try {
+    //     const cartItem = {
+    //       _id: product._id,
+    //       title: product.title,
+    //       price: product.price,
+    //       imag e: product.images?.[0],
+    //       qty: 1,
+    //       slug: product.slug || product._id,
+    //       size: selectedSize || undefined,
+    //       sku: selectedSize
+    //         ? variants.find((v) => v.size === selectedSize)?.sku
+    //         : undefined,
+    //     };
+    //     await addItem(cartItem);
+    //   } catch (error) {
+    //     console.error("Error adding to cart:", error);
+    //   } finally {
+    //     setIsAdding(false);
+    //   }
   };
 
   return (
@@ -122,4 +123,4 @@ const ProductInfo = ({product}: ProductInfoProps) => {
   );
 };
 
-export default ProductInfo;
+export default ProductDetails;

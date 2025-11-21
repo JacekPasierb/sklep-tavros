@@ -2,25 +2,17 @@
 // components/products/ProductsListPage.tsx
 "use client";
 
+import {SortOption} from "../../types/filters";
+import {TypeProduct} from "../../types/product";
 import {FiltersBar} from "./FiltersBar";
-import { Pagination } from "./Pagination";
+import {Pagination} from "./Pagination";
 import {ProductCard} from "./ProductCard";
-
-export type Product = {
-  _id: string;
-  title: string;
-  slug: string;
-  price: number;
-  images?: string[];
-};
-
-type SortOption = "newest" | "price_asc" | "price_desc" | undefined;
 
 type ProductsListPageProps = {
   gender: "mens" | "womens";
   mode: "all" | "bestseller" | "collection";
   collectionSlug?: string;
-  products: Product[];
+  products: TypeProduct[];
   selectedSizes?: string[];
   selectedColors?: string[];
   currentPage: number;
@@ -30,7 +22,7 @@ type ProductsListPageProps = {
   selectedSort?: SortOption;
 };
 
-export function ProductsListPage({
+const ProductsListPage = ({
   gender,
   mode,
   collectionSlug,
@@ -41,8 +33,7 @@ export function ProductsListPage({
   totalPages,
   totalItems,
   pageSize,
-  selectedSort,
-}: ProductsListPageProps) {
+}: ProductsListPageProps) => {
   return (
     <section className="container mx-auto px-4 py-8">
       {/* 🔵 Nagłówek TYLKO dla ALL */}
@@ -75,7 +66,10 @@ export function ProductsListPage({
       )}
       {/* ---------------------------------------------------- */}
 
-      <FiltersBar selectedSizes={selectedSizes} selectedColors={selectedColors} />
+      <FiltersBar
+        selectedSizes={selectedSizes}
+        selectedColors={selectedColors}
+      />
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 mt-6">
         {products.map((product) => (
@@ -83,16 +77,19 @@ export function ProductsListPage({
         ))}
         {products.length === 0 && <p>Brak produktów do wyświetlenia.</p>}
       </section>
-       {/* 🔹 Paginacja */}
-       {totalPages > 1 && (
+      {/* 🔹 Paginacja */}
+      {totalPages > 1 && (
         <div className="mt-8 flex flex-col items-center gap-2">
           <p className="text-sm text-gray-500">
             Wyświetlane {(currentPage - 1) * pageSize + 1}–
-            {Math.min(currentPage * pageSize, totalItems)} z {totalItems} produktów
+            {Math.min(currentPage * pageSize, totalItems)} z {totalItems}{" "}
+            produktów
           </p>
           <Pagination currentPage={currentPage} totalPages={totalPages} />
         </div>
       )}
     </section>
   );
-}
+};
+
+export default ProductsListPage;

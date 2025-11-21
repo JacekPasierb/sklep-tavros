@@ -1,7 +1,7 @@
 // Nowy
 // app/(shop)/[gender]/all/page.tsx
 
-import {ProductsListPage} from "../../../../components/products/ProductsListPage";
+import ProductsListPage from "../../../../components/products/ProductsListPage";
 import {getProducts} from "../../../lib/products";
 
 type PageProps = {
@@ -55,6 +55,7 @@ const GenderAllPage = async (props: PageProps) => {
     limit: 4, // możesz zmienić
     sort,
   });
+
 
   return (
     <ProductsListPage

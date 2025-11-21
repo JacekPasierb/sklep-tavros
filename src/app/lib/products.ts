@@ -1,9 +1,10 @@
 //Nowy
 // lib/productsService.ts
+import {SortOption} from "../../types/filters";
+import {TypeProduct} from "../../types/product";
+
 import Product from "../models/Product";
 import {connectToDatabase} from "./mongodb";
-
-type SortOption = "newest" | "price_asc" | "price_desc" | undefined;
 
 type GetProductsOptions = {
   gender?: "mens" | "womens";
@@ -30,7 +31,7 @@ export async function getProducts(options: GetProductsOptions = {}) {
     sort,
   } = options;
 
-  const query: any = {};
+  const query: Record<string, unknown> = {};
 
   if (gender) {
     query.gender = gender.toUpperCase();
@@ -45,7 +46,7 @@ export async function getProducts(options: GetProductsOptions = {}) {
   }
 
   if ((sizes && sizes.length) || (colors && colors.length)) {
-    const variantMatch: any = {};
+    const variantMatch: Record<string, unknown> = {};
 
     if (sizes && sizes.length) {
       variantMatch.size = {$in: sizes};
@@ -63,21 +64,21 @@ export async function getProducts(options: GetProductsOptions = {}) {
 
   const skip = (safePage - 1) * safeLimit;
 
-   // 🔹 sortowanie
-   let sortQuery: Record<string, 1 | -1>;
+  // 🔹 sortowanie
+  let sortQuery: Record<string, 1 | -1>;
 
-   switch (sort) {
-     case "price_asc":
-       sortQuery = { price: 1 };
-       break;
-     case "price_desc":
-       sortQuery = { price: -1 };
-       break;
-     case "newest":
-     default:
-       sortQuery = { createdAt: -1 }; // najnowsze
-       break;
-   }
+  switch (sort) {
+    case "price_asc":
+      sortQuery = {price: 1};
+      break;
+    case "price_desc":
+      sortQuery = {price: -1};
+      break;
+    case "newest":
+    default:
+      sortQuery = {createdAt: -1}; // najnowsze
+      break;
+  }
 
   const total = await Product.countDocuments(query);
 
@@ -86,12 +87,11 @@ export async function getProducts(options: GetProductsOptions = {}) {
     .skip(skip)
     .limit(safeLimit)
     .lean();
-  // console.log("Pro", products);
 
-  const items = products.map((p: any) => ({
+  const items = products.map((p) => ({
     ...p,
-    _id: p._id.toString(),
-  }));
+    _id: (p._id as {toString(): string}).toString(),
+  })) as unknown as TypeProduct[];
 
   const totalPages = Math.max(1, Math.ceil(total / safeLimit));
 
@@ -104,11 +104,10 @@ export async function getProducts(options: GetProductsOptions = {}) {
   };
 }
 
-
 export async function getProductBySlug(slug: string) {
   await connectToDatabase();
 
-  const doc = await Product.findOne({ slug }).lean();
+  const doc = await Product.findOne({slug}).lean<TypeProduct>();
 
   if (!doc) return null;
 
@@ -116,4 +115,37 @@ export async function getProductBySlug(slug: string) {
     ...doc,
     _id: doc._id.toString(),
   };
+}
+function toPlain<T>(doc: T): T {
+  return JSON.parse(JSON.stringify(doc));
+}
+
+export async function getRelatedProducts(opts: {
+  gender: string | undefined;
+  collectionSlug?: string;
+  excludeId?: string;
+  limit?: number;
+}): Promise<TypeProduct[]> {
+  const {gender, collectionSlug, excludeId, limit = 4} = opts;
+
+  await connectToDatabase();
+
+  const where: {gender: string; collectionSlug?: string; _id?: {$ne: string}} =
+    {gender};
+
+  if (collectionSlug) {
+    where.collectionSlug = collectionSlug;
+  }
+
+  if (excludeId) {
+    where._id = {$ne: excludeId};
+  }
+
+  const docs = await Product.find(where)
+    .sort({createdAt: -1})
+    .limit(limit)
+    .select("title price images slug gender collectionSlug")
+    .lean();
+
+  return toPlain(docs) as unknown as TypeProduct[];
 }
