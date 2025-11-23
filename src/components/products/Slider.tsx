@@ -1,82 +1,161 @@
 "use client";
 
-import Link from "next/link";
-import ProductCard from "./ProductCard";
-
 import {motion} from "framer-motion";
-import type {Product as CardProduct} from "./ProductCard";
-import TitleSection from "./TitleSection";
+import {ChevronLeft, ChevronRight} from "lucide-react";
+import Link from "next/link";
+import {useEffect, useRef, useState} from "react";
 
-type ProductWithGender = {
-  _id: string;
-  gender?: string;
+import ProductCard from "./ProductCard";
+import TitleSection from "./TitleSection";
+import {TypeProduct} from "../../types/product";
+
+type Props = {
+  products: TypeProduct[];
+  title: string;
 };
 
-const Slider = ({
-  products,
-  product,
-  collectionSlug,
-  title,
-}: {
-  products: Array<CardProduct>;
-  product?: ProductWithGender;
-  collectionSlug?: string;
-  title: string;
-}) => {
+export default function Slider({products, title}: Props) {
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const [isHover, setIsHover] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // --- AUTO SCROLL (Nike style, z loopem) ---
+  useEffect(() => {
+    const slider = sliderRef.current;
+    if (!slider || isHover || products.length === 0) return;
+
+    const items = slider.querySelectorAll<HTMLElement>("[data-slider-item]");
+    if (!items.length) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => {
+        const next = (prev + 1) % items.length; // loop
+        const target = items[next].offsetLeft;
+
+        slider.scrollTo({
+          left: target,
+          behavior: "smooth",
+        });
+
+        return next;
+      });
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [isHover, products.length]);
+
+  // 🟢 HOOKI SĄ JUŻ WYWOŁANE – TERAZ MOŻEMY ZROBIĆ EARLY RETURN
+  if (!products.length) {
+    return (
+      <div className="container py-10 text-center text-gray-500">
+        No products to display.
+      </div>
+    );
+  }
+
+  const first = products[0];
+  const gender = first.gender?.toLowerCase() ?? "mens";
+  const collectionSlug = first.collectionSlug ?? null;
+
+  // pomocnicza funkcja do przewijania na konkretny index
+  const scrollToIndex = (nextIndex: number) => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    const items = slider.querySelectorAll<HTMLElement>("[data-slider-item]");
+    if (!items.length) return;
+
+    const normalized =
+      ((nextIndex % items.length) + items.length) % items.length; // bezpieczne modulo
+    const target = items[normalized].offsetLeft;
+
+    slider.scrollTo({
+      left: target,
+      behavior: "smooth",
+    });
+
+    setCurrentIndex(normalized);
+  };
+
+  // --- NAV BUTTONS ---
+  const scrollLeft = () => scrollToIndex(currentIndex - 1);
+  const scrollRight = () => scrollToIndex(currentIndex + 1);
+
   return (
-    <div className="bg-[#f6f6f6]">
-      <section className=" container mx-auto py-6 px-4 flex flex-col items-center sm:px-6 lg:px-8">
-        <div className="mb-6 w-full text-center">
+    <div className="bg-white">
+      <section className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        {/* Tytuł */}
+        <div className="mb-6 text-center">
           <TitleSection title={title} />
         </div>
 
-        {/* SLIDER */}
+        {/* Slider wrapper */}
         <div
-          className="
-  w-full max-w-[1200px]
-  overflow-x-auto no-scrollbar
-  flex gap-4 snap-x snap-mandatory
-  px-4
-  min-[1000px]:grid min-[1000px]:grid-cols-3 min-[1000px]:gap-6
-  min-[1000px]:overflow-visible min-[1000px]:px-0
-"
+          className="relative group"
+          onMouseEnter={() => setIsHover(true)}
+          onMouseLeave={() => setIsHover(false)}
         >
-          {products.map((p, i) => (
-            <motion.div
-              key={p._id}
-              initial={{opacity: 0, y: 8}}
-              animate={{opacity: 1, y: 0}}
-              transition={{duration: 0.35, delay: i * 0.06}}
-              className="
-      snap-start shrink-0
-      w-[260px]   /* stabilna szerokość kafelka na mobile */
-      min-[380px]:w-72
-      min-[1000px]:w-auto min-[1000px]:shrink
-    "
-            >
-              <ProductCard product={p} showHeart />
-            </motion.div>
-          ))}
+          {/* LEFT BUTTON */}
+          <button
+            type="button"
+            onClick={scrollLeft}
+            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 
+              bg-black/70 hover:bg-black text-white p-3 rounded-full opacity-0 
+              group-hover:opacity-100 transition"
+          >
+            <ChevronLeft size={22} />
+          </button>
+
+          {/* TRACK */}
+          <div
+            ref={sliderRef}
+            className="
+              flex gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory 
+              scroll-smooth px-1
+            "
+          >
+            {products.map((p, i) => (
+              <motion.div
+                key={p._id}
+                data-slider-item
+                initial={{opacity: 0, y: 15}}
+                animate={{opacity: 1, y: 0}}
+                transition={{duration: 0.35, delay: i * 0.05}}
+                className="
+                  snap-start shrink-0 w-[260px] 
+                  sm:w-[300px] lg:w-[320px]
+                "
+              >
+                <ProductCard product={p} />
+              </motion.div>
+            ))}
+          </div>
+
+          {/* RIGHT BUTTON */}
+          <button
+            type="button"
+            onClick={scrollRight}
+            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 
+              bg-black/70 hover:bg-black text-white p-3 rounded-full opacity-0 
+              group-hover:opacity-100 transition"
+          >
+            <ChevronRight size={22} />
+          </button>
         </div>
 
-        {title !== "Best Sellers" && (
-          <div className="mt-6 flex justify-center w-full">
+        {/* Link do kolekcji */}
+        {collectionSlug && (
+          <div className="mt-8 flex justify-center">
             <Link
-              href={
-                product && collectionSlug
-                  ? `/collections/${product.gender}/${collectionSlug}`
-                  : "#"
-              }
-              prefetch={false}
-              className="inline-flex items-center  bg-black px-5 py-2 text-white text-sm font-medium hover:bg-black/90 focus:outline-none focus:ring-2 focus:ring-black/20"
+              href={`/${gender}/collection/${collectionSlug}`}
+              className="inline-flex items-center bg-black text-white px-6 py-2.5 
+                font-medium hover:bg-black/90 transition text-sm tracking-wide"
             >
-              View collection
+              View Collection
             </Link>
           </div>
         )}
       </section>
     </div>
   );
-};
-
-export default Slider;
+}

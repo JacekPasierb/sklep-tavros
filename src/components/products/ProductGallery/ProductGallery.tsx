@@ -17,11 +17,7 @@ type Props = {
   overlay?: ReactNode;
 };
 
-export default function Index({
-  images = [],
-  title = "Product",
-  overlay,
-}: Props) {
+const ProductGallery = ({images = [], title = "Product", overlay}: Props) => {
   const safe = useMemo(
     () => (images.length ? images.map(getSafeSrc) : ["/placeholder.png"]),
     [images]
@@ -205,4 +201,6 @@ export default function Index({
       )}
     </>
   );
-}
+};
+
+export default ProductGallery;

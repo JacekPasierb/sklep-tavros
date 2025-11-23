@@ -6,9 +6,10 @@ import {SortOption} from "../../types/filters";
 import {TypeProduct} from "../../types/product";
 import {FiltersBar} from "./FiltersBar";
 import {Pagination} from "./Pagination";
-import {ProductCard} from "./ProductCard";
+import ProductCard from "./ProductCard";
 
-type ProductsListPageProps = {
+
+type Props = {
   gender: "mens" | "womens";
   mode: "all" | "bestseller" | "collection";
   collectionSlug?: string;
@@ -33,7 +34,7 @@ const ProductsListPage = ({
   totalPages,
   totalItems,
   pageSize,
-}: ProductsListPageProps) => {
+}: Props) => {
   return (
     <section className="container mx-auto px-4 py-8">
       {/* 🔵 Nagłówek TYLKO dla ALL */}

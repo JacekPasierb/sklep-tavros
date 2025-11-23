@@ -8,8 +8,9 @@ import {notFound} from "next/navigation";
 import {getProductBySlug, getRelatedProducts} from "../../../lib/products";
 
 import ProductDetails from "../../../../components/products/ProductDetails";
-import Index from "../../../../components/products/ProductGallery";
 import Slider from "../../../../components/products/Slider";
+import ProductGallery from "../../../../components/products/ProductGallery/ProductGallery";
+
 // import {getProductBySlug, getRelatedProducts} from "../../lib/products1";
 
 type PageProps = {
@@ -58,21 +59,18 @@ const ProductPage = async ({params}: PageProps) => {
     title: String(p.title),
     price: Number(p.price),
     images: p.images || [],
+    gender: String(p.gender),
+    collectionSlug: String(p.collectionSlug),
   }));
 
   return (
     <section className="mx-auto w-full  lg:py-6 pb-4">
       <article className="grid gap-8 lg:grid-cols-[2fr_1fr] lg:items-start lg:container lg:mx-auto pb-[50px] lg:px-8 ">
-        <Index images={imageUrls} title={product.title} />
+        <ProductGallery images={imageUrls} title={product.title} />
         <ProductDetails product={product} />
       </article>
       <div>
-        {/* <Slider
-          products={relatedProducts}
-          product={product}
-          collectionSlug={product.collectionSlug}
-          title="Propose For You"
-        /> */}
+        <Slider products={relatedProducts} title="Propose For You" />
       </div>
     </section>
   );

@@ -2,21 +2,21 @@
 // components/products/ProductCard.tsx
 
 import Link from "next/link";
-import {Product} from "./ProductsListPage";
 import Image from "next/image";
+import {TypeProduct} from "../../types/product";
 
-type ProductCardProps = {
-  product: Product;
+type Props = {
+  product: TypeProduct;
 };
 
-export function ProductCard({product}: ProductCardProps) {
-  const img = product.images?.[0] ?? "/placeholder.png";
+const ProductCard = ({product}: Props) => {
+  const firstImg = product.images?.[0] ?? "/placeholder.png";
   return (
     <Link href={`/product/${product.slug}`} className="block group">
       <article className="group overflow-hidden bg-transparent transition">
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-100">
           <Image
-            src={img}
+            src={firstImg}
             alt={product.title}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -41,4 +41,6 @@ export function ProductCard({product}: ProductCardProps) {
       </article>
     </Link>
   );
-}
+};
+
+export default ProductCard;
