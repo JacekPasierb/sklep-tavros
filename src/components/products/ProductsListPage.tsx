@@ -8,7 +8,6 @@ import {FiltersBar} from "./FiltersBar";
 import {Pagination} from "./Pagination";
 import ProductCard from "./ProductCard";
 
-
 type Props = {
   gender: "mens" | "womens";
   mode: "all" | "bestseller" | "collection";
@@ -60,10 +59,17 @@ const ProductsListPage = ({
 
       {/* 🔵 Nagłówek dla collection */}
       {mode === "collection" && collectionSlug && (
-        <h1 className="text-center text-xl font-semibold mb-6">
-          {gender === "mens" ? "MEN’S" : "WOMEN’S"} — COLLECTION:{" "}
-          {collectionSlug.toUpperCase()}
-        </h1>
+        <div className="text-center py-4">
+          <h1 className="text-center text-xl font-semibold mb-6">
+            {gender === "mens" ? "MEN’S" : "WOMEN’S"} — COLLECTION{" "}
+            {collectionSlug.toUpperCase()}
+          </h1>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores
+            incidunt fugit ratione ducimus porro praesentium temporibus nam
+            consequuntur earum aspernatur?
+          </p>
+        </div>
       )}
       {/* ---------------------------------------------------- */}
 
