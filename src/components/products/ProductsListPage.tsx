@@ -10,7 +10,7 @@ import ProductCard from "./ProductCard";
 
 type Props = {
   gender: "mens" | "womens";
-  mode: "all" | "bestseller" | "collection";
+  mode: "all" | "bestseller" | "collection" | "sale";
   collectionSlug?: string;
   products: TypeProduct[];
   selectedSizes?: string[];
@@ -63,6 +63,14 @@ const ProductsListPage = ({
           </p>
         </div>
       )}
+
+  {/* 🔵 Nagłówek dla sale */}
+{mode === "sale" && (
+  <h1 className="text-center text-xl font-semibold mb-6">
+    SALE — {gender === "mens" ? "MEN’S" : "WOMEN’S"} COLLECTION
+  </h1>
+)}
+
 
       {/* 🔵 Nagłówek dla collection */}
       {mode === "collection" && collectionSlug && (

@@ -41,6 +41,10 @@ export async function getProducts(options: GetProductsOptions = {}) {
     query.isBestseller = true;
   }
 
+  if (mode === "sale") {
+    query.tags = { $in: ["sale"] };
+  }
+
   if (mode === "collection" && collectionSlug) {
     query.collectionSlug = collectionSlug;
   }
