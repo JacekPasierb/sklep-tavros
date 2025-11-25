@@ -4,7 +4,7 @@ const VariantSchema = new Schema(
   {
     sku: {type: String, trim: true},
     size: {type: String, trim: true},
-    color: { type: String, trim: true, index: true },
+    color: {type: String, trim: true, index: true},
     stock: {type: Number, default: 0, min: 0},
   },
   {_id: false}

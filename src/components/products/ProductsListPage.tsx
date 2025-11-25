@@ -52,9 +52,16 @@ const ProductsListPage = ({
 
       {/* 🔵 Nagłówek dla bestseller */}
       {mode === "bestseller" && (
-        <h1 className="text-center text-xl font-semibold mb-6">
-          {gender === "mens" ? "MEN’S — BESTSELLERS" : "WOMEN’S — BESTSELLERS"}
-        </h1>
+        <div className="text-center py-4">
+          <h1 className="text-center text-xl font-semibold mb-6">
+            {gender === "mens" ? "MEN’S — BESTSELLERS" : "WOMEN’S — BESTSELLER"}
+          </h1>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores
+            incidunt fugit ratione ducimus porro praesentium temporibus nam
+            consequuntur earum aspernatur?
+          </p>
+        </div>
       )}
 
       {/* 🔵 Nagłówek dla collection */}

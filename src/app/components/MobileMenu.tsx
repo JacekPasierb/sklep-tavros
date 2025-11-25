@@ -40,7 +40,7 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
     const base = [
       { label: "New In", href: `/collections/${tab.toLowerCase()}/new-in`, special: true },
       { label: "Shop All", href: `/${tab.toLowerCase()}/all` },
-      { label: "Best Sellers", href: `/${tab.toLowerCase()}#best-sellers` },
+      { label: "Best Seller", href: `/${tab.toLowerCase()}/bestseller` },
       { label: "Sale", href: `/${tab.toLowerCase()}/sale` },
     ];
 
