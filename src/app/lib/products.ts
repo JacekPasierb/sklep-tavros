@@ -8,7 +8,7 @@ import {connectToDatabase} from "./mongodb";
 
 type GetProductsOptions = {
   gender?: "mens" | "womens";
-  mode?: "all" | "bestseller" | "collection";
+  mode?: "all" | "bestseller" | "collection" | "sale" | "new";
   collectionSlug?: string;
   sizes?: string[];
   colors?: string[];
@@ -42,7 +42,11 @@ export async function getProducts(options: GetProductsOptions = {}) {
   }
 
   if (mode === "sale") {
-    query.tags = { $in: ["sale"] };
+    query.tags = {$in: ["sale"]};
+  }
+
+  if (mode === "new") {
+    query.tags = { $in: ["new"] };
   }
 
   if (mode === "collection" && collectionSlug) {
@@ -125,7 +129,7 @@ function toPlain<T>(doc: T): T {
 }
 
 export async function getRelatedProducts(opts: {
-  gender: string | undefined;
+  gender: "MENS" | "WOMENS" | "UNISEX" | "KIDS";
   collectionSlug?: string;
   excludeId?: string;
   limit?: number;

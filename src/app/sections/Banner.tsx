@@ -36,7 +36,7 @@ const Banner = () => {
               />{" "}
               <div className="absolute inset-0 flex items-end mb-15 justify-center">
                 <Link
-                  href="/collections/mens/christmas20"
+                  href="/mens/new"
                   className="rounded-2xl bg-white px-6 py-2 text-lg font-bold uppercase text-black shadow hover:bg-black hover:text-white transition"
                 >
                   Mens New Collection
@@ -56,7 +56,7 @@ const Banner = () => {
               />
               <div className="absolute inset-0 flex items-end mb-15 justify-center">
                 <Link
-                  href="/collections/womens/christmas20"
+                  href="/womens/new"
                   className="rounded-2xl bg-white px-6 py-2 text-lg font-bold uppercase text-black shadow hover:bg-black hover:text-white transition"
                 >
                   Womens New Collection

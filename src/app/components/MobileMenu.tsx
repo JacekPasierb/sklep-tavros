@@ -38,7 +38,7 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
     const collections: ApiCollectionItem[] = data?.items ?? [];
     
     const base = [
-      { label: "New In", href: `/collections/${tab.toLowerCase()}/new-in`, special: true },
+      { label: "New In", href: `/${tab.toLowerCase()}/new`, special: true },
       { label: "Shop All", href: `/${tab.toLowerCase()}/all` },
       { label: "Best Seller", href: `/${tab.toLowerCase()}/bestseller` },
       { label: "Sale", href: `/${tab.toLowerCase()}/sale` },

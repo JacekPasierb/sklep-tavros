@@ -18,7 +18,8 @@ const ProductSchema = new Schema(
     title: {type: String, required: true, trim: true},
     slug: {type: String, required: true, unique: true, index: true, trim: true},
     price: {type: Number, required: true, min: 0}, // grosze
-    currency: {type: String, default: "PLN"},
+    oldPrice: {type: Number, min: 0}, 
+    currency: {type: String, default: "GBP"},
     images: {type: [ImageSchema], default: []},
     gender: {
       type: String,

@@ -1,7 +1,6 @@
 "use client";
 import {useState} from "react";
 // import {useUserCart} from "../../lib/useUserCart";
-
 import {TypeProduct} from "../../types/product";
 
 interface ProductInfoProps {
@@ -15,49 +14,44 @@ const ProductDetails = ({product}: ProductInfoProps) => {
 
   const variants = product?.variants ?? [];
 
-  // const {addItem, isLoading} = useUserCart();
+  // 🔹 SALE / NEW
+  const hasSale =
+    product.tags?.includes("sale") &&
+    typeof product.oldPrice === "number" &&
+    product.oldPrice > product.price;
 
+  const formatPrice = (value: number) =>
+    Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency: product.currency ?? "GBP",
+    }).format(value);
+
+  // const {addItem, isLoading} = useUserCart();
   const handleAddToCart = async () => {
-    //  if (isAdding || isLoading) return;
-    //   // Sprawdź czy rozmiar jest wymagany ale nie wybrany
-    //   if (variants.length > 0 && !selectedSize) {
-    //     setSizeError(true);
-    //     setTimeout(() => setSizeError(false), 3000);
-    //     return;
-    //   }
-    //   setSizeError(false);
-    //   setIsAdding(true);
-    //   try {
-    //     const cartItem = {
-    //       _id: product._id,
-    //       title: product.title,
-    //       price: product.price,
-    //       imag e: product.images?.[0],
-    //       qty: 1,
-    //       slug: product.slug || product._id,
-    //       size: selectedSize || undefined,
-    //       sku: selectedSize
-    //         ? variants.find((v) => v.size === selectedSize)?.sku
-    //         : undefined,
-    //     };
-    //     await addItem(cartItem);
-    //   } catch (error) {
-    //     console.error("Error adding to cart:", error);
-    //   } finally {
-    //     setIsAdding(false);
-    //   }
+    // TODO: logika koszyka
   };
 
   return (
-    <div className="lg:sticky lg:top-10 px-4  mx-auto lg:px-0">
+    <div className="lg:sticky lg:top-10 px-4 mx-auto lg:px-0">
+      {/* Tytuł */}
       <h1 className="mt-6 text-2xl font-semibold lg:mt-0">{product.title}</h1>
-      <p className="mb-6 text-lg font-medium text-gray-800">
-        {Intl.NumberFormat("en-GB", {
-          style: "currency",
-          currency: product.currency ?? "GBP",
-        }).format(product.price ?? 0)}
-      </p>
 
+      {/* Ceny + badge SALE / NEW */}
+      <div className="mt-3 mb-6 flex flex-wrap items-center gap-3">
+        {/* aktualna cena */}
+        <p className="text-2xl font-semibold text-gray-900">
+          {formatPrice(product.price ?? 0)}
+        </p>
+
+        {/* stara cena */}
+        {hasSale && typeof product.oldPrice === "number" && (
+          <p className="text-sm text-gray-400 line-through">
+            {formatPrice(product.oldPrice)}
+          </p>
+        )}
+      </div>
+
+      {/* Rozmiary */}
       {!!variants.length && (
         <>
           <h2 className="mb-2 font-medium">Select size:</h2>
@@ -111,6 +105,7 @@ const ProductDetails = ({product}: ProductInfoProps) => {
         </>
       )}
 
+      {/* Przycisk dodania do koszyka */}
       <button
         type="button"
         onClick={handleAddToCart}

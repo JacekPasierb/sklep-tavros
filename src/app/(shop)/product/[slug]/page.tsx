@@ -25,48 +25,60 @@ const ProductPage = async ({params}: PageProps) => {
 
   const imageUrls = product.images || [];
 
-  // const product: InterfaceProduct = {
-  //   _id: String(productDoc._id),
-  //   title: String(productDoc.title),
-  //   price: Number(productDoc.price),
-  //   currency: productDoc.currency ? String(productDoc.currency) : undefined,
-  //   images: imageUrls,
-  //   variants: productDoc.variants
-  //     ? productDoc.variants.map(
-  //         (v: {size: string; sku: string; stock: number; color?: string}) => ({
-  //           size: String(v.size),
-  //           sku: String(v.sku),
-  //           stock: Number(v.stock),
-  //           color: v.color ? String(v.color) : undefined,
-  //         })
-  //       )
-  //     : undefined,
-  //   slug: String(productDoc.slug),
-  //   gender: productDoc.gender,
-  //   collectionSlug: productDoc.collectionSlug,
-  // };
-
-  const related = await getRelatedProducts({
+  const relatedProducts = await getRelatedProducts({
     gender: product.gender,
     collectionSlug: product.collectionSlug,
     excludeId: String(product._id),
     limit: 3,
   });
 
-  const relatedProducts = related.map((p) => ({
-    _id: String(p._id),
-    slug: String(p.slug),
-    title: String(p.title),
-    price: Number(p.price),
-    images: p.images || [],
-    gender: String(p.gender),
-    collectionSlug: String(p.collectionSlug),
-  }));
 
+  // Overlay dla sale i new
+  const hasSale =
+  product.tags?.includes("sale") &&
+  typeof product.oldPrice === "number" &&
+  product.oldPrice > product.price;
+
+const isNew = product.tags?.includes("new");
+
+const discountPercent = hasSale
+  ? Math.round(((product.oldPrice! - product.price) / product.oldPrice!) * 100)
+  : 0;
+
+  const overlay = (
+    <>
+      {hasSale && (
+        <span
+          className="
+            absolute left-2 top-2 z-10
+            bg-red-600 text-white text-xs font-bold 
+            px-2 py-0.5 rounded shadow-md tracking-wide
+          "
+        >
+          SALE -{discountPercent}%
+        </span>
+      )}
+  
+      {isNew && (
+        <span
+          className="
+            absolute left-2 bottom-2 z-10
+            inline-flex items-center rounded-full border border-[#F5D96B]
+            bg-black/80 px-2 py-0.5 text-[10px] font-semibold uppercase
+            tracking-[0.15em] text-[#F5D96B]
+          "
+        >
+          NEW
+        </span>
+      )}
+    </>
+  );
+  
+// overlay
   return (
     <section className="mx-auto w-full  lg:py-6 pb-4">
       <article className="grid gap-8 lg:grid-cols-[2fr_1fr] lg:items-start lg:container lg:mx-auto pb-[50px] lg:px-8 ">
-        <ProductGallery images={imageUrls} title={product.title} />
+        <ProductGallery images={imageUrls} title={product.title} overlay={overlay}/>
         <ProductDetails product={product} />
       </article>
       <div>

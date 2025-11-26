@@ -9,11 +9,11 @@ export type TypeProduct = {
   title: string;
   slug: string;
   price: number;
+  oldPrice?: number;
   images?: string[];
   variants?: Variant[];
   currency?: string;
-  gender?: string;
+  gender: "MENS" | "WOMENS" | "UNISEX" | "KIDS";
   collectionSlug?: string;
+  tags?: string[]; 
 };
-
-

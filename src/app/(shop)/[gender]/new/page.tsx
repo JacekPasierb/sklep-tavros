@@ -1,18 +1,18 @@
 import ProductsListPage from "../../../../components/products/ProductsListPage";
-import {getProducts} from "../../../lib/products";
-import type {SortOption} from "../../../../types/filters";
+import { getProducts } from "../../../lib/products";
+import type { SortOption } from "../../../../types/filters";
 
 type PageProps = {
-  params: {gender: "mens" | "womens"};
-  searchParams: {[key: string]: string | string[] | undefined};
+  params: { gender: "mens" | "womens" };
+  searchParams: { [key: string]: string | string[] | undefined };
 };
 
-export default async function GenderSalePage({
-  params,
-  searchParams,
-}: PageProps) {
-  const {gender} = await params;
+const GenderNewPage = async (props: PageProps) => {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
+  const { gender } = params;
 
+  // page
   const pageParam = searchParams.page;
   const currentPage =
     typeof pageParam === "string" && !Number.isNaN(Number(pageParam))
@@ -21,28 +21,30 @@ export default async function GenderSalePage({
 
   // sizes
   const sizeParam = searchParams.size;
-  const sizes = Array.isArray(sizeParam)
-    ? sizeParam
-    : typeof sizeParam === "string"
-    ? [sizeParam]
-    : undefined;
+  const sizes =
+    Array.isArray(sizeParam)
+      ? (sizeParam as string[])
+      : typeof sizeParam === "string"
+      ? [sizeParam]
+      : undefined;
 
   // colors
   const colorParam = searchParams.color;
-  const colors = Array.isArray(colorParam)
-    ? colorParam
-    : typeof colorParam === "string"
-    ? [colorParam]
-    : undefined;
+  const colors =
+    Array.isArray(colorParam)
+      ? (colorParam as string[])
+      : typeof colorParam === "string"
+      ? [colorParam]
+      : undefined;
 
   // sort
   const sortParam = searchParams.sort;
   const sort: SortOption =
     typeof sortParam === "string" ? (sortParam as SortOption) : "newest";
 
-  const {items, total, totalPages, page, limit} = await getProducts({
+  const { items, total, totalPages, page, limit } = await getProducts({
     gender,
-    mode: "sale",
+    mode: "new",
     sizes,
     colors,
     page: currentPage,
@@ -53,7 +55,7 @@ export default async function GenderSalePage({
   return (
     <ProductsListPage
       gender={gender}
-      mode="sale"
+      mode="new"
       products={items}
       selectedSizes={sizes}
       selectedColors={colors}
@@ -64,4 +66,6 @@ export default async function GenderSalePage({
       selectedSort={sort}
     />
   );
-}
+};
+
+export default GenderNewPage;

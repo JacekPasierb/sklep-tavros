@@ -67,8 +67,11 @@ const ProductGallery = ({images = [], title = "Product", overlay}: Props) => {
                 priority={i === 0}
               />
               {overlay && (
-                <div className="absolute top-2 right-2">{overlay}</div>
-              )}
+  <div className="absolute inset-0 pointer-events-none">
+    {overlay}
+  </div>
+)}
+
             </div>
           ))}
         </div>
@@ -141,7 +144,12 @@ const ProductGallery = ({images = [], title = "Product", overlay}: Props) => {
             onClick={openLightbox}
             priority
           />
-          {overlay && <div className="absolute top-4 right-4">{overlay}</div>}
+         {overlay && (
+  <div className="absolute inset-0 pointer-events-none">
+    {overlay}
+  </div>
+)}
+
         </div>
       </div>
 
