@@ -4,6 +4,7 @@
 
 import {SortOption} from "../../types/filters";
 import {TypeProduct} from "../../types/product";
+import EmptyState from "../common/EmptyState";
 import {FiltersBar} from "./FiltersBar";
 import {Pagination} from "./Pagination";
 import ProductCard from "./ProductCard";
@@ -34,6 +35,19 @@ const ProductsListPage = ({
   totalItems,
   pageSize,
 }: Props) => {
+   // 🔹 bazowy path do "Wyczyść filtry" (bez query)
+   const basePath =
+   mode === "all"
+     ? `/${gender}/all`
+     : mode === "bestseller"
+     ? `/${gender}/bestseller`
+     : mode === "sale"
+     ? `/${gender}/sale`
+     : mode === "new"
+     ? `/${gender}/new`
+     : mode === "collection" && collectionSlug
+     ? `/${gender}/collection/${collectionSlug}`
+     : `/${gender}/all`;
   return (
     <section className="container mx-auto px-4 py-8">
       {/* 🔵 Nagłówek TYLKO dla ALL */}
@@ -64,19 +78,18 @@ const ProductsListPage = ({
         </div>
       )}
 
-  {/* 🔵 Nagłówek dla sale */}
-{mode === "sale" && (
-  <h1 className="text-center text-xl font-semibold mb-6">
-    SALE — {gender === "mens" ? "MEN’S" : "WOMEN’S"} COLLECTION
-  </h1>
-)}
-  {/* 🔵 Nagłówek dla new */}
-{mode === "new" && (
-  <h1 className="text-center text-xl font-semibold mb-6">
-    {gender === "mens" ? "MEN’S — NEW IN" : "WOMEN’S — NEW IN"}
-  </h1>
-)}
-
+      {/* 🔵 Nagłówek dla sale */}
+      {mode === "sale" && (
+        <h1 className="text-center text-xl font-semibold mb-6">
+          SALE — {gender === "mens" ? "MEN’S" : "WOMEN’S"} COLLECTION
+        </h1>
+      )}
+      {/* 🔵 Nagłówek dla new */}
+      {mode === "new" && (
+        <h1 className="text-center text-xl font-semibold mb-6">
+          {gender === "mens" ? "MEN’S — NEW IN" : "WOMEN’S — NEW IN"}
+        </h1>
+      )}
 
       {/* 🔵 Nagłówek dla collection */}
       {mode === "collection" && collectionSlug && (
@@ -99,22 +112,28 @@ const ProductsListPage = ({
         selectedColors={selectedColors}
       />
 
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 mt-6">
-        {products.map((product) => (
-          <ProductCard key={product._id} product={product} />
-        ))}
-        {products.length === 0 && <p>Brak produktów do wyświetlenia.</p>}
-      </section>
-      {/* 🔹 Paginacja */}
-      {totalPages > 1 && (
-        <div className="mt-8 flex flex-col items-center gap-2">
-          <p className="text-sm text-gray-500">
-            Wyświetlane {(currentPage - 1) * pageSize + 1}–
-            {Math.min(currentPage * pageSize, totalItems)} z {totalItems}{" "}
-            produktów
-          </p>
-          <Pagination currentPage={currentPage} totalPages={totalPages} />
-        </div>
+{products.length === 0 ? (
+        <EmptyState path={basePath} />
+      ) : (
+        <>
+          <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 mt-6">
+            {products.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </section>
+
+          {/* 🔹 Paginacja tylko jeśli są produkty */}
+          {totalPages > 1 && (
+            <div className="mt-8 flex flex-col items-center gap-2">
+              <p className="text-sm text-gray-500">
+                Wyświetlane {(currentPage - 1) * pageSize + 1}–
+                {Math.min(currentPage * pageSize, totalItems)} z {totalItems}{" "}
+                produktów
+              </p>
+              <Pagination currentPage={currentPage} totalPages={totalPages} />
+            </div>
+          )}
+        </>
       )}
     </section>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 
-const EmptyProducts = ({path}: {path: string}) => {
+const EmptyState = ({path}: {path: string}) => {
   return (
     <div className="mt-10 flex flex-col items-center justify-center rounded-2xl   px-6 py-12 text-center">
       {/* Prosta ikonka „pusta półka” */}
@@ -73,4 +73,4 @@ const EmptyProducts = ({path}: {path: string}) => {
   );
 };
 
-export default EmptyProducts;
+export default EmptyState;
