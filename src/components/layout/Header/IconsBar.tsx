@@ -7,7 +7,7 @@ const actions = [
   {href: "/account/favorites", label: "Wishlist", icon: Heart},
 ];
 
-const IconsAction = () => {
+const IconsBar = () => {
   return (
     <div className="flex gap-1 justify-self-end md:gap-4">
       <ul
@@ -36,4 +36,4 @@ const IconsAction = () => {
   );
 };
 
-export default IconsAction;
+export default IconsBar;

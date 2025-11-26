@@ -28,7 +28,7 @@ const socials = [
   },
 ];
 
-export default function SocialMedia() {
+const SocialSection=()=> {
   return (
     <section className="container mx-auto px-4 py-6 text-center">
       <div className="flex justify-center gap-8 text-3xl">
@@ -51,3 +51,5 @@ export default function SocialMedia() {
     </section>
   );
 }
+
+export default SocialSection;

@@ -1,5 +1,5 @@
 import ProductsListPage from "../../../../components/products/ProductsListPage";
-import { getProducts } from "../../../lib/products";
+import { getProducts } from "../../../../lib/products";
 import type { SortOption } from "../../../../types/filters";
 
 type PageProps = {

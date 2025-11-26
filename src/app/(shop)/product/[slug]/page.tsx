@@ -5,7 +5,7 @@ import {notFound} from "next/navigation";
 // import {InterfaceProduct} from "../../types/globalTypes";
 
 // import Slider from "../../components/Slider";
-import {getProductBySlug, getRelatedProducts} from "../../../lib/products";
+import {getProductBySlug, getRelatedProducts} from "../../../../lib/products";
 
 import ProductDetails from "../../../../components/products/ProductDetails";
 import Slider from "../../../../components/products/Slider";

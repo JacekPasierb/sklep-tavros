@@ -1,6 +1,6 @@
 import React from "react";
 
-const PromoBar = () => {
+const PromotionSection = () => {
   return (
     <section className="bg-[#f6f6f6]">
       <div className="container mx-auto grid place-items-center gap-0.5  py-1.5 text-center">
@@ -15,4 +15,4 @@ const PromoBar = () => {
   );
 };
 
-export default PromoBar;
+export default PromotionSection;

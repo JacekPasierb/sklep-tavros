@@ -11,7 +11,7 @@ const paymentMethods = [
   {src: "/icons/payments/apple.svg", alt: "Apple Pay"},
 ];
 
-export default function PaymentMethods() {
+const PaymentsSection = () =>{
   return (
     <section className="container mx-auto max-w-7xl px-4 py-10">
       <h2 className="mb-6 text-center text-lg font-semibold tracking-tight text-neutral-800">
@@ -35,3 +35,5 @@ export default function PaymentMethods() {
     </section>
   );
 }
+
+export default PaymentsSection;

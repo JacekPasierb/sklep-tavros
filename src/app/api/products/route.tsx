@@ -1,6 +1,6 @@
 import {NextRequest, NextResponse} from "next/server";
-import {connectToDatabase} from "../../lib/mongodb";
-import Product from "../../models/Product";
+import {connectToDatabase} from "../../../lib/mongodb";
+import Product from "../../../models/Product";
 
 type SortKey = "newest" | "price_asc" | "price_desc" | "popular" | "title_asc";
 

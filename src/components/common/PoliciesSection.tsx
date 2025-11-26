@@ -8,7 +8,7 @@ const legalLinks = [
   { href: "/cookie-policy", label: "Cookie Policy" },
 ];
 
-export default function LegalLinks() {
+const PoliciesSection = ()=> {
   return (
     <div className="mb-6 flex flex-col items-center space-y-2 text-sm text-neutral-600">
         <h2 className="mb-6 text-center text-lg font-semibold tracking-tight text-neutral-800">
@@ -26,3 +26,5 @@ export default function LegalLinks() {
     </div>
   );
 }
+
+export default PoliciesSection;

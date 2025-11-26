@@ -1,7 +1,7 @@
 //Nowy
 // lib/productsService.ts
-import {SortOption} from "../../types/filters";
-import {TypeProduct} from "../../types/product";
+import {SortOption} from "../types/filters";
+import {TypeProduct} from "../types/product";
 
 import Product from "../models/Product";
 import {connectToDatabase} from "./mongodb";

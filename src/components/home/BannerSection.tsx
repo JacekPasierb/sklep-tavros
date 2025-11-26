@@ -7,7 +7,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import Link from "next/link";
 
-const Banner = () => {
+const BannerSection = () => {
   return (
     <section className=" md:grid md:grid-cols-2 ">
       {/* Mobile swiper */}
@@ -39,7 +39,7 @@ const Banner = () => {
                   href="/mens/new"
                   className="rounded-2xl bg-white px-6 py-2 text-lg font-bold uppercase text-black shadow hover:bg-black hover:text-white transition"
                 >
-                  Mens New Collection
+                  Mens New
                 </Link>
               </div>
             </div>
@@ -59,7 +59,7 @@ const Banner = () => {
                   href="/womens/new"
                   className="rounded-2xl bg-white px-6 py-2 text-lg font-bold uppercase text-black shadow hover:bg-black hover:text-white transition"
                 >
-                  Womens New Collection
+                  Womens New
                 </Link>
               </div>
             </div>
@@ -108,4 +108,4 @@ const Banner = () => {
   );
 };
 
-export default Banner;
+export default BannerSection;

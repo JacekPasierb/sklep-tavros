@@ -2,9 +2,10 @@
 
 import {Menu} from "lucide-react";
 import React, {useState} from "react";
-import Logo from "../components/Logo";
-import IconsAction from "../components/IconsAction";
-import MobileMenu from "../components/MobileMenu";
+import Logo from "./Logo";
+import MobileMenu from "./MobileMenu";
+import IconsBar from "./IconsBar";
+
 
 const Header = () => {
   const [open, setOpen] = useState(false);
@@ -22,7 +23,7 @@ const Header = () => {
           <Menu className="h-6 w-6" />
         </button>
         <Logo />
-        <IconsAction />
+        <IconsBar />
       </div>
       <MobileMenu open={open} onClose={() => setOpen(false)} />
     </header>

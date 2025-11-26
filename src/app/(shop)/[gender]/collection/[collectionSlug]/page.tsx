@@ -3,7 +3,7 @@
 import ProductsListPage from "../../../../../components/products/ProductsListPage";
 
 import type {SortOption} from "../../../../../types/filters";
-import {getProducts} from "../../../../lib/products";
+import {getProducts} from "../../../../../lib/products";
 
 type PageProps = {
   params: {
