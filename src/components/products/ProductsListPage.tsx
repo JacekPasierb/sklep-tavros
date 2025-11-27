@@ -35,19 +35,19 @@ const ProductsListPage = ({
   totalItems,
   pageSize,
 }: Props) => {
-   // 🔹 bazowy path do "Wyczyść filtry" (bez query)
-   const basePath =
-   mode === "all"
-     ? `/${gender}/all`
-     : mode === "bestseller"
-     ? `/${gender}/bestseller`
-     : mode === "sale"
-     ? `/${gender}/sale`
-     : mode === "new"
-     ? `/${gender}/new`
-     : mode === "collection" && collectionSlug
-     ? `/${gender}/collection/${collectionSlug}`
-     : `/${gender}/all`;
+  // 🔹 bazowy path do "Wyczyść filtry" (bez query)
+  const basePath =
+    mode === "all"
+      ? `/${gender}/all`
+      : mode === "bestseller"
+      ? `/${gender}/bestseller`
+      : mode === "sale"
+      ? `/${gender}/sale`
+      : mode === "new"
+      ? `/${gender}/new`
+      : mode === "collection" && collectionSlug
+      ? `/${gender}/collection/${collectionSlug}`
+      : `/${gender}/all`;
   return (
     <section className="container mx-auto px-4 py-8">
       {/* 🔵 Nagłówek TYLKO dla ALL */}
@@ -112,7 +112,7 @@ const ProductsListPage = ({
         selectedColors={selectedColors}
       />
 
-{products.length === 0 ? (
+      {products.length === 0 ? (
         <EmptyState path={basePath} />
       ) : (
         <>
