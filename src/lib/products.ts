@@ -7,7 +7,7 @@ import Product from "../models/Product";
 import {connectToDatabase} from "./mongodb";
 
 type GetProductsOptions = {
-  gender?: "mens" | "womens";
+  gender?: "mens" | "womens" | "kids";
   mode?: "all" | "bestseller" | "collection" | "sale" | "new";
   collectionSlug?: string;
   sizes?: string[];

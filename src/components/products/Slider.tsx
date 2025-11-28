@@ -12,9 +12,10 @@ import {TypeProduct} from "../../types/product";
 type Props = {
   products: TypeProduct[];
   title: string;
+  showCollectionLink?: boolean; 
 };
 
-export default function Slider({products, title}: Props) {
+export default function Slider({products, title, showCollectionLink = true}: Props) {
   const sliderRef = useRef<HTMLDivElement>(null);
   const [isHover, setIsHover] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -144,7 +145,7 @@ export default function Slider({products, title}: Props) {
         </div>
 
         {/* Link do kolekcji */}
-        {collectionSlug && (
+        {collectionSlug && showCollectionLink && (
           <div className="mt-8 flex justify-center">
             <Link
               href={`/${gender}/collection/${collectionSlug}`}

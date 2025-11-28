@@ -1,25 +1,40 @@
+// app/(shop)/page.tsx
 import BannerSection from "../../components/home/BannerSection";
-import HomeCollectionsSection from "../../components/home/HomeCollectionsSection";
+import HomeGenderSection from "../../components/home/HomeGenderSection";
 import {getCollections} from "../../lib/collections";
+import {getProducts} from "../../lib/products";
 
-const Home = async () => {
-  // const collections = await getCollections();
-  const [mens, womens, kids] = await Promise.all([
-    getCollections({gender: "mens"}),
-    getCollections({gender: "womens"}),
-    getCollections({gender: "kids"}),
+export default async function HomePage() {
+  // 1. Kolekcje dla wszystkich płci
+  const [mensCollections, womensCollections, kidsCollections] =
+    await Promise.all([
+      getCollections({gender: "mens"}),
+      getCollections({gender: "womens"}),
+      getCollections({gender: "kids"}),
+    ]);
+
+  // 2. Bestsellery dla wszystkich płci
+  const [mensBest, womensBest, kidsBest] = await Promise.all([
+    getProducts({gender: "mens", mode: "bestseller", limit: 8}),
+    getProducts({gender: "womens", mode: "bestseller", limit: 8}),
+    getProducts({gender: "kids", mode: "bestseller", limit: 8}),
   ]);
 
-  // const mens = collections.filter((c) => c.gender.includes("mens"));
-  // const womens = collections.filter((c) => c.gender.includes("womens"));
-  // const kids = collections.filter((c) => c.gender.includes("kids"));
   return (
     <>
       <BannerSection />
-      {/* <CollectionsTabsSection mens={mens} womens={womens} kids={kids} /> */}
-      <HomeCollectionsSection initialCollections={{mens, womens, kids}} />
+      <HomeGenderSection
+        collectionsByGender={{
+          mens: mensCollections,
+          womens: womensCollections,
+          kids: kidsCollections,
+        }}
+        bestsellersByGender={{
+          mens: mensBest.items,
+          womens: womensBest.items,
+          kids: kidsBest.items,
+        }}
+      />
     </>
   );
-};
-
-export default Home;
+}
