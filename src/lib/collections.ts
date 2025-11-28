@@ -1,15 +1,26 @@
-import { connectToDatabase } from "./mongodb";
+import {connectToDatabase} from "./mongodb";
 import Collection from "../models/Collection";
-import { Gender, TypeCollection } from "../types/collection";
-
+import {Gender, TypeCollection} from "../types/collection";
 
 type GetCollectionsOptions = {
-  gender?: Extract<Gender, "mens" | "womens" | "kids">;
+  gender?: Gender;
   limit?: number;
 };
 
-export async function getCollections(options: GetCollectionsOptions = {}) {
-  const { gender, limit } = options;
+type CollectionMongoDoc = {
+  _id: {toString(): string};
+  slug: string;
+  name: string;
+  gender: string[];
+  heroImage?: string;
+  sortOrder?: number;
+  isFeatured?: boolean;
+};
+
+export async function getCollections(
+  options: GetCollectionsOptions = {}
+): Promise<TypeCollection[]> {
+  const {gender, limit} = options;
 
   await connectToDatabase();
 
@@ -17,36 +28,30 @@ export async function getCollections(options: GetCollectionsOptions = {}) {
 
   if (gender) {
     // w DB trzymasz MENS/WOMENS/KIDS
-    query.gender = gender.toUpperCase();
+    query.gender = {$in: [gender.toUpperCase()]};
   }
 
-  const docs = Collection.find(query)
-    .sort({ sortOrder: 1 })
+  const docs = await Collection.find(query)
+    .sort({sortOrder: 1})
     .limit(limit ?? 0) // 0 = bez limitu
-    .lean();
+    .lean<CollectionMongoDoc[]>() // ⬅️ typujemy wynik
+    .exec();
 
+  const items: TypeCollection[] = docs.map((doc: CollectionMongoDoc) => {
+    const genders: Gender[] = Array.isArray(doc.gender)
+      ? doc.gender.map((g) => g.toLowerCase() as Gender)
+      : [];
 
-
-    const items: TypeCollection[] = docs.map((doc: any) => {
-      // gender może być stringiem ALBO tablicą (["MENS","WOMENS"])
-      const rawGender = Array.isArray(doc.gender)
-        ? doc.gender[0] // bierzemy pierwszy jako "główny"
-        : doc.gender;
-  
-      const normalizedGender: Gender =
-        typeof rawGender === "string"
-          ? (rawGender.toLowerCase() as Gender)
-          : "mens";
-  
-      return {
-        _id: doc._id.toString(),
-        name: doc.name,
-        slug: doc.slug,
-        gender: normalizedGender,
-        heroImage: doc.heroImage ?? undefined,
-        sortOrder: doc.sortOrder ?? undefined,
-      };
-    });
+    return {
+      _id: doc._id.toString(),
+      name: doc.name,
+      slug: doc.slug,
+      gender: genders, // ← teraz tablica
+      heroImage: doc.heroImage,
+      sortOrder: doc.sortOrder,
+      isFeatured: doc.isFeatured ?? false,
+    };
+  });
 
   return items;
 }

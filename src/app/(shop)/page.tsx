@@ -1,18 +1,23 @@
 import BannerSection from "../../components/home/BannerSection";
-import CollectionsTabsSection from "../../components/home/CollectionsTagsSection";
-import { getCollections } from "../../lib/collections";
+import HomeCollectionsSection from "../../components/home/HomeCollectionsSection";
+import {getCollections} from "../../lib/collections";
 
-const Home = async() => {
-  const collections = await getCollections();
-console.log("kolekcja",collections);
+const Home = async () => {
+  // const collections = await getCollections();
+  const [mens, womens, kids] = await Promise.all([
+    getCollections({gender: "mens"}),
+    getCollections({gender: "womens"}),
+    getCollections({gender: "kids"}),
+  ]);
 
-  const mens = collections.filter((c) => c.gender.includes("mens"));
-  const womens = collections.filter((c) => c.gender.includes("womens"));
-  const kids = collections.filter((c) => c.gender.includes("kids"));
+  // const mens = collections.filter((c) => c.gender.includes("mens"));
+  // const womens = collections.filter((c) => c.gender.includes("womens"));
+  // const kids = collections.filter((c) => c.gender.includes("kids"));
   return (
     <>
       <BannerSection />
-      <CollectionsTabsSection mens={mens} womens={womens} kids={kids} />
+      {/* <CollectionsTabsSection mens={mens} womens={womens} kids={kids} /> */}
+      <HomeCollectionsSection initialCollections={{mens, womens, kids}} />
     </>
   );
 };

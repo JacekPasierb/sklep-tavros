@@ -1,32 +1,47 @@
 // components/home/CollectionCard.tsx
 import Image from "next/image";
 import Link from "next/link";
-import type { TypeCollection } from "../../types/collection";
+import type {Gender} from "../../types/collection";
 
-type Props = {
-  collection: TypeCollection;
-  gender: "mens" | "womens" | "kids";
+export type CollectionCardProps = {
+  slug: string;
+  name: string;
+  heroImage?: string;
+  gender: Gender; // pojedynczy gender do href
 };
 
-const CollectionCard = ({ collection, gender }: Props) => {
-  const href = `/${gender}/collection/${collection.slug}`;
-  const img = collection.heroImage ?? "/placeholder-collection.webp";
+const CollectionCard = ({
+  slug,
+  name,
+  heroImage,
+  gender,
+}: CollectionCardProps) => {
+  const href = `/${gender}/collection/${slug}`;
 
   return (
-    <Link href={href} className="group block w-full">
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-neutral-100">
-        <Image
-          src={img}
-          alt={collection.name}
-          fill
-          sizes="(min-width: 1024px) 20vw, 50vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+    <Link href={href} className="block w-full group">
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-md bg-gray-100">
+        {heroImage && (
+          <Image
+            src={heroImage}
+            alt={name}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        )}
 
-        {/* overlay z nazwą */}
-        <div className="pointer-events-none absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/55 via-black/5 to-transparent">
-          <span className="mb-4 px-3 text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-white md:text-xs">
-            {collection.name}
+        {/* pełny overlay z tekstem pośrodku */}
+        <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/10 transition-colors">
+          <span
+            className="
+              px-2 text-center
+              text-sm sm:text-base md:text-lg
+              font-extrabold tracking-[0.18em]
+              text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]
+              uppercase
+            "
+          >
+            {name}
           </span>
         </div>
       </div>
