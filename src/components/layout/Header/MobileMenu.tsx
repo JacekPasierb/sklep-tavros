@@ -24,7 +24,7 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
   // ✅ POBIERANIE KOLEKCJI Z API (tylko gdy menu otwarte)
   const { data, isLoading, error } = useSWR(
     open ? [`/api/collections`, tab] : null,      // klucz tablicowy
-    ([base, t]) => fetcher(`${base}?gender=${t}`), // budowanie URL w fetcherze
+    ([base, t]) => fetcher(`${base}?gender=${t.toLowerCase()}`), // budowanie URL w fetcherze
     {
       keepPreviousData: true,
       revalidateOnFocus: false,
