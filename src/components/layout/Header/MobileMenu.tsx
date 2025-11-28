@@ -178,7 +178,7 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
                 <Image src="/icons/logo.svg" alt="Brand logo" width={120} height={40} className="h-auto w-32 object-contain" />
               </div>
               <div className="grid w-full grid-cols-2 gap-3">
-                <Link href="/account/register" onClick={onClose} className="rounded-full border border-zinc-300 bg-white py-2 text-sm font-medium hover:border-zinc-400 hover:shadow-sm">
+                <Link href="/register" onClick={onClose} className="rounded-full border border-zinc-300 bg-white py-2 text-sm font-medium hover:border-zinc-400 hover:shadow-sm">
                   Create Account
                 </Link>
                 <Link href="/account/signin" onClick={onClose} className="rounded-full bg-black py-2 text-sm font-semibold text-white hover:bg-zinc-900">
