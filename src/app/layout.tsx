@@ -7,6 +7,7 @@ import SocialSection from "../components/common/SocialSection";
 import PoliciesSection from "../components/common/PoliciesSection";
 import PaymentsSection from "../components/common/PaymentsSection";
 import Footer from "../components/layout/Footer/Footer";
+import AuthSessionProvider from "../components/auth/AuthSessionProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+         <AuthSessionProvider>
         <Header />
         <main>
           <PromotionSection />
@@ -44,6 +46,7 @@ export default function RootLayout({
           <PaymentsSection />
           <Footer />
         </main>
+        </AuthSessionProvider>
       </body>
     </html>
   );

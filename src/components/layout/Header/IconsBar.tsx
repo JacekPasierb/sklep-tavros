@@ -3,7 +3,7 @@ import Link from "next/link";
 import React from "react";
 
 const actions = [
-  {href: "/account/myaccount", label: "My account", icon: User},
+  {href: "/account", label: "My account", icon: User},
   {href: "/account/favorites", label: "Wishlist", icon: Heart},
 ];
 

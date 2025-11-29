@@ -45,7 +45,7 @@ export default function RegisterPage() {
     setServerError(null);
 
     try {
-      const res = await fetch("/api/register", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(values),
@@ -53,7 +53,7 @@ export default function RegisterPage() {
 
       if (res.status === 201) {
         // po udanej rejestracji kierujemy na logowanie
-        router.push("/account/signin?reason=registered");
+        router.push("/signin?reason=registered");
         return;
       }
 

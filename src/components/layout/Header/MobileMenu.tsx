@@ -181,7 +181,7 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
                 <Link href="/register" onClick={onClose} className="rounded-full border border-zinc-300 bg-white py-2 text-sm font-medium hover:border-zinc-400 hover:shadow-sm">
                   Create Account
                 </Link>
-                <Link href="/account/signin" onClick={onClose} className="rounded-full bg-black py-2 text-sm font-semibold text-white hover:bg-zinc-900">
+                <Link href="/signin" onClick={onClose} className="rounded-full bg-black py-2 text-sm font-semibold text-white hover:bg-zinc-900">
                   Log in
                 </Link>
               </div>
