@@ -54,11 +54,11 @@ const EmptyState = ({path}: {path: string}) => {
       </svg>
 
       <h2 className="mb-2 text-lg font-semibold text-neutral-900">
-        Brak produktów spełniających kryteria
+      No products found
       </h2>
       <p className="mb-6 max-w-md text-sm text-neutral-600">
-        Spróbuj zmienić rozmiar, kolor lub inne filtry. Możesz też wyczyścić
-        wszystkie filtry i zobaczyć całą kolekcję.
+      Try adjusting the size, colour or other filters.  
+      You can also clear all filters to view the full collection.
       </p>
 
       <div className="flex flex-wrap items-center justify-center gap-3">
@@ -66,7 +66,7 @@ const EmptyState = ({path}: {path: string}) => {
           href={path}
           className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white hover:bg-black/90"
         >
-          Wyczyść filtry
+        Clear filters
         </a>
       </div>
     </div>

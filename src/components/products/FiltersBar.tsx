@@ -141,7 +141,7 @@ export function FiltersBar({
       </div>
       {/* 🔹 Sortowanie */}
       <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-500">Sortuj:</span>
+        <span className="text-sm text-gray-500">Sort by:</span>
         <select
           value={selectedSort ?? "newest"}
           onChange={(e) =>
@@ -149,9 +149,9 @@ export function FiltersBar({
           }
           className="border rounded px-3 py-1 text-sm"
         >
-          <option value="newest">Najnowsze</option>
-          <option value="price_asc">Cena: od najniższej</option>
-          <option value="price_desc">Cena: od najwyższej</option>
+          <option value="newest">Newest</option>
+          <option value="price_asc">Price, low to high</option>
+          <option value="price_desc">Price: high to low</option>
         </select>
       </div>
     </div>

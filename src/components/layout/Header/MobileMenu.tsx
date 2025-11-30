@@ -2,19 +2,31 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { X, ChevronRight } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import {X, ChevronRight} from "lucide-react";
+import {useEffect, useMemo, useState} from "react";
 import useSWR from "swr";
+import {useSession, signOut} from "next-auth/react";
+import {useRouter} from "next/navigation";
 
-type MobileMenuProps = { open: boolean; onClose: () => void };
-type ApiCollectionItem = { label: string; href: string; img?: string };
+type MobileMenuProps = {open: boolean; onClose: () => void};
+type ApiCollectionItem = {label: string; href: string; img?: string};
+type AppSessionUser = {
+  firstName?: string | null;
+  name?: string | null;
+  email?: string | null;
+};
 
-const fetcher = (url: string) => fetch(url, { cache: "no-store" }).then(r => r.json());
+const fetcher = (url: string) =>
+  fetch(url, {cache: "no-store"}).then((r) => r.json());
 const accent = "emerald-600";
 
-export default function MobileMenu({ open, onClose }: MobileMenuProps) {
+export default function MobileMenu({open, onClose}: MobileMenuProps) {
   const [tab, setTab] = useState<"MENS" | "WOMENS" | "KIDS">("MENS");
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  const {data: session, status} = useSession();
+  const isAuthed = status === "authenticated";
+  const router = useRouter();
 
   useEffect(() => {
     document.body.classList.toggle("overflow-hidden", open);
@@ -22,32 +34,32 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
   }, [open]);
 
   // ✅ POBIERANIE KOLEKCJI Z API (tylko gdy menu otwarte)
-  const { data, isLoading, error } = useSWR(
-    open ? [`/api/collections`, tab] : null,      // klucz tablicowy
-    ([base, t]) => fetcher(`${base}?gender=${t.toLowerCase()}`), // budowanie URL w fetcherze
+  const {data, isLoading, error} = useSWR(
+    open ? [`/api/collections`, tab] : null,
+    ([base, t]) => fetcher(`${base}?gender=${t.toLowerCase()}`),
     {
       keepPreviousData: true,
       revalidateOnFocus: false,
       revalidateIfStale: true,
       revalidateOnMount: true,
-      dedupingInterval: 0, // wymuś odświeżenie przy zmianie tab
+      dedupingInterval: 0,
     }
   );
+
   // ✅ Statyczne pozycje + dynamiczne „Shop By Collection"
   const panels = useMemo(() => {
     const collections: ApiCollectionItem[] = data?.items ?? [];
-    
+
     const base = [
-      { label: "New In", href: `/${tab.toLowerCase()}/new`, special: true },
-      { label: "Shop All", href: `/${tab.toLowerCase()}/all` },
-      { label: "Best Seller", href: `/${tab.toLowerCase()}/bestseller` },
-      { label: "Sale", href: `/${tab.toLowerCase()}/sale` },
+      {label: "New In", href: `/${tab.toLowerCase()}/new`, special: true},
+      {label: "Shop All", href: `/${tab.toLowerCase()}/all`},
+      {label: "Best Seller", href: `/${tab.toLowerCase()}/bestseller`},
+      {label: "Sale", href: `/${tab.toLowerCase()}/sale`},
     ];
 
     const dynamicCollections = {
       label: "Shop By Collection",
-      children:
-        collections.map((c) => ({ label: c.label, href: c.href })) // href już gotowy z API
+      children: collections.map((c) => ({label: c.label, href: c.href})),
     };
 
     return [...base, dynamicCollections];
@@ -55,6 +67,15 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
 
   const toggleSection = (label: string) =>
     setExpanded((prev) => (prev === label ? null : label));
+
+  // pomocniczo do wyświetlenia nazwy
+  const appUser = session?.user as AppSessionUser | undefined;
+  
+  const userLabel =
+  appUser?.firstName ||
+  appUser?.name ||
+  appUser?.email ||
+  "My account";
 
   return (
     <>
@@ -125,7 +146,9 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
                       {expanded === it.label && (
                         <ul className="px-2 pb-2">
                           {isLoading && (
-                            <li className="px-3 py-2 text-sm text-zinc-500">Loading…</li>
+                            <li className="px-3 py-2 text-sm text-zinc-500">
+                              Loading…
+                            </li>
                           )}
                           {error && (
                             <li className="px-3 py-2 text-sm text-red-600">
@@ -133,7 +156,9 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
                             </li>
                           )}
                           {!isLoading && !error && it.children!.length === 0 && (
-                            <li className="px-3 py-2 text-sm text-zinc-500">No collections</li>
+                            <li className="px-3 py-2 text-sm text-zinc-500">
+                              No collections
+                            </li>
                           )}
                           {it.children!.map((c) => (
                             <li key={c.href}>
@@ -154,7 +179,7 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
                       href={it.href!}
                       onClick={onClose}
                       className={`block rounded-xl border border-zinc-200 px-4 py-3 text-[15px] font-medium shadow-sm transition hover:shadow ${
-                        (it).special
+                        (it as any).special
                           ? "bg-gradient-to-r from-black to-zinc-800 text-white"
                           : "bg-white"
                       }`}
@@ -170,22 +195,87 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
           {/* BOTTOM */}
           <div
             className="flex-none border-t bg-zinc-50/60 px-5 py-5"
-            style={{ paddingBottom: "calc(env(safe-area-inset-bottom,0px)+0.75rem)" }}
+            style={{
+              paddingBottom:
+                "calc(env(safe-area-inset-bottom,0px)+0.75rem)",
+            }}
           >
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="space-y-1">
-                <p className="text-xs tracking-[0.25em] text-zinc-500">TAVROS</p>
-                <Image src="/icons/logo.svg" alt="Brand logo" width={120} height={40} className="h-auto w-32 object-contain" />
+                <p className="text-xs tracking-[0.25em] text-zinc-500">
+                  TAVROS
+                </p>
+                <Image
+                  src="/icons/logo.svg"
+                  alt="Brand logo"
+                  width={120}
+                  height={40}
+                  className="h-auto w-32 object-contain"
+                />
               </div>
-              <div className="grid w-full grid-cols-2 gap-3">
-                <Link href="/register" onClick={onClose} className="rounded-full border border-zinc-300 bg-white py-2 text-sm font-medium hover:border-zinc-400 hover:shadow-sm">
-                  Create Account
-                </Link>
-                <Link href="/signin" onClick={onClose} className="rounded-full bg-black py-2 text-sm font-semibold text-white hover:bg-zinc-900">
-                  Log in
-                </Link>
-              </div>
-              <p className="text-[11px] leading-snug text-zinc-500">Save favourites, track orders & checkout faster.</p>
+
+              {!isAuthed ? (
+                <>
+                  <div className="grid w-full grid-cols-2 gap-3">
+                    <Link
+                      href="/register"
+                      onClick={onClose}
+                      className="rounded-full border border-zinc-300 bg-white py-2 text-sm font-medium hover:border-zinc-400 hover:shadow-sm"
+                    >
+                      Create Account
+                    </Link>
+                    <Link
+                      href="/signin"
+                      onClick={onClose}
+                      className="rounded-full bg-black py-2 text-sm font-semibold text-white hover:bg-zinc-900"
+                    >
+                      Log in
+                    </Link>
+                  </div>
+                  <p className="text-[11px] leading-snug text-zinc-500">
+                    Save favourites, track orders & checkout faster.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-zinc-600">
+                    Signed in as{" "}
+                    <span className="font-semibold">{userLabel}</span>
+                  </p>
+                  <div className="grid w-full grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        router.push("/account");
+                      }}
+                      className="rounded-full border border-zinc-300 bg-white py-2 text-sm font-medium hover:border-zinc-400 hover:shadow-sm"
+                    >
+                      My account
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        router.push("/favorites");
+                      }}
+                      className="rounded-full border border-zinc-300 bg-white py-2 text-sm font-medium hover:border-zinc-400 hover:shadow-sm"
+                    >
+                      Favourites
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      onClose();
+                      await signOut({callbackUrl: "/"}); // po wylogowaniu na home
+                    }}
+                    className="mt-2 w-full rounded-full bg-black py-2 text-sm font-semibold text-white hover:bg-zinc-900"
+                  >
+                    Log out
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -17,7 +17,7 @@ const Logo = () => {
         className="h-8 w-8 md:h-10 md:w-10 lg:h-12 lg:w-12"
         priority
       />
-      <span className="text-[20px] tracking-[0.3em] md:tracking-[0.6em] lg:text-[22px]">
+      <span className="text-[20px] tracking-[0.3em]  font-semibold uppercase text-zinc-500 md:tracking-[0.6em] lg:text-[22px]">
         TAVROS
       </span>
     </Link>
