@@ -1,40 +1,37 @@
 import mongoose from "mongoose";
 
 const MONGODB_URI = process.env.MONGO_URI!;
-
 if (!MONGODB_URI) {
-  throw new Error("⚠️ Brakuje zmiennej środowiskowej MONGODB_URI");
+  throw new Error("⚠️ Missing MONGO_URI environment variable.");
 }
 
-declare global {
-  const mongoose: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
-  };
+interface MongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
 }
 
-const globalWithMongoose = global as typeof globalThis & {
-  mongoose?: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
-  };
+// używamy globalThis żeby cache nie resetował się przy hot-reload
+const globalWithCache = globalThis as unknown as {
+  _mongoose?: MongooseCache;
 };
 
-const cached = (globalWithMongoose.mongoose ??= {
+const cache: MongooseCache = globalWithCache._mongoose ?? {
   conn: null,
   promise: null,
-});
+};
+
+globalWithCache._mongoose = cache;
 
 export async function connectToDatabase() {
-  if (cached.conn) return cached.conn;
+  if (cache.conn) return cache.conn;
 
-  if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, {
+  if (!cache.promise) {
+    cache.promise = mongoose.connect(MONGODB_URI, {
       dbName: "Tavros",
       bufferCommands: false,
     });
   }
 
-  cached.conn = await cached.promise;
-  return cached.conn;
+  cache.conn = await cache.promise;
+  return cache.conn;
 }
