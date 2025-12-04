@@ -10,6 +10,7 @@ export type Product = {
     imageUrl: string;
   };
   
+  
   export const products: Product[] = [
     {
       id: "1",
