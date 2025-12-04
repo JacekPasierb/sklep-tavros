@@ -4,7 +4,7 @@ export type Product = {
     slug: string;
     name: string;
     price: number;
-    gender: "mens" | "women";
+    gender: "mens" | "womens";
     collectionSlug?: string;
     isBestseller?: boolean;
     imageUrl: string;
