@@ -1,16 +1,63 @@
+// components/products/ProductCard.tsx
 "use client";
 
 import Link from "next/link";
 import Image from "next/image";
+import {Heart, X} from "lucide-react";
+import {useSession} from "next-auth/react";
+import {useEffect, useMemo, useState} from "react";
+
 import {TypeProduct} from "../../types/product";
+    import {useFavoritesStore} from "../../store/favoritesStore";
+    import {useUserFavorites} from "../../lib/useUserFavorites";
 
 type Props = {
   product: TypeProduct;
+  showHeart?: boolean;         // na liście true, na stronie /favorites można dać false
+  onRemoved?: (id: string) => void;
 };
 
-export default function ProductCard({product}: Props) {
+export default function ProductCard({
+  product,
+  showHeart = true,
+  onRemoved,
+}: Props) {
+  const {status} = useSession();
+  const isLoggedIn = status === "authenticated";
+
+  // 👇 prosty, standardowy guard na hydrację (żeby SSR == 1. render klienta)
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  // ------- GUEST (Zustand) -------
+  const isFavGuest = useFavoritesStore((s) => s.isFavorite(product._id));
+  const toggleGuest = useFavoritesStore((s) => s.toggle);
+  const removeGuest = useFavoritesStore((s) => s.remove);
+
+  // ------- USER (API + SWR) -------
+  const {
+    ids: serverFavIds,
+    add,
+    remove,
+    isLoading: favsLoading,
+  } = useUserFavorites();
+
+  const isFavUser = useMemo(
+    () => serverFavIds?.has(product._id) ?? false,
+    [serverFavIds, product._id]
+  );
+
+  const [busy, setBusy] = useState(false);
+
+  // dopóki nie zhydratujemy, traktujemy jak nie-ulubiony,
+  // żeby nie rozjechać się z HTML-em z SSR
+  const fav = hydrated ? (isLoggedIn ? isFavUser : isFavGuest) : false;
+
   const mainImage = product.images?.[0] ?? "/placeholder.png";
-// sprawdzamy czy sale
+
+  // ------- SALE / NEW --------
   const hasSale =
     product.tags?.includes("sale") &&
     typeof product.oldPrice === "number" &&
@@ -22,32 +69,68 @@ export default function ProductCard({product}: Props) {
       )
     : 0;
 
+  const isNew = product.tags?.includes("new");
+
   const formatPrice = (value: number) =>
     Intl.NumberFormat("en-GB", {
       style: "currency",
       currency: product.currency ?? "GBP",
     }).format(value);
-// sprawdzamy czy sale
-//sprawdzamy czy new
-const isNew = product.tags?.includes("new");
 
-//sprawdzamy czy new
+  const disabled = busy || (isLoggedIn && favsLoading);
+
+  // ------- HANDLERY ULUBIONYCH -------
+  async function toggleFavorite() {
+    if (disabled) return;
+
+    // gość – tylko lokalny store
+    if (!isLoggedIn) {
+      toggleGuest(product._id);
+      return;
+    }
+
+    // zalogowany – sync z API
+    try {
+      setBusy(true);
+      if (isFavUser) {
+        await remove(product._id);
+      } else {
+        await add(product._id);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeFavorite() {
+    if (disabled) return;
+
+    if (!isLoggedIn) {
+      removeGuest(product._id);
+      onRemoved?.(product._id);
+      return;
+    }
+
+    try {
+      setBusy(true);
+      await remove(product._id);
+      onRemoved?.(product._id);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <article className="flex flex-col">
-      {/* OBRAZEK + BADGE SALE */}
-      <Link href={`/product/${product.slug}`} className="block">
-        <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-100 rounded-md">
-          
-          {/* 🔥 SALE BADGE — czerwone, premium, na obrazku */}
+      {/* IMAGE + BADGES */}
+      <Link href={`/product/${product.slug}`} className="block group">
+        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-md bg-gray-100">
           {hasSale && (
-            <span className="
-              absolute top-2 left-2 z-[5]
-              bg-red-600 text-white 
-              text-xs font-bold 
-              px-2 py-0.5 rounded 
-              shadow-md tracking-wide
-            ">
+            <span className="absolute left-2 top-2 z-[5] rounded bg-red-600 px-2 py-0.5 text-xs font-bold tracking-wide text-white shadow-md">
               SALE -{discountPercent}%
             </span>
           )}
@@ -57,49 +140,79 @@ const isNew = product.tags?.includes("new");
             alt={product.title}
             fill
             sizes="(min-width: 1024px) 25vw, 50vw"
-            className="object-cover transition-transform duration-300 hover:scale-105"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
 
-
-{isNew && (
-    <span
-      className="absolute bottom-2 left-2 z-[5]
-                 inline-flex items-center
-                 rounded-full border border-[#F5D96B]
-                 bg-black/80 px-2 py-0.5
-                 text-[10px] font-semibold uppercase
-                 tracking-[0.15em] text-[#F5D96B]
-                 shadow-sm"
-    >
-      NEW MODEL
-    </span>
-  )}
-
-
-        </div>
-      </Link>
-
-      {/* NAZWA PRODUKTU */}
-      <div className="mt-3">
-        <Link
-          href={`/product/${product.slug}`}
-          className="text-sm font-medium text-gray-900 line-clamp-2"
-        >
-          {product.title}
-        </Link>
-
-        {/* CENA */}
-        <div className="mt-1 flex items-baseline gap-2">
-          {hasSale && product.oldPrice && (
-            <span className="text-xs text-gray-400 line-through">
-              {formatPrice(product.oldPrice)}
+          {isNew && (
+            <span className="absolute bottom-2 left-2 z-[5] inline-flex items-center rounded-full border border-[#F5D96B] bg-black/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-[#F5D96B] shadow-sm">
+              NEW MODEL
             </span>
           )}
 
-          <span className="text-sm font-semibold text-gray-900">
-            {formatPrice(product.price)}
-          </span>
+          {/* HEART – tylko po hydracji, żeby nie było warningów z Reacta */}
+          {showHeart && hydrated && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleFavorite();
+              }}
+              className="absolute right-2 top-2 rounded-full bg-white/80 p-1 shadow hover:bg-white"
+              aria-label={fav ? "Remove from wishlist" : "Add to wishlist"}
+              aria-pressed={fav}
+              disabled={disabled}
+              title={fav ? "In wishlist" : "Add to wishlist"}
+            >
+              <Heart
+                className={`h-5 w-5 ${
+                  fav ? "fill-red-500 text-red-500" : "text-zinc-700"
+                }`}
+              />
+            </button>
+          )}
         </div>
+      </Link>
+
+      {/* TITLE + PRICE */}
+      <div className="mt-3 flex items-start justify-between">
+        <div>
+          <Link
+            href={`/product/${product.slug}`}
+            className="line-clamp-2 text-sm font-medium text-gray-900"
+          >
+            {product.title}
+          </Link>
+
+          <div className="mt-1 flex items-baseline gap-2">
+            {hasSale && product.oldPrice && (
+              <span className="text-xs text-gray-400 line-through">
+                {formatPrice(product.oldPrice)}
+              </span>
+            )}
+
+            <span className="text-sm font-semibold text-gray-900">
+              {formatPrice(product.price)}
+            </span>
+          </div>
+        </div>
+
+        {/* opcjonalny krzyżyk np. na stronie /favorites */}
+        {!showHeart && onRemoved && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              removeFavorite();
+            }}
+            className="ml-2 rounded-full bg-red-100 p-1 hover:bg-red-200"
+            aria-label="Remove from wishlist"
+            disabled={disabled}
+          >
+            <X className="h-4 w-4 text-red-600" />
+          </button>
+        )}
       </div>
     </article>
   );

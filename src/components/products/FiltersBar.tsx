@@ -3,20 +3,18 @@
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 
 const SIZES = ["S", "M", "L", "XL"];
-const COLORS = ["black", "silver", "gold"];
+const COLORS = ["black", "white"];
 
 type SortOption = "newest" | "price_asc" | "price_desc" | undefined;
 
 type FiltersBarProps = {
   selectedSizes?: string[];
   selectedColors?: string[];
-  
 };
 
 export function FiltersBar({
   selectedSizes = [],
   selectedColors = [],
-
 }: FiltersBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();

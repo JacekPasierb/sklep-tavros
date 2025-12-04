@@ -30,9 +30,8 @@ const IconsBar = () => {
   const userName =
     session?.user?.name || session?.user?.email?.split("@")[0] || "My account";
 
-  const wishlistHref = isAuthenticated
-    ? "/account/favorites"
-    : "/signin?reason=favorites";
+  const wishlistHref = "/favorites";
+    
 
   return (
     <div className="flex gap-1 justify-self-end md:gap-4">
@@ -85,7 +84,7 @@ const IconsBar = () => {
                       My account
                     </Link>
                     <Link
-                      href="/account/favorites"
+                      href="/favorites"
                       onClick={() => setUserMenuOpen(false)}
                       className="rounded-lg px-3 py-2 text-left hover:bg-zinc-50"
                     >
