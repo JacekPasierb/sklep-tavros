@@ -1,6 +1,7 @@
 // app/(auth)/signin/page.tsx
 import { Suspense } from "react";
-import SignInClient from "./SignInClient";
+import SignInClient from "./SigninClient";
+
 
 export default function SignInPage() {
   return (
