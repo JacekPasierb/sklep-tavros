@@ -4,7 +4,6 @@
 import { useState } from "react";
 import type { TypeCollection, Gender } from "../../types/collection";
 import CollectionsGrid from "./CollectionsGrid";
-import type { CollectionCardProps } from "./CollectionCard";
 import GenderTabs from "./GendersTab";
 
 type GenderTab = "mens" | "womens" | "kids";
@@ -22,18 +21,13 @@ const HomeCollectionsSection = ({ initialCollections }: Props) => {
 
   const collections = initialCollections[activeGender] ?? [];
 
-  const itemsForGrid: CollectionCardProps[] = collections.map((c) => ({
-    slug: c.slug,
-    name: c.name,
-    heroImage: c.heroImage,
-    // bierzemy pierwszy gender z tablicy jako „główny”
-    gender: (c.gender[0] ?? activeGender) as Gender,
-  }));
-
   return (
     <section className="w-full">
       <GenderTabs active={activeGender} onChange={setActiveGender} />
-      <CollectionsGrid items={itemsForGrid} />
+      <CollectionsGrid
+        items={collections}
+        activeGender={activeGender as Extract<Gender, "mens" | "womens" | "kids">}
+      />
     </section>
   );
 };
