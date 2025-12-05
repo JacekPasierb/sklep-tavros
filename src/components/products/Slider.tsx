@@ -47,11 +47,7 @@ export default function Slider({products, title, showCollectionLink = true}: Pro
 
   // 🟢 HOOKI SĄ JUŻ WYWOŁANE – TERAZ MOŻEMY ZROBIĆ EARLY RETURN
   if (!products.length) {
-    return (
-      <div className="container py-10 text-center text-gray-500">
-        No products to display.
-      </div>
-    );
+    return null;
   }
 
   const first = products[0];
