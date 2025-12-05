@@ -2,6 +2,7 @@ type Variant = {
   size: string;
   sku: string;
   stock: number;
+  color: string; 
 };
 
 export type TypeProduct = {

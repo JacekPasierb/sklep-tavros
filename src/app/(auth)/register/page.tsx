@@ -1,9 +1,9 @@
 "use client";
 
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import {Formik, Form, Field, ErrorMessage} from "formik";
 import * as Yup from "yup";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import {useRouter} from "next/navigation";
+import {useState} from "react";
 
 interface FormValues {
   firstName: string;
@@ -77,7 +77,8 @@ export default function RegisterPage() {
           Create your account
         </h1>
         <p className="mb-6 text-center text-sm text-zinc-600">
-          Zapisz ulubione produkty, śledź zamówienia i szybciej finalizuj zakupy.
+          Zapisz ulubione produkty, śledź zamówienia i szybciej finalizuj
+          zakupy.
         </p>
 
         {serverError && (
@@ -193,8 +194,9 @@ export default function RegisterPage() {
                   className="mt-1 h-4 w-4 rounded border-zinc-300 text-black focus:ring-black"
                 />
                 <span className="text-xs leading-relaxed text-zinc-700">
-                  Chcę otrzymywać e-maile z nowościami, promocjami i wcześniejszym dostępem
-                  do wyprzedaży. Możesz wypisać się w każdej chwili.
+                  Chcę otrzymywać e-maile z nowościami, promocjami i
+                  wcześniejszym dostępem do wyprzedaży. Możesz wypisać się w
+                  każdej chwili.
                 </span>
               </label>
 
@@ -210,7 +212,7 @@ export default function RegisterPage() {
                 Masz już konto?{" "}
                 <button
                   type="button"
-                  onClick={() => router.push("/account/signin")}
+                  onClick={() => router.push("/signin")}
                   className="font-medium text-black underline-offset-2 hover:underline"
                 >
                   Log in

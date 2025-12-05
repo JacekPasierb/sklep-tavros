@@ -3,25 +3,22 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import {Heart, X} from "lucide-react";
+import {Heart} from "lucide-react";
 import {useSession} from "next-auth/react";
 import {useEffect, useMemo, useState} from "react";
 
 import {TypeProduct} from "../../types/product";
-    import {useFavoritesStore} from "../../store/favoritesStore";
-    import {useUserFavorites} from "../../lib/useUserFavorites";
+import {useFavoritesStore} from "../../store/favoritesStore";
+import {useUserFavorites} from "../../lib/useUserFavorites";
+import { TrashX } from "../icons/TrashX";
 
 type Props = {
   product: TypeProduct;
-  showHeart?: boolean;         // na liście true, na stronie /favorites można dać false
+  showHeart?: boolean; // na liście true, na stronie /favorites można dać false
   onRemoved?: (id: string) => void;
 };
 
-export default function ProductCard({
-  product,
-  showHeart = true,
-  onRemoved,
-}: Props) {
+const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
   const {status} = useSession();
   const isLoggedIn = status === "authenticated";
 
@@ -175,7 +172,7 @@ export default function ProductCard({
       </Link>
 
       {/* TITLE + PRICE */}
-      <div className="mt-3 flex items-start justify-between">
+      <div className="mt-3 flex  justify-between items-center">
         <div>
           <Link
             href={`/product/${product.slug}`}
@@ -206,14 +203,16 @@ export default function ProductCard({
               e.stopPropagation();
               removeFavorite();
             }}
-            className="ml-2 rounded-full bg-red-100 p-1 hover:bg-red-200"
+            className="ml-2  p-1 border border-zinc-200 align-middle hover:cursor-pointer "
             aria-label="Remove from wishlist"
             disabled={disabled}
           >
-            <X className="h-4 w-4 text-red-600" />
+               <TrashX className="text-zinc-700" size={18} />
           </button>
         )}
       </div>
     </article>
   );
-}
+};
+
+export default ProductCard;
