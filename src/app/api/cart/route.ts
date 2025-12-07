@@ -100,9 +100,9 @@ export async function DELETE(req: Request) {
 
   // 🔹 wariant 1: czyścimy cały koszyk
   if (clearAll) {
-    user.cart = [];
+    user.cart.splice(0, user.cart.length);
     await user.save();
-    return NextResponse.json({ok: true});
+    return NextResponse.json({ ok: true });
   }
 
   // 🔹 wariant 2: usuwamy tylko konkretną pozycję (dotychczasowa logika)
