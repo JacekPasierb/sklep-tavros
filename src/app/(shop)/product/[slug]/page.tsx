@@ -1,17 +1,9 @@
 import {notFound} from "next/navigation";
-// import ProductGallery from "../../components/ProductGallery";
-
-// import ProductInfo from "../../components/ProductInfo";
-// import {InterfaceProduct} from "../../types/globalTypes";
-
-// import Slider from "../../components/Slider";
 import {getProductBySlug, getRelatedProducts} from "../../../../lib/products";
 
 import ProductDetails from "../../../../components/products/ProductDetails";
 import Slider from "../../../../components/products/Slider";
 import ProductGallery from "../../../../components/products/ProductGallery/ProductGallery";
-
-// import {getProductBySlug, getRelatedProducts} from "../../lib/products1";
 
 type PageProps = {
   params: {slug: string};
@@ -32,18 +24,21 @@ const ProductPage = async ({params}: PageProps) => {
     limit: 3,
   });
 
-
-  // Overlay dla sale i new
+  // Overlay dla sale
   const hasSale =
-  product.tags?.includes("sale") &&
-  typeof product.oldPrice === "number" &&
-  product.oldPrice > product.price;
+    product.tags?.includes("sale") &&
+    typeof product.oldPrice === "number" &&
+    product.oldPrice > product.price;
 
-const isNew = product.tags?.includes("new");
+  // Overlay dla new
+  const isNew = product.tags?.includes("new");
 
-const discountPercent = hasSale
-  ? Math.round(((product.oldPrice! - product.price) / product.oldPrice!) * 100)
-  : 0;
+  // Obliczanie zniżki
+  const discountPercent = hasSale
+    ? Math.round(
+        ((product.oldPrice! - product.price) / product.oldPrice!) * 100
+      )
+    : 0;
 
   const overlay = (
     <>
@@ -58,7 +53,7 @@ const discountPercent = hasSale
           SALE -{discountPercent}%
         </span>
       )}
-  
+
       {isNew && (
         <span
           className="
@@ -73,12 +68,15 @@ const discountPercent = hasSale
       )}
     </>
   );
-  
-// overlay
+
   return (
     <section className="mx-auto w-full  lg:py-6 pb-4">
-      <article className="grid gap-8 lg:grid-cols-[2fr_1fr] lg:items-start lg:container lg:mx-auto pb-[50px] lg:px-8 ">
-        <ProductGallery images={imageUrls} title={product.title} overlay={overlay}/>
+      <article className="grid gap-8  lg:grid-cols-[2fr_1fr] lg:items-start lg:container lg:mx-auto pb-[50px] lg:px-8 ">
+        <ProductGallery
+          images={imageUrls}
+          title={product.title}
+          overlay={overlay}
+        />
         <ProductDetails product={product} />
       </article>
       <div>

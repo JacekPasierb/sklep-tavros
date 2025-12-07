@@ -1,41 +1,62 @@
 "use client";
+
 import {useEffect, useMemo, useState} from "react";
-import {TypeProduct} from "../../types/product";
 import {useSession} from "next-auth/react";
-import {useUserFavorites} from "../../lib/useUserFavorites";
-import {useFavoritesStore} from "../../store/favoritesStore";
 import {Heart, ShoppingBag} from "lucide-react";
 
+import type {TypeProduct} from "../../types/product";
+import {useUserFavorites} from "../../lib/useUserFavorites";
+import {useFavoritesStore} from "../../store/favoritesStore";
 import {useUserCart} from "../../lib/useUserCart";
-
-import { useCartStore } from "../../store/cartStore";
+import {useCartStore} from "../../store/cartStore";
 
 interface ProductInfoProps {
   product: TypeProduct;
 }
 
+/**
+ * ProductDetails
+ *
+ * - Obsługuje:
+ *   • ulubione (guest: Zustand, user: API + SWR)
+ *   • dodawanie do koszyka (guest: localStorage/Zustand, user: MongoDB + SWR)
+ *   • wybór wariantu (kolor + rozmiar)
+ */
 const ProductDetails = ({product}: ProductInfoProps) => {
-  
-
-  // ---------- ULUBIONE ----------
+  // ─────────────────────────────────────────────────────────────
+  //  AUTH / SESSION
+  // ─────────────────────────────────────────────────────────────
   const {status} = useSession();
   const isLoggedIn = status === "authenticated";
 
+  // HYDRATION GUARD
+  // -------------------------------------------------
+  // Zabezpieczenie przed błędami hydratacji (hydration mismatch),
+  // gdy używamy Zustand/SWR + SSR w Next.js.
+  //
+  // Na serwerze nie mamy dostępu do localStorage i stanów klienckich,
+  // więc wartości ulubionych/koszyka mogą być inne niż po stronie klienta.
+  // Używamy `hydrated`, żeby dopiero po pierwszym useEffect
+  // korzystać z danych zależnych od przeglądarki.
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
     setHydrated(true);
   }, []);
 
-  // GUEST – Zustand
-  const isFavGuest = useFavoritesStore((s) => s.isFavorite(product._id));
-  const toggleGuest = useFavoritesStore((s) => s.toggle);
+  // ─────────────────────────────────────────────────────────────
+  //  FAVORITES: GUEST (Zustand) + USER (API + SWR)
+  // ─────────────────────────────────────────────────────────────
 
-  // USER – API + SWR (favorites)
+  // gość – stan w localStorage (Zustand)
+  const isFavGuest = useFavoritesStore((s) => s.isFavorite(product._id));
+  const toggleGuestFavorite = useFavoritesStore((s) => s.toggle);
+
+  // zalogowany – ulubione z backendu (SWR + /api/favorites)
   const {
     ids: serverFavIds,
-    add,
-    remove,
-    isLoading: favsLoading,
+    add: addFavorite,
+    remove: removeFavorite,
+    isLoading: favoritesLoading,
   } = useUserFavorites(isLoggedIn);
 
   const isFavUser = useMemo(
@@ -43,37 +64,47 @@ const ProductDetails = ({product}: ProductInfoProps) => {
     [serverFavIds, product._id]
   );
 
-  const [busyFav, setBusyFav] = useState(false);
+  const [favoritePending, setFavoritePending] = useState(false);
 
-  const fav = hydrated ? (isLoggedIn ? isFavUser : isFavGuest) : false;
-  const favDisabled = busyFav || (isLoggedIn && favsLoading);
+  // finalny stan ulubionych widoczny w UI
+  const isFavorite = hydrated ? (isLoggedIn ? isFavUser : isFavGuest) : false;
+  const favoriteDisabled = favoritePending || (isLoggedIn && favoritesLoading);
 
-  async function toggleFavorite() {
-    if (favDisabled) return;
+  const handleToggleFavorite = async () => {
+    if (favoriteDisabled) return;
 
+    // gość – tylko lokalny store
     if (!isLoggedIn) {
-      toggleGuest(product._id);
+      toggleGuestFavorite(product._id);
       return;
     }
 
+    // user – sync z API
     try {
-      setBusyFav(true);
+      setFavoritePending(true);
       if (isFavUser) {
-        await remove(product._id);
+        await removeFavorite(product._id);
       } else {
-        await add(product._id);
+        await addFavorite(product._id);
       }
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error("toggleFavorite error:", error);
     } finally {
-      setBusyFav(false);
+      setFavoritePending(false);
     }
-  }
+  };
 
-  // ---------- KOSZYK ----------
-  const {addItem, isLoading: cartLoading} = useUserCart();
+  // ─────────────────────────────────────────────────────────────
+  //  CART: GUEST (Zustand) + USER (API + SWR)
+  // ─────────────────────────────────────────────────────────────
 
-  // ---------- ROZMIARY / KOLORY / CENY ----------
+  // user – koszyk w MongoDB, obsługiwany przez SWR
+  const {addItem, isLoading: cartLoading} = useUserCart(isLoggedIn);
+
+  // ─────────────────────────────────────────────────────────────
+  //  VARIANTS: COLORS, SIZES, PRICES
+  // ─────────────────────────────────────────────────────────────
+
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
@@ -81,16 +112,21 @@ const ProductDetails = ({product}: ProductInfoProps) => {
 
   const variants = useMemo(() => product?.variants ?? [], [product]);
 
-  // czy mamy kolory
-  const hasColorVariants = variants.some((v) => v.color);
-  const colors = useMemo(() => {
-    if (!variants.some((v) => v.color)) return [];
-    return Array.from(
-      new Set(variants.map((v) => v.color).filter(Boolean))
-    );
-  }, [variants]);
+  // czy produkt ma warianty kolorystyczne
+  const hasColorVariants = useMemo(
+    () => variants.some((v) => v.color),
+    [variants]
+  );
 
-  // ⭐ domyślny kolor = pierwszy z listy
+  // lista dostępnych kolorów
+  const colors = useMemo(() => {
+    if (!hasColorVariants) return [];
+    return Array.from(
+      new Set(variants.map((v) => v.color).filter(Boolean) as string[])
+    );
+  }, [variants, hasColorVariants]);
+
+  // domyślny kolor = pierwszy dostępny
   useEffect(() => {
     if (hasColorVariants && colors.length && !selectedColor) {
       setSelectedColor(colors[0]);
@@ -98,11 +134,12 @@ const ProductDetails = ({product}: ProductInfoProps) => {
   }, [hasColorVariants, colors, selectedColor]);
 
   // rozmiary dla wybranego koloru, albo wszystkie jeśli brak kolorów
-  const sizeOptions = hasColorVariants
-    ? selectedColor
-      ? variants.filter((v) => v.color === selectedColor)
-      : []
-    : variants;
+  const sizeOptions = useMemo(() => {
+    if (!variants.length) return [];
+    if (!hasColorVariants) return variants;
+    if (!selectedColor) return [];
+    return variants.filter((v) => v.color === selectedColor);
+  }, [variants, hasColorVariants, selectedColor]);
 
   const hasSale =
     product.tags?.includes("sale") &&
@@ -117,66 +154,68 @@ const ProductDetails = ({product}: ProductInfoProps) => {
 
   const needsColor = hasColorVariants;
 
-  const disableAdd =
+  const disableAddToCart =
     cartLoading ||
     (!!sizeOptions.length && !selectedSize) ||
     (needsColor && !selectedColor) ||
     isAdding;
 
-    const handleAddToCart = async () => {
-      const chosenVariant = variants.find(
-        (v) =>
-          v.size === selectedSize &&
-          (!hasColorVariants || v.color === selectedColor)
-      );
-    
-      if (!chosenVariant) {
-        setSizeError(true);
-        return;
-      }
-    
-      // --- 1. GOŚĆ → localStorage (Zustand) ---
-      if (!isLoggedIn) {
-        useCartStore.getState().add({
-          key: "", // zostanie wygenerowany
-          productId: String(product._id),
-          slug: product.slug,
-          title: product.title,
-          price: product.price,
-          image: product.images?.[0],
-          qty: 1,
-          size: chosenVariant.size,
-          color: chosenVariant.color,
-        });
-    
-       
-        return;
-      }
-    
-      // --- 2. USER → MongoDB + SWR ---
-      try {
-        setIsAdding(true);
-    
-        await addItem({
-          productId: String(product._id),
-          size: chosenVariant.size,
-          color: chosenVariant.color,
-          qty: 1,
-        });
-    
-       
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsAdding(false);
-      }
-    };
-    
+  const handleAddToCart = async () => {
+    // znajdź wybrany wariant
+    const chosenVariant = variants.find(
+      (v) =>
+        v.size === selectedSize &&
+        (!hasColorVariants || v.color === selectedColor)
+    );
+
+    if (!chosenVariant) {
+      setSizeError(true);
+      return;
+    }
+
+    // 1) GOŚĆ → zapis w localStorage (Zustand)
+    if (!isLoggedIn) {
+      useCartStore.getState().add({
+        // klucz wariantu wygeneruje store – tu placeholder
+        key: "",
+        productId: String(product._id),
+        slug: product.slug,
+        title: product.title,
+        price: product.price,
+        image: product.images?.[0],
+        qty: 1,
+        size: chosenVariant.size,
+        color: chosenVariant.color,
+      });
+      return;
+    }
+
+    // 2) USER → zapis w MongoDB + odświeżenie przez SWR
+    try {
+      setIsAdding(true);
+      await addItem({
+        productId: String(product._id),
+        size: chosenVariant.size,
+        color: chosenVariant.color,
+        qty: 1,
+      });
+      // można tu dodać toast "Added to bag"
+    } catch (error) {
+      console.error("addToCart error:", error);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────
+  //  RENDER
+  // ─────────────────────────────────────────────────────────────
 
   return (
-    <div className="mx-auto px-4 lg:sticky lg:top-10 lg:px-0">
+    <div className="mx-auto  px-4 md:max-w-lg md:w-full
+    lg:sticky lg:top-10 lg:px-0">
       {/* HEADER: title + price + heart */}
-      <div className="mt-6 flex items-start justify-between gap-4 lg:mt-0">
+      <div className="mt-6 flex items-start justify-between gap-4 md:lg:mt-0">
         <div>
           <h1 className="text-2xl font-semibold">{product.title}</h1>
 
@@ -196,15 +235,15 @@ const ProductDetails = ({product}: ProductInfoProps) => {
         {hydrated && (
           <button
             type="button"
-            onClick={toggleFavorite}
-            disabled={favDisabled}
+            onClick={handleToggleFavorite}
+            disabled={favoriteDisabled}
             className="mt-1 inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 bg-white hover:border-zinc-400 hover:bg-zinc-50 disabled:opacity-50"
-            aria-label={fav ? "Remove from wishlist" : "Add to wishlist"}
-            aria-pressed={fav}
+            aria-label={isFavorite ? "Remove from wishlist" : "Add to wishlist"}
+            aria-pressed={isFavorite}
           >
             <Heart
               className={`h-7 w-7 ${
-                fav ? "fill-black text-black" : "text-zinc-700"
+                isFavorite ? "fill-black text-black" : "text-zinc-700"
               }`}
             />
           </button>
@@ -280,9 +319,9 @@ const ProductDetails = ({product}: ProductInfoProps) => {
                     }}
                     disabled={disabled}
                     aria-pressed={selected}
-                    aria-label={`Size ${v.size}${
-                      v.color ? ` ${v.color}` : ""
-                    }${disabled ? " (out of stock)" : ""}`}
+                    aria-label={`Size ${v.size}${v.color ? ` ${v.color}` : ""}${
+                      disabled ? " (out of stock)" : ""
+                    }`}
                     className={[
                       "relative group flex h-11 min-w-[3rem] w-full items-center justify-center rounded-full border text-sm font-medium tracking-wide transition",
                       selected
@@ -314,7 +353,7 @@ const ProductDetails = ({product}: ProductInfoProps) => {
       <button
         type="button"
         onClick={handleAddToCart}
-        disabled={disableAdd}
+        disabled={disableAddToCart}
         className="
           mt-2 inline-flex w-full items-center justify-center gap-2
           rounded-full border border-transparent bg-black
