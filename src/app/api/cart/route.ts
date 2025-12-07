@@ -91,21 +91,28 @@ export async function DELETE(req: Request) {
   if (!session?.user?.email)
     return NextResponse.json({error: "Unauthorized"}, {status: 401});
 
-  const {productId, size, color} = await req.json();
+  const {productId, size, color, clearAll} = await req.json();
 
   const user = await User.findOne({email: session.user.email});
   if (!user) {
     return NextResponse.json({error: "User not found"}, {status: 404});
   }
-  
-  // Usuń elementy z DocumentArray - znajdź ID elementów do usunięcia i użyj pull()
+
+  // 🔹 wariant 1: czyścimy cały koszyk
+  if (clearAll) {
+    user.cart = [];
+    await user.save();
+    return NextResponse.json({ok: true});
+  }
+
+  // 🔹 wariant 2: usuwamy tylko konkretną pozycję (dotychczasowa logika)
   const itemsToRemove = user.cart.filter(
-    (i) =>
+    (i: CartEntry) =>
       i.product.toString() === productId &&
       i.size === size &&
       i.color === color
   );
-  
+
   itemsToRemove.forEach((item) => {
     user.cart.pull(item._id);
   });

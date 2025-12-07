@@ -1,24 +1,27 @@
+// components/cart/CartDrawer.tsx
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import {X, Minus, Plus} from "lucide-react";
-import {useMemo} from "react";
-import {useSession} from "next-auth/react";
+import { X, Minus, Plus } from "lucide-react";
+import { useMemo } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-import {useCartUiStore} from "../../store/cartUiStore";
-import {useCartStore} from "../../store/cartStore";
-import {useUserCart} from "../../lib/useUserCart";
-import type {CartItem} from "../../types/cart";
+import { useCartUiStore } from "../../store/cartUiStore";
+import { useCartStore } from "../../store/cartStore";
+import { useUserCart } from "../../lib/useUserCart";
+import type { CartItem } from "../../types/cart";
 
-type UiCartItem = CartItem & {key?: string};
+type UiCartItem = CartItem & { key?: string };
 
 const FREE_SHIPPING_THRESHOLD = 125; // £125 – próg darmowej dostawy
 
 export const CartDrawer = () => {
-  const {isOpen, close} = useCartUiStore();
+  const { isOpen, close } = useCartUiStore();
+  const router = useRouter();
 
-  const {status} = useSession();
+  const { status } = useSession();
   const isLoggedIn = status === "authenticated";
 
   // ---- KOSZYK USERA (API) ----
@@ -36,7 +39,7 @@ export const CartDrawer = () => {
   const getGuestSubtotal = useCartStore((s) => s.getSubtotal);
   const getGuestCount = useCartStore((s) => s.getTotalItems);
 
-  const guestItems: (CartItem & {key: string})[] = useMemo(
+  const guestItems: (CartItem & { key: string })[] = useMemo(
     () =>
       Object.entries(guestRawItems)
         .sort(([, a], [, b]) => b.addedAt - a.addedAt)
@@ -137,6 +140,12 @@ export const CartDrawer = () => {
       currency: "GBP",
     }).format(value);
 
+  const handleCheckout = () => {
+    if (!items.length) return; // safety
+    close(); // zamknięcie szuflady, żeby UX był czysty
+    router.push("/checkout"); // pełnoekranowa strona z formularzem
+  };
+
   return (
     <>
       {/* backdrop */}
@@ -199,7 +208,10 @@ export const CartDrawer = () => {
                         {formatPrice(freeShippingLeft)}
                       </span>{" "}
                       away from{" "}
-                      <span className="font-semibold">free express delivery</span>.
+                      <span className="font-semibold">
+                        free express delivery
+                      </span>
+                      .
                     </>
                   ) : (
                     <span className="font-semibold text-emerald-600">
@@ -214,7 +226,7 @@ export const CartDrawer = () => {
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-200">
                 <div
                   className="h-full rounded-full bg-zinc-900 transition-[width] duration-300"
-                  style={{width: `${freeShippingProgress}%`}}
+                  style={{ width: `${freeShippingProgress}%` }}
                 />
               </div>
             </div>
@@ -373,6 +385,7 @@ export const CartDrawer = () => {
           </div>
 
           <button
+            onClick={handleCheckout}
             type="button"
             disabled={!items.length}
             className="
