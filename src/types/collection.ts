@@ -9,3 +9,4 @@ export type TypeCollection = {
   sortOrder?: number;
   isFeatured: boolean;
 };
+ 
