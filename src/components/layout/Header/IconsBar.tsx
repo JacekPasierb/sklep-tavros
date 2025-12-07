@@ -4,11 +4,56 @@
 import {Heart, ShoppingBag, User} from "lucide-react";
 import Link from "next/link";
 import {useSession, signOut} from "next-auth/react";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
+import {useCartUiStore} from "../../../store/cartUiStore";
+import {useCartStore} from "../../../store/cartStore";
+import {CartDrawer} from "../../cart/CartDrawer";
+import { useUserCart } from "../../../lib/useUserCart";
+import {CartItem} from "../../../types/cart";
 
 const IconsBar = () => {
   const {data: session, status} = useSession();
   const isAuthenticated = status === "authenticated";
+
+  
+  const openCart = useCartUiStore((s) => s.open);
+
+// ---- GOŚĆ: licznik z Zustand ----
+const guestRawItems = useCartStore((s) => s.items);
+const guestCount = useMemo(
+  () =>
+    Object.values(guestRawItems).reduce(
+      (sum, item) => sum + item.qty,
+      0
+    ),
+  [guestRawItems]
+);
+
+// ---- USER: licznik z API (/api/cart) ----
+const { cart } = useUserCart(isAuthenticated); // tylko jeśli zalogowany
+const userCount = useMemo(
+  () => (cart ? cart.reduce((sum: number, item: CartItem) => sum + item.qty, 0) : 0),
+  [cart]
+);
+
+ // ---- HYDRATION GUARD ----
+ const [hydrated, setHydrated] = useState(false);
+ useEffect(() => {
+   const timer = setTimeout(() => setHydrated(true), 0);
+   return () => clearTimeout(timer);
+ }, []);
+
+
+   // liczba do wyświetlenia w badge
+   const cartCount = hydrated
+   ? isAuthenticated
+     ? userCount
+     : guestCount
+   : 0;
+
+  
+
+ 
 
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLLIElement | null>(null);
@@ -31,29 +76,29 @@ const IconsBar = () => {
     session?.user?.name || session?.user?.email?.split("@")[0] || "My account";
 
   const wishlistHref = "/favorites";
-    
 
   return (
-    <div className="flex gap-1 justify-self-end md:gap-4">
-      <ul
-        className="flex gap-1 justify-self-end md:gap-4"
-        aria-label="Header actions"
-      >
-        {/* USER + DROPDOWN (DESKTOP) */}
-        <li ref={userMenuRef} className="relative hidden lg:block">
-          <button
-            type="button"
-            aria-label="Account menu"
-            aria-expanded={userMenuOpen}
-            onClick={() => setUserMenuOpen((prev) => !prev)}
-            className="grid h-9 w-9 place-items-center lg:h-12 lg:w-12"
-          >
-            <User className="h-6 w-6" />
-          </button>
+    <>
+      <div className="flex gap-1 justify-self-end md:gap-4">
+        <ul
+          className="flex gap-1 justify-self-end md:gap-4"
+          aria-label="Header actions"
+        >
+          {/* USER + DROPDOWN (DESKTOP) */}
+          <li ref={userMenuRef} className="relative hidden lg:block">
+            <button
+              type="button"
+              aria-label="Account menu"
+              aria-expanded={userMenuOpen}
+              onClick={() => setUserMenuOpen((prev) => !prev)}
+              className="grid h-9 w-9 place-items-center lg:h-12 lg:w-12"
+            >
+              <User className="h-6 w-6" />
+            </button>
 
-          {userMenuOpen && (
-            <div
-              className="
+            {userMenuOpen && (
+              <div
+                className="
                 absolute right-0 top-full translate-y-5
                 min-w-[260px]
                 rounded-b-2xl rounded-t-none
@@ -61,115 +106,129 @@ const IconsBar = () => {
                 bg-white/95 py-3 text-sm
                 shadow-xl backdrop-blur-sm
               "
+              >
+                {isAuthenticated ? (
+                  <>
+                    <div className="px-4 pb-3">
+                      <p className="text-xs uppercase tracking-wide text-zinc-500">
+                        Signed in as
+                      </p>
+                      <p className="truncate text-sm font-medium text-zinc-900">
+                        {userName}
+                      </p>
+                    </div>
+
+                    <div className="border-t border-zinc-100" />
+
+                    <div className="flex flex-col gap-1 px-2 py-2">
+                      <Link
+                        href="/account"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="rounded-lg px-3 py-2 text-left hover:bg-zinc-50"
+                      >
+                        My account
+                      </Link>
+                      <Link
+                        href="/favorites"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="rounded-lg px-3 py-2 text-left hover:bg-zinc-50"
+                      >
+                        Wishlist
+                      </Link>
+                    </div>
+
+                    <div className="border-t border-zinc-100" />
+
+                    <div className="px-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => signOut({callbackUrl: "/"})}
+                        className="w-full rounded-full bg-black px-4 py-2.5 text-xs font-semibold text-white hover:bg-black/90"
+                      >
+                        Log out
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="px-4 pb-3">
+                      <p className="text-xs tracking-[0.16em] text-zinc-500">
+                        TAVROS
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        Save favourites, track orders & checkout faster.
+                      </p>
+                    </div>
+
+                    <div className="border-t border-zinc-100" />
+
+                    <div className="flex flex-col gap-2 px-3 pt-3 pb-2">
+                      <Link
+                        href="/register"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="w-full rounded-full border border-zinc-300 bg-white px-4 py-2.5 text-[13px] font-medium text-zinc-900 hover:border-zinc-400 hover:bg-zinc-50 hover:shadow-sm"
+                      >
+                        Create account
+                      </Link>
+                      <Link
+                        href="/signin"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="w-full rounded-full bg-black px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-black/90"
+                      >
+                        Log in
+                      </Link>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </li>
+
+          {/* MOBILE ACCOUNT IKONA */}
+          <li className="lg:hidden">
+            <Link
+              href={isAuthenticated ? "/account" : "/signin"}
+              aria-label="Account"
+              className="grid h-9 w-9 place-items-center"
             >
-              {isAuthenticated ? (
-                <>
-                  <div className="px-4 pb-3">
-                    <p className="text-xs uppercase tracking-wide text-zinc-500">
-                      Signed in as
-                    </p>
-                    <p className="truncate text-sm font-medium text-zinc-900">
-                      {userName}
-                    </p>
-                  </div>
+              <User className="h-6 w-6" />
+            </Link>
+          </li>
 
-                  <div className="border-t border-zinc-100" />
+          {/* WISHLIST */}
+          <li>
+            <Link
+              href={wishlistHref}
+              aria-label="Wishlist"
+              className="grid h-9 w-9 place-items-center lg:h-12 lg:w-12"
+            >
+              <Heart className="h-6 w-6" />
+            </Link>
+          </li>
+        </ul>
 
-                  <div className="flex flex-col gap-1 px-2 py-2">
-                    <Link
-                      href="/account"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="rounded-lg px-3 py-2 text-left hover:bg-zinc-50"
-                    >
-                      My account
-                    </Link>
-                    <Link
-                      href="/favorites"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="rounded-lg px-3 py-2 text-left hover:bg-zinc-50"
-                    >
-                      Wishlist
-                    </Link>
-                  </div>
+        {/* KOSZYK */}
+        <button
+          aria-label="Open cart"
+          onClick={openCart}
+          className="relative grid h-9 w-9 place-items-center lg:h-12 lg:w-12"
+        >
+          <ShoppingBag className="h-6 w-6" />
 
-                  <div className="border-t border-zinc-100" />
-
-                  <div className="px-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => signOut({callbackUrl: "/"})}
-                      className="w-full rounded-full bg-black px-4 py-2.5 text-xs font-semibold text-white hover:bg-black/90"
-                    >
-                      Log out
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="px-4 pb-3">
-                    <p className="text-xs tracking-[0.16em] text-zinc-500">
-                      TAVROS
-                    </p>
-                    <p className="mt-1 text-xs text-zinc-600">
-                      Save favourites, track orders & checkout faster.
-                    </p>
-                  </div>
-
-                  <div className="border-t border-zinc-100" />
-
-                  <div className="flex flex-col gap-2 px-3 pt-3 pb-2">
-                    <Link
-                      href="/register"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="w-full rounded-full border border-zinc-300 bg-white px-4 py-2.5 text-[13px] font-medium text-zinc-900 hover:border-zinc-400 hover:bg-zinc-50 hover:shadow-sm"
-                    >
-                      Create account
-                    </Link>
-                    <Link
-                      href="/signin"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="w-full rounded-full bg-black px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-black/90"
-                    >
-                      Log in
-                    </Link>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-        </li>
-
-        {/* MOBILE ACCOUNT IKONA */}
-        <li className="lg:hidden">
-          <Link
-            href={isAuthenticated ? "/account" : "/signin"}
-            aria-label="Account"
-            className="grid h-9 w-9 place-items-center"
-          >
-            <User className="h-6 w-6" />
-          </Link>
-        </li>
-
-        {/* WISHLIST */}
-        <li>
-          <Link
-            href={wishlistHref}
-            aria-label="Wishlist"
-            className="grid h-9 w-9 place-items-center lg:h-12 lg:w-12"
-          >
-            <Heart className="h-6 w-6" />
-          </Link>
-        </li>
-      </ul>
-
-      {/* KOSZYK */}
-      <button
-        aria-label="Open cart"
-        className="relative grid h-9 w-9 place-items-center lg:h-12 lg:w-12"
-      >
-        <ShoppingBag className="h-6 w-6" />
-      </button>
-    </div>
+          {/* badge z ilością produktów */}
+          {hydrated && cartCount > 0 && (
+  <span className=" absolute -right-0.5 -top-0.5
+        min-h-[18px] min-w-[18px]
+        rounded-full bg-black px-1
+        text-[10px] font-semibold text-white
+        flex items-center justify-center">
+    {cartCount}
+  </span>
+)}
+        </button>
+      </div>
+      <CartDrawer />
+    </>
   );
 };
 

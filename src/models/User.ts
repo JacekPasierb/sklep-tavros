@@ -12,8 +12,12 @@ const UserSchema = new Schema(
     favorites: [{type: Schema.Types.ObjectId, ref: "Product"}],
     cart: [
       {
-        product: {type: Schema.Types.ObjectId, ref: "Product"},
-        qty: {type: Number, default: 1},
+        product: {type: Schema.Types.ObjectId, ref: "Product", required: true},
+        qty: {type: Number, default: 1, min: 1},
+        size: {type: String, default: null},
+        color: {type: String, default: null},
+        sku: {type: String, default: null},
+        addedAt: {type: Date, default: Date.now},
       },
     ],
   },

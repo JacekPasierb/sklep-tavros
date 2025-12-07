@@ -9,6 +9,7 @@ import PaymentsSection from "../components/common/PaymentsSection";
 import Footer from "../components/layout/Footer/Footer";
 import AuthSessionProvider from "../components/auth/AuthSessionProvider";
 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -36,6 +37,7 @@ export default function RootLayout({
       >
          <AuthSessionProvider>
         <Header />
+       
         <main>
           <PromotionSection />
           {children}

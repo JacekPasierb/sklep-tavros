@@ -25,7 +25,7 @@ export default function FavoritesPage() {
     products: userProducts,
     remove: removeServer,
     isLoading: userLoading,
-  } = useUserFavorites();
+  } = useUserFavorites(isLoggedIn);
 
   // -------- gość: ulubione z Zustand + dociąganie szczegółów produktów --------
   const favoritesMap = useFavoritesStore((s) => s.favorites);

@@ -12,27 +12,40 @@ type FavoriteProduct = {
   collectionSlug?: string;
 };
 
-const fetcher = async (url: string) => {
+type FavoritesResponse = {
+  ok: boolean;
+  data: FavoriteProduct[];
+  count: number;
+};
+
+const fetcher = async (url: string): Promise<FavoritesResponse> => {
   const res = await fetch(url);
+
+  // jeśli backend zwróci 401 (np. brak sesji) → traktujemy jak pustą listę
+  if (res.status === 401) {
+    return { ok: true, data: [], count: 0 };
+  }
+
   if (!res.ok) {
     throw new Error(await res.text());
   }
+
   return res.json();
 };
 
-export function useUserFavorites() {
-  const {data, error, isLoading, mutate} = useSWR<{
-    ok: boolean;
-    data: FavoriteProduct[];
-    count: number;
-  }>("/api/favorites", fetcher, {
-    revalidateOnFocus: false,
-  });
+export function useUserFavorites(enabled: boolean = true) {
+  const { data, error, isLoading, mutate } = useSWR<FavoritesResponse>(
+    enabled ? "/api/favorites" : null,   // jeśli !enabled → brak requestu
+    enabled ? fetcher : null,
+    { revalidateOnFocus: false }
+  );
 
   const products = data?.data ?? [];
   const ids = new Set(products.map((p) => p._id));
 
   async function add(productId: string) {
+    if (!enabled) return; // na wszelki wypadek
+
     // optymistyczny update
     mutate(
       (prev) =>
@@ -41,7 +54,7 @@ export function useUserFavorites() {
               ...prev,
               data: prev.data.some((p) => p._id === productId)
                 ? prev.data
-                : [{_id: productId} as FavoriteProduct, ...prev.data],
+                : [{ _id: productId } as FavoriteProduct, ...prev.data],
               count: prev.count + 1,
             }
           : prev,
@@ -50,8 +63,8 @@ export function useUserFavorites() {
 
     const res = await fetch("/api/favorites", {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({productId}),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId }),
     });
 
     if (!res.ok) {
@@ -63,6 +76,8 @@ export function useUserFavorites() {
   }
 
   async function remove(productId: string) {
+    if (!enabled) return;
+
     mutate(
       (prev) =>
         prev
@@ -77,8 +92,8 @@ export function useUserFavorites() {
 
     const res = await fetch("/api/favorites", {
       method: "DELETE",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({productId}),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId }),
     });
 
     if (!res.ok) {
@@ -89,5 +104,5 @@ export function useUserFavorites() {
     mutate();
   }
 
-  return {products, ids, isLoading, error, add, remove, mutate};
+  return { products, ids, isLoading, error, add, remove, mutate };
 }

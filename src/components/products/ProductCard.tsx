@@ -39,7 +39,7 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
     add,
     remove,
     isLoading: favsLoading,
-  } = useUserFavorites();
+  } = useUserFavorites(isLoggedIn);
 
   const isFavUser = useMemo(
     () => serverFavIds?.has(product._id) ?? false,
