@@ -44,7 +44,7 @@ export async function POST(req: Request) {
         console.error("⚠️ Order not found for session:", session.id);
         return NextResponse.json({received: true});
       }
-
+ 
       order.status = "paid";
       if (session.amount_total != null) {
         order.amountTotal = session.amount_total / 100; // aktualizacja z Stripe
