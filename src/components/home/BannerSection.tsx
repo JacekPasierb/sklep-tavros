@@ -79,7 +79,7 @@ const BannerSection = () => {
         />
         <div className="absolute inset-0 flex items-end mb-20 justify-center">
           <Link
-            href="/collections/mens/new"
+            href="/mens/new"
             className="rounded-2xl bg-white px-6 py-2 text-lg font-bold uppercase text-black shadow hover:bg-black hover:text-white transition"
           >
             Mens New Collection
@@ -97,7 +97,7 @@ const BannerSection = () => {
         />{" "}
         <div className="absolute inset-0 flex items-end mb-20 justify-center">
           <Link
-            href="/collections/womens/new"
+            href="/womens/new"
             className="rounded-2xl bg-white px-6 py-2 text-lg font-bold uppercase text-black shadow hover:bg-black hover:text-white transition"
           >
             Womens New Collection
