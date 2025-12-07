@@ -125,11 +125,22 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
     <article className="flex flex-col">
       {/* IMAGE + BADGES */}
       <Link href={`/product/${product.slug}`} className="block group">
-        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-md bg-gray-100">
+        <div className="relative aspect-[3/4] w-full overflow-hidden  bg-gray-100">
           {hasSale && (
-            <span className="absolute left-2 top-2 z-[5] rounded bg-red-600 px-2 py-0.5 text-xs font-bold tracking-wide text-white shadow-md">
-              SALE -{discountPercent}%
-            </span>
+          <span
+          className="
+            absolute left-3 top-3 z-[5]
+            bg-[#E50000]/90 
+            backdrop-blur-sm
+            px-3 py-1.5
+            rounded-md
+            text-[12px] font-semibold tracking-[0.15em]
+            uppercase text-white
+            shadow-sm
+          "
+        >
+          Sale - {discountPercent}%
+        </span>
           )}
 
           <Image
