@@ -5,6 +5,7 @@ import Order from "../../../models/Order";
 import {getServerSession} from "next-auth";
 import {connectToDatabase} from "../../../lib/mongodb";
 import {authOptions} from "../auth/[...nextauth]/route";
+import {calculateShippingCost, ShippingMethod} from "../../../lib/shipping";
 
 type AuthSession = {
   user?: {
@@ -58,6 +59,13 @@ export async function POST(req: Request) {
     const userId = session?.user?.id ?? null;
     const email = session?.user?.email ?? customer?.email ?? null;
 
+    if (!email) {
+      return NextResponse.json(
+        {error: "Email is required to place an order."},
+        {status: 400}
+      );
+    }
+
     await connectToDatabase();
 
     // --- kwoty ---
@@ -66,7 +74,10 @@ export async function POST(req: Request) {
       0
     );
 
-    const shippingCost = Number(shipping?.cost ?? 0);
+    const method: ShippingMethod =
+      shipping?.method === "express" ? "express" : "standard";
+
+    const shippingCost = calculateShippingCost(amountSubtotal, method);
     const amountTotal = amountSubtotal + shippingCost;
 
     // -----------------------------
@@ -88,10 +99,21 @@ export async function POST(req: Request) {
       amountTotal,
       currency: "gbp",
       status: "pending",
-      // jeśli Twój schema na to pozwala – można dopisać:
-      // shippingMethod: shipping?.method,
-      // shippingCost,
-      // customer: { ...customer },
+      customer: {
+        firstName: customer?.firstName ?? null,
+        lastName: customer?.lastName ?? null,
+        email: email ?? customer?.email ?? null,
+        phone: customer?.phone ?? null,
+        address: {
+          street: customer?.address?.street ?? null,
+          city: customer?.address?.city ?? null,
+          postalCode: customer?.address?.postalCode ?? null,
+          country: customer?.address?.country ?? null,
+        },
+      },
+
+      shippingMethod: method,
+      shippingCost,
     });
 
     // -----------------------------
@@ -115,9 +137,7 @@ export async function POST(req: Request) {
           currency: "gbp",
           product_data: {
             name:
-              shipping?.method === "express"
-                ? "Express delivery"
-                : "Standard delivery",
+              method === "express" ? "Express delivery" : "Standard delivery",
           },
           unit_amount: Math.round(shippingCost * 100),
         },

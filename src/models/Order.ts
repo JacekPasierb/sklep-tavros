@@ -17,10 +17,29 @@ const orderSchema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: false },
     email: { type: String, required: true },
+
+    customer: {
+      firstName: { type: String },
+      lastName: { type: String },
+      email: { type: String },      
+      phone: { type: String },
+      address: {
+        street: { type: String },
+        city: { type: String },
+        postalCode: { type: String },
+        country: { type: String },
+      },
+    },
+
     items: { type: [orderItemSchema], required: true },
+
     amountSubtotal: Number,
     amountTotal: Number,
     currency: { type: String, default: "gbp" },
+
+    shippingMethod: { type: String, enum: ["standard", "express"], default: "standard" },
+    shippingCost: { type: Number, default: 0 },
+
     status: {
       type: String,
       enum: ["pending", "paid", "canceled"],
