@@ -1,63 +1,109 @@
 import {NextResponse} from "next/server";
+import type Stripe from "stripe";
 import {stripe} from "../../../lib/stripe";
 import {connectToDatabase} from "../../../lib/mongodb";
 import Order from "../../../models/Order";
-import type Stripe from "stripe";
 
-export const dynamic = "force-dynamic"; // webhook musi działać bez cache
+export const dynamic = "force-dynamic"; // webhook nie może być cache'owany
 
-// STRIPE wymaga odczytu RAW BODY:
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
 
-  // wczytujemy "czysty" body do weryfikacji
-  const body = await req.text();
+  if (!sig) {
+    console.error("❌ Missing stripe-signature header");
+    return NextResponse.json(
+      {error: "Missing stripe-signature header"},
+      {status: 400}
+    );
+  }
 
+  // Stripe wymaga RAW body, więc używamy text(), nie json()
+  const body = await req.text();
   let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(
       body,
-      sig!,
+      sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Invalid signature";
-
-    console.error("❌ Webhook signature error:", err);
+    console.error("❌ Webhook signature error:", message);
     return NextResponse.json({error: message}, {status: 400});
   }
 
-  // -----------------------------------
-  // EVENT: płatność zakończona sukcesem
-  // -----------------------------------
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
+  // tu mamy poprawnie zweryfikowane eventy ze Stripe
+  try {
+    await connectToDatabase();
 
-    try {
-      await connectToDatabase();
+    switch (event.type) {
+      // 💰 Płatność zakończona sukcesem
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session;
 
-      // znajdź zamówienie po stripeSessionId
-      const order = await Order.findOne({stripeSessionId: session.id});
+        // Najpierw próbujemy po metadata.orderId (tak jest najwygodniej)
+        const orderId = session.metadata?.orderId;
+        let order;
 
-      if (!order) {
-        console.error("⚠️ Order not found for session:", session.id);
-        return NextResponse.json({received: true});
+        if (orderId) {
+          order = await Order.findById(orderId);
+        } else {
+          // fallback: po stripeSessionId
+          order = await Order.findOne({stripeSessionId: session.id});
+        }
+
+        if (!order) {
+          console.error("⚠️ Order not found for session:", session.id);
+          break;
+        }
+
+        order.status = "paid";
+
+        if (typeof session.amount_total === "number") {
+          order.amountTotal = session.amount_total / 100; // z groszy/pensów na GBP
+        }
+        let paymentIntentId: string | undefined;
+        if (typeof session.payment_intent === "string") {
+          paymentIntentId = session.payment_intent;
+        } else if (
+          session.payment_intent &&
+          typeof session.payment_intent === "object"
+        ) {
+          const pi = session.payment_intent as Stripe.PaymentIntent;
+          paymentIntentId = pi.id;
+        }
+
+        if (paymentIntentId) {
+          order.stripePaymentIntentId = paymentIntentId;
+        }
+
+        await order.save();
+        console.log("✅ Order marked as PAID:", order._id);
+        break;
       }
- 
-      order.status = "paid";
-      if (session.amount_total != null) {
-        order.amountTotal = session.amount_total / 100; // aktualizacja z Stripe
+
+      // ⛔ Płatność nieudana / porzucona (opcjonalnie)
+      case "checkout.session.expired": {
+        const session = event.data.object as Stripe.Checkout.Session;
+        const order = await Order.findOne({stripeSessionId: session.id});
+        if (order) {
+          order.status = "canceled";
+          await order.save();
+          console.log("⚠️ Order marked as CANCELED (expired):", order._id);
+        }
+        break;
       }
 
-      order.paymentIntent = session.payment_intent;
-      await order.save();
-
-      console.log("✅ Order marked as PAID:", order._id);
-    } catch (err) {
-      console.error("❌ Failed to update order:", err);
+      default:
+        // na przyszłość możesz logować inne typy
+        console.log("ℹ️ Unhandled Stripe event type:", event.type);
     }
+  } catch (err) {
+    console.error("❌ Error handling Stripe webhook:", err);
+    // Zwykle i tak zwracamy 200, żeby Stripe nie spamował retry.
+    return NextResponse.json({received: true}, {status: 200});
   }
 
-  return NextResponse.json({received: true});
+  return NextResponse.json({received: true}, {status: 200});
 }
