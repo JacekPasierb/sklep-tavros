@@ -6,6 +6,7 @@ import {getServerSession} from "next-auth";
 import {connectToDatabase} from "../../../lib/mongodb";
 import {authOptions} from "../auth/[...nextauth]/route";
 import {calculateShippingCost, ShippingMethod} from "../../../lib/shipping";
+import { getNextOrderNumber } from "../../../lib/generateOrderNumber";
 
 type AuthSession = {
   user?: {
@@ -83,9 +84,12 @@ export async function POST(req: Request) {
     // -----------------------------
     //  ZAPIS ZAMÓWIENIA W MONGO
     // -----------------------------
+    const orderNumber = await getNextOrderNumber();
+    
     const order = await Order.create({
       userId,
       email,
+      orderNumber, 
       items: items.map((item) => ({
         productId: item.productId,
         slug: item.slug,
