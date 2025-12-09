@@ -1,8 +1,8 @@
 import {NextResponse} from "next/server";
 import type Stripe from "stripe";
-import {stripe} from "../../../lib/stripe";
-import {connectToDatabase} from "../../../lib/mongodb";
-import Order from "../../../models/Order";
+import {stripe} from "../../../../lib/stripe";
+import {connectToDatabase} from "../../../../lib/mongodb";
+import Order from "../../../../models/Order";
 
 export const dynamic = "force-dynamic"; // webhook nie może być cache'owany
 
