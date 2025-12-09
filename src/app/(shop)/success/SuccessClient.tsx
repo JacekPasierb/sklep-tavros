@@ -3,7 +3,7 @@
 import {useSearchParams, useRouter} from "next/navigation";
 import {useEffect} from "react";
 import Link from "next/link";
-import {useCartStore} from "../../store/cartStore";
+import {useCartStore} from "../../../store/cartStore";
 import {useSession} from "next-auth/react";
 import {useSWRConfig} from "swr";
 
