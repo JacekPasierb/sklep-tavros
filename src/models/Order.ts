@@ -46,10 +46,15 @@ const orderSchema = new Schema(
     shippingMethod: { type: String, enum: ["standard", "express"], default: "standard" },
     shippingCost: { type: Number, default: 0 },
 
-    status: {
+    paymentStatus: {
       type: String,
       enum: ["pending", "paid", "canceled"],
       default: "pending",
+    },
+    fulfillmentStatus: {
+      type: String,
+      enum: ["created", "processing", "shipped", "delivered", "canceled"],
+      default: "created",       
     },
     stripeSessionId: String,
     stripePaymentIntentId: String,

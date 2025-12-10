@@ -58,7 +58,13 @@ export async function POST(req: Request) {
           break;
         }
 
-        order.status = "paid";
+        order.paymentStatus = "paid";
+
+        // 🔥 jeśli nie anulowane – od razu "processing"
+        if (order.fulfillmentStatus !== "canceled") {
+          order.fulfillmentStatus = "processing";
+        }
+console.log("fff");
 
         if (typeof session.amount_total === "number") {
           order.amountTotal = session.amount_total / 100; // z groszy/pensów na GBP
@@ -88,10 +94,12 @@ export async function POST(req: Request) {
         const session = event.data.object as Stripe.Checkout.Session;
         const order = await Order.findOne({stripeSessionId: session.id});
         if (order) {
-          order.status = "canceled";
+          order.paymentStatus = "canceled";
+          order.fulfillmentStatus = "canceled";
           await order.save();
           console.log("⚠️ Order marked as CANCELED (expired):", order._id);
         }
+
         break;
       }
 

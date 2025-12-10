@@ -102,7 +102,8 @@ export async function POST(req: Request) {
       amountSubtotal,
       amountTotal,
       currency: "gbp",
-      status: "pending",
+      paymentStatus: "pending",
+      fulfillmentStatus:"created",
       customer: {
         firstName: customer?.firstName ?? null,
         lastName: customer?.lastName ?? null,

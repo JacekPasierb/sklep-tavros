@@ -1,11 +1,35 @@
 "use client";
 
-import { useEffect } from "react";
+import {useEffect} from "react";
 import useSWR from "swr";
 import Link from "next/link";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/navigation";
+
+type FulfillmentStatus =
+  | "created" // zamówienie utworzone
+  | "processing" // pakowanie / przygotowanie
+  | "shipped" // wysłane
+  | "delivered" // doręczone
+  | "canceled";
+
+// stałe kroki timeline
+const ORDER_STEPS = [
+  "Order placed",
+  "Processing",
+  "Shipped",
+  "Delivered",
+] as const;
+
+// mapowanie statusu na index kroku
+const FULFILLMENT_STEP_INDEX: Record<FulfillmentStatus, number> = {
+  created: 0,
+  processing: 1,
+  shipped: 2,
+  delivered: 3,
+  canceled: 0, // canceled: zostaje na pierwszym kroku, ale mamy inny kolor
+};
 
 type OrderItemProduct = {
   _id: string;
@@ -26,7 +50,8 @@ type OrderItem = {
 type AccountOrder = {
   _id: string;
   orderNumber: string;
-  status: "pending" | "paid" | "canceled";
+  paymentStatus: "pending" | "paid" | "canceled"; // status płatności
+  fulfillmentStatus?: FulfillmentStatus; // status realizacji
   createdAt: string;
   amountTotal: number;
   amountSubtotal?: number;
@@ -49,7 +74,7 @@ const formatPrice = (amount: number, currency?: string) =>
   }).format(amount || 0);
 
 export default function OrdersPage() {
-  const { status } = useSession();
+  const {status} = useSession();
   const router = useRouter();
 
   // 🔐 redirect tylko w efekcie
@@ -61,7 +86,7 @@ export default function OrdersPage() {
 
   const shouldFetch = status === "authenticated";
 
-  const { data, error, isLoading } = useSWR(
+  const {data, error, isLoading} = useSWR(
     shouldFetch ? "/api/account/orders" : null,
     fetcher
   );
@@ -127,6 +152,7 @@ export default function OrdersPage() {
       </section>
     );
   }
+  console.log("orders", orders);
 
   return (
     <section className="container mx-auto px-4 py-10">
@@ -148,21 +174,21 @@ export default function OrdersPage() {
 
         <div className="space-y-5">
           {orders.map((order) => {
+            const paymentStatus = order.paymentStatus ?? "pending"
             const createdAt = new Date(order.createdAt);
-
             const badgeClass =
-              order.status === "paid"
-                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                : order.status === "pending"
-                ? "bg-amber-50 text-amber-700 border-amber-200"
-                : "bg-rose-50 text-rose-700 border-rose-200";
-
-            const statusLabel =
-              order.status === "paid"
-                ? "PAID"
-                : order.status === "pending"
-                ? "PENDING"
-                : "CANCELED";
+            paymentStatus === "paid"
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+              : paymentStatus === "pending"
+              ? "bg-amber-50 text-amber-700 border-amber-200"
+              : "bg-rose-50 text-rose-700 border-rose-200";
+        
+          const statusLabel =
+            paymentStatus === "paid"
+              ? "PAID"
+              : paymentStatus === "pending"
+              ? "PENDING"
+              : "CANCELED";
 
             const displayNumber =
               order.orderNumber || `#${String(order._id).slice(-6)}`;
@@ -181,37 +207,132 @@ export default function OrdersPage() {
                 : Math.max(order.amountTotal - subtotal, 0);
 
             return (
-              <Link
+              <div
                 key={order._id}
-                href={`/account/orders/${order._id}`}
                 className="block rounded-3xl border border-zinc-200 bg-white/90 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-zinc-300 transition"
               >
-                {/* TOP: Order info + status */}
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 pb-3">
-                  <div className="space-y-0.5">
-                    <p className="text-sm font-semibold text-zinc-900">
-                      Order <span className="tracking-[0.18em]">{displayNumber}</span>
-                    </p>
-                    <p className="text-xs text-zinc-500">
-                      Placed on{" "}
-                      {createdAt.toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })}{" "}
-                      at{" "}
-                      {createdAt.toLocaleTimeString("en-GB", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
+                {/* TOP: Order meta + payment status + full-width timeline */}
+                <div className="border-b border-zinc-100 pb-4">
+                  {/* 1. GÓRNY WIERSZ: numer, data, payment */}
+                  <div className="grid gap-4 sm:grid-cols-3 items-start">
+                    {/* Numer zamówienia */}
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                        Order number
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-zinc-900">
+                        {displayNumber}
+                      </p>
+                    </div>
+
+                    {/* Data i godzina */}
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                        Placed on
+                      </p>
+                      <p className="mt-1 text-sm text-zinc-900">
+                        {createdAt.toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                      <p className="text-xs text-zinc-500">
+                        at{" "}
+                        {createdAt.toLocaleTimeString("en-GB", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+
+                    {/* Status płatności */}
+                    <div className="sm:text-right">
+                      <div className="flex flex-nowrap items-center justify-start sm:justify-end gap-2">
+                        <p className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                          Payment status:
+                        </p>
+                        <span
+                          className={`whitespace-nowrap inline-flex items-center justify-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${badgeClass}`}
+                        >
+                          {statusLabel}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  <span
-                    className={`inline-flex items-center justify-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${badgeClass}`}
-                  >
-                    {statusLabel}
-                  </span>
+                  {/* 2. DRUGI WIERSZ: TIMELINE NA CAŁĄ SZEROKOŚĆ */}
+                  {(() => {
+                    const fulfillmentStatus: FulfillmentStatus =
+                      order.fulfillmentStatus ?? "created";
+                    const currentStep =
+                      FULFILLMENT_STEP_INDEX[fulfillmentStatus];
+                    const isCanceled = fulfillmentStatus === "canceled";
+
+                    return (
+                      <div className="mt-3">
+                        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                          Order status
+                        </p>
+
+                        {isCanceled ? (
+                          <span className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-rose-700">
+                            Canceled
+                          </span>
+                        ) : (
+                          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                            {ORDER_STEPS.map((label, index) => {
+                              const isActive = index <= currentStep;
+                              const isCompleted = index < currentStep;
+
+                              return (
+                                <div
+                                  key={label}
+                                  className="flex items-center gap-2 flex-1 min-w-[60px]"
+                                >
+                                  {/* kropka */}
+                                  <div
+                                    className={[
+                                      "flex h-2.5 w-2.5 shrink-0 items-center justify-center rounded-full border",
+                                      isCompleted
+                                        ? "border-emerald-500 bg-emerald-500"
+                                        : isActive
+                                        ? "border-emerald-500 bg-white"
+                                        : "border-zinc-300 bg-white",
+                                    ].join(" ")}
+                                  />
+
+                                  {/* label */}
+                                  <span
+                                    className={[
+                                      "text-[10px] uppercase tracking-[0.16em] truncate",
+                                      isActive
+                                        ? "text-zinc-900 font-semibold"
+                                        : "text-zinc-400",
+                                    ].join(" ")}
+                                  >
+                                    {label}
+                                  </span>
+
+                                  {/* linia między krokami (nie przy ostatnim) */}
+                                  {index < ORDER_STEPS.length - 1 && (
+                                    <div
+                                      className={[
+                                        "h-[1px] flex-1",
+                                        isCompleted
+                                          ? "bg-emerald-500"
+                                          : "bg-zinc-200",
+                                      ].join(" ")}
+                                    />
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* BODY: lewa kolumna – produkty, prawa – podsumowanie */}
@@ -221,13 +342,15 @@ export default function OrdersPage() {
                     {order.items.map((item, index) => {
                       const img = item.productId?.images?.[0];
                       const lineTotal = item.price * item.qty;
+                      const slugProduct = item.productId.slug;
 
                       return (
-                        <div
+                        <Link
                           key={`${order._id}-item-${index}`}
+                          href={`/product/${slugProduct}`}
                           className="flex items-center gap-3 rounded-2xl bg-zinc-50 px-3 py-2.5"
                         >
-                          <div className="h-16 w-16 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100">
+                          <div className="h-16 w-16 overflow-hidden  border border-zinc-200 bg-zinc-100">
                             {img ? (
                               <Image
                                 src={img}
@@ -263,13 +386,17 @@ export default function OrdersPage() {
                               {formatPrice(lineTotal, order.currency)}
                             </p>
                           </div>
-                        </div>
+                        </Link>
                       );
                     })}
                   </div>
 
                   {/* podsumowanie */}
                   <div className="w-full lg:w-64 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm">
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                      Order summary
+                    </p>
+
                     <div className="flex items-center justify-between py-1">
                       <span className="text-zinc-500">Items subtotal</span>
                       <span className="font-medium text-zinc-900">
@@ -289,7 +416,7 @@ export default function OrdersPage() {
 
                     <div className="flex items-center justify-between py-1">
                       <span className="text-[13px] font-semibold text-zinc-900">
-                        Total
+                        Total paid
                       </span>
                       <span className="text-base font-semibold text-zinc-900">
                         {formatPrice(order.amountTotal, order.currency)}
@@ -301,7 +428,7 @@ export default function OrdersPage() {
                     </p>
                   </div>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>
