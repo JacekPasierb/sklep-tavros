@@ -1,5 +1,5 @@
 // app/api/account/orders/[id]/pay/route.ts
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../../auth/[...nextauth]/route";
 import { connectToDatabase } from "../../../../../../lib/mongodb";
@@ -7,12 +7,15 @@ import Order from "../../../../../../models/Order";
 import { stripe } from "../../../../../../lib/stripe";
 
 
-type RouteParams = {
-  params: { id: string };
-};
+// USUŃ swój typ RouteParams
 
-export async function POST(_req: Request, { params }: RouteParams) {
+export async function POST(
+  _req: NextRequest,
+  context: { params: Promise<{ id: string }> } // dopasowujemy się do typu z błędu
+) {
   try {
+    const { id: orderId } = await context.params; // params jest typowane jako Promise
+
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -20,7 +23,6 @@ export async function POST(_req: Request, { params }: RouteParams) {
     }
 
     const userId = session.user.id;
-    const orderId = params.id;
 
     await connectToDatabase();
 
@@ -30,7 +32,6 @@ export async function POST(_req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    // tylko dla nieopłaconych
     if (order.paymentStatus === "paid") {
       return NextResponse.json(
         { error: "Order is already paid" },
@@ -52,12 +53,10 @@ export async function POST(_req: Request, { params }: RouteParams) {
       );
     }
 
-    // pobierz sesję ze Stripe
     const checkoutSession = await stripe.checkout.sessions.retrieve(
       order.stripeSessionId
     );
 
-    // jeśli już zapłacone, nie ma sensu wracać do checkout
     if (checkoutSession.payment_status === "paid") {
       return NextResponse.json(
         { error: "Order is already paid" },
@@ -65,7 +64,6 @@ export async function POST(_req: Request, { params }: RouteParams) {
       );
     }
 
-    // jeśli sesja wygasła – na razie prosty komunikat
     if (checkoutSession.status === "expired") {
       return NextResponse.json(
         {
@@ -76,7 +74,6 @@ export async function POST(_req: Request, { params }: RouteParams) {
       );
     }
 
-    // jeśli sesja jest nadal „open” → można użyć jej ponownie
     if (checkoutSession.url) {
       return NextResponse.json({ url: checkoutSession.url }, { status: 200 });
     }
