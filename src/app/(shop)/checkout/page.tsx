@@ -1,33 +1,32 @@
 "use client";
 
-import {FormEvent, useMemo, useState} from "react";
-import {useSession} from "next-auth/react";
-import {useRouter} from "next/navigation";
-import {useUserCart} from "../../../lib/useUserCart";
-import {useCartStore} from "../../../store/cartStore";
-import {CartItem} from "../../../types/cart";
+import { FormEvent, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useUserCart } from "../../../lib/useUserCart";
+import { useCartStore } from "../../../store/cartStore";
+import { CartItem } from "../../../types/cart";
 
-
-type UiCartItem = CartItem & {key?: string};
+type UiCartItem = CartItem & { key?: string };
 type ShippingMethod = "standard" | "express";
 
 const FREE_SHIPPING_THRESHOLD = 125;
 const STANDARD_SHIPPING_COST = 4.99;
 const EXPRESS_SHIPPING_COST = 9.99;
 
-
-
 export default function CheckoutPage() {
   const router = useRouter();
-  const {data: session, status} = useSession();
+  const { data: session, status } = useSession();
+
+  const isAuthLoading = status === "loading";
   const isLoggedIn = status === "authenticated";
 
   // ---- KOSZYK USERA (API) ----
-  const {cart, isLoading: userLoading} = useUserCart(isLoggedIn);
+  const { cart, isLoading: userLoading } = useUserCart(isLoggedIn);
 
   // ---- KOSZYK GOŚCIA (ZUSTAND) ----
   const guestRawItems = useCartStore((s) => s.items);
-  const guestItems: (CartItem & {key: string})[] = useMemo(
+  const guestItems: (CartItem & { key: string })[] = useMemo(
     () =>
       Object.entries(guestRawItems)
         .sort(([, a], [, b]) => b.addedAt - a.addedAt)
@@ -65,7 +64,8 @@ export default function CheckoutPage() {
       currency: "GBP",
     }).format(value);
 
-  const isLoading = isLoggedIn ? userLoading : false;
+  const isCartLoading = isLoggedIn && userLoading;
+  const isPageLoading = isAuthLoading || isCartLoading;
 
   // -----------------------------
   // FORMULARZ DANYCH KLIENTA
@@ -80,11 +80,10 @@ export default function CheckoutPage() {
   const [country, setCountry] = useState<string>("United Kingdom");
 
   const email = emailOverride ?? session?.user?.email ?? "";
-  // 🔹 nowy state dostawy
+
   const [shippingMethod, setShippingMethod] =
     useState<ShippingMethod>("standard");
 
-  // wyliczenie kosztu dostawy (express free od progu)
   const baseShippingCost =
     shippingMethod === "standard"
       ? STANDARD_SHIPPING_COST
@@ -99,8 +98,6 @@ export default function CheckoutPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-
- 
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -121,7 +118,7 @@ export default function CheckoutPage() {
 
       const res = await fetch("/api/checkout", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items,
           customer: {
@@ -152,7 +149,6 @@ export default function CheckoutPage() {
         return;
       }
 
-      // 🔑 oczekujemy teraz URL-a z backendu
       if (!data.url) {
         console.error("No Stripe checkout URL:", data);
         setFormError("Could not start payment session. Please try again.");
@@ -160,7 +156,6 @@ export default function CheckoutPage() {
         return;
       }
 
-      // bez Stripe.js – po prostu redirect na hosted Stripe Checkout
       router.push(data.url as string);
     } catch (error) {
       console.error(error);
@@ -169,6 +164,25 @@ export default function CheckoutPage() {
     }
   };
 
+  // 🔹 WIDOK ŁADOWANIA – zanim auth + koszyk będą gotowe
+  if (isPageLoading) {
+    return (
+      <main className="min-h-screen bg-zinc-50/60">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 pb-16 pt-10 lg:flex-row lg:px-6">
+          <section className="w-full lg:w-2/3">
+            <div className="h-6 w-32 rounded bg-zinc-200 animate-pulse" />
+            <div className="mt-3 h-4 w-64 rounded bg-zinc-200 animate-pulse" />
+
+            <div className="mt-6 h-80 rounded-2xl border border-zinc-200 bg-white/80 animate-pulse" />
+          </section>
+
+          <aside className="w-full lg:w-1/3">
+            <div className="h-64 rounded-2xl border border-zinc-200 bg-white/80 animate-pulse" />
+          </aside>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-zinc-50/60">
@@ -182,7 +196,7 @@ export default function CheckoutPage() {
             Secure payment with Stripe. We never store your card details.
           </p>
 
-          {itemCount === 0 && !isLoading && (
+          {itemCount === 0 && (
             <div className="mt-6 rounded-2xl border border-zinc-200 bg-white px-4 py-6 text-sm text-zinc-600">
               <p>Your bag is empty. Add some products before you checkout.</p>
               <button
@@ -245,7 +259,7 @@ export default function CheckoutPage() {
                     <input
                       type="email"
                       value={email}
-                       onChange={(e) => setEmailOverride(e.target.value)}
+                      onChange={(e) => setEmailOverride(e.target.value)}
                       className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none ring-0 transition focus:border-zinc-900 focus:bg-white"
                       autoComplete="email"
                       required
@@ -531,7 +545,7 @@ export default function CheckoutPage() {
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-200">
                   <div
                     className="h-full rounded-full bg-zinc-900 transition-[width] duration-300"
-                    style={{width: `${freeShippingProgress}%`}}
+                    style={{ width: `${freeShippingProgress}%` }}
                   />
                 </div>
               </div>

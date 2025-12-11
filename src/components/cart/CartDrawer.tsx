@@ -22,6 +22,7 @@ export const CartDrawer = () => {
   const router = useRouter();
 
   const { status } = useSession();
+  const isAuthLoading = status === "loading";
   const isLoggedIn = status === "authenticated";
 
   // ---- KOSZYK USERA (API) ----
@@ -70,7 +71,8 @@ export const CartDrawer = () => {
     ? items.reduce((sum, item) => sum + item.qty, 0)
     : getGuestCount();
 
-  const isLoading = isLoggedIn ? userLoading : false;
+  // 🔹 globalny stan ładowania: auth (czy user zalogowany) + koszyk usera
+  const isLoading = isAuthLoading || (isLoggedIn && userLoading);
 
   const freeShippingLeft = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const freeShippingProgress = Math.min(
@@ -142,8 +144,8 @@ export const CartDrawer = () => {
 
   const handleCheckout = () => {
     if (!items.length) return; // safety
-    close(); // zamknięcie szuflady, żeby UX był czysty
-    router.push("/checkout"); // pełnoekranowa strona z formularzem
+    close();
+    router.push("/checkout");
   };
 
   return (
@@ -170,14 +172,16 @@ export const CartDrawer = () => {
               <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-zinc-900">
                 Your bag
               </h2>
-              {count > 0 && (
+              {!isLoading && count > 0 && (
                 <span className="rounded-full bg-zinc-900 px-2 py-0.5 text-[11px] font-semibold text-white">
                   {count}
                 </span>
               )}
             </div>
             <p className="text-xs text-zinc-500">
-              {count === 0
+              {isLoading
+                ? "Loading your bag..."
+                : count === 0
                 ? "Start building your look."
                 : `${count} ${count === 1 ? "item" : "items"} · ${formatPrice(
                     subtotal ?? 0
@@ -196,7 +200,7 @@ export const CartDrawer = () => {
         </header>
 
         {/* FREE SHIPPING BAR */}
-        {count > 0 && (
+        {!isLoading && count > 0 && (
           <div className="px-6 pb-3">
             <div className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3">
               <div className="flex items-center justify-between text-[11px] font-medium text-zinc-700">
@@ -387,7 +391,7 @@ export const CartDrawer = () => {
           <button
             onClick={handleCheckout}
             type="button"
-            disabled={!items.length}
+            disabled={!items.length || isLoading}
             className="
               inline-flex w-full flex-col items-center justify-center
               rounded-full bg-zinc-900 px-6 py-3.5 text-sm font-semibold
@@ -396,7 +400,7 @@ export const CartDrawer = () => {
               disabled:cursor-not-allowed disabled:bg-zinc-900/70 disabled:text-zinc-400 disabled:shadow-none
             "
           >
-            <span>Checkout</span>
+            <span>{isLoading ? "Checking your bag..." : "Checkout"}</span>
             <span className="mt-0.5 text-[10px] font-normal tracking-[0.18em] text-zinc-300">
               Secure payment • Free returns
             </span>

@@ -51,28 +51,29 @@ export default function DesktopNav() {
             {/* Dropdown doklejony do dolnej krawędzi navki */}
             <div className="absolute left-0 top-full hidden group-hover:block">
               <div className="pt-9">
-              <div
-                className="
+                <div
+                  className="
                   min-w-[190px]
                   rounded-b-2xl rounded-t-none
                   border border-zinc-200
                   bg-white/95 px-4 py-3
                   shadow-xl backdrop-blur-sm
                 "
-              >
-                <ul className="space-y-1 text-[11px] font-medium tracking-[0.16em] text-zinc-700">
-                  {getSubLinks(tab.id).map((item) => (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        className="flex items-center justify-between py-1.5 hover:text-black"
-                      >
-                        <span>{item.label}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div></div>
+                >
+                  <ul className="space-y-1 text-[11px] font-medium tracking-[0.16em] text-zinc-700">
+                    {getSubLinks(tab.id).map((item) => (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          className="flex items-center justify-between py-1.5 hover:text-black"
+                        >
+                          <span>{item.label}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
           </li>
         ))}
