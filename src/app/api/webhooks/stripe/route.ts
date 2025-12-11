@@ -64,7 +64,7 @@ export async function POST(req: Request) {
         if (order.fulfillmentStatus !== "canceled") {
           order.fulfillmentStatus = "processing";
         }
-console.log("fff");
+
 
         if (typeof session.amount_total === "number") {
           order.amountTotal = session.amount_total / 100; // z groszy/pensów na GBP
