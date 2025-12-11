@@ -70,3 +70,29 @@ export const getPaymentMeta = (paymentStatus: AccountOrder["paymentStatus"]) => 
     displayStatus: normalized.toUpperCase(),
   };
 };
+
+
+export const handlePayNow = async (orderId: string) =>{
+  try {
+    const res = await fetch(`/api/account/orders/${orderId}/pay`, {
+      method: "POST",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Pay now error:", data);
+      alert(data.error || "Unable to continue payment.");
+      return;
+    }
+
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("Unable to get payment link. Please try again later.");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong. Please try again.");
+  }
+}

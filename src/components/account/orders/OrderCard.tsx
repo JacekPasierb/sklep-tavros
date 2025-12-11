@@ -50,7 +50,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
           </div>
         </div>
 
-        <PaymentStatusCard paymentStatus={order.paymentStatus} />
+        <PaymentStatusCard paymentStatus={order.paymentStatus} orderId={order._id} />
         <OrderTimeline fulfillmentStatus={order.fulfillmentStatus} />
       </div>
 
