@@ -3,10 +3,10 @@
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import { useMemo } from "react";
-import { useUserFavorites } from "../../../lib/useUserFavorites";
-import { useFavoritesStore } from "../../../store/favoritesStore";
+import { useUserFavorites } from "../../../lib/hooks/useUserFavorites";
 import { TypeProduct } from "../../../types/product";
 import ProductCard from "../../../components/products/ProductCard";
+import { useFavoritesStore } from "../../../store/favoritesStore";
 
 
 

@@ -1,7 +1,7 @@
 // src/components/account/orders/OrderSummaryCard.tsx
 import React from "react";
 import { AccountOrder } from "../../../types/order";
-import { computeOrderTotals, formatPrice } from "../../../lib/utils/orders";
+import { computeOrderTotals, formatPrice } from "../../../lib/orders/orders";
 
 
 type OrderSummaryCardProps = {

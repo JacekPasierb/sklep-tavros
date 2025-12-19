@@ -1,6 +1,6 @@
 // src/components/account/orders/PaymentStatusCard.tsx
 import React from "react";
-import {getPaymentMeta, handlePayNow} from "../../../lib/utils/orders";
+import {getPaymentMeta, handlePayNow} from "../../../lib/orders/orders";
 import {AccountOrder} from "../../../types/order";
 
 type PaymentStatusCardProps = {

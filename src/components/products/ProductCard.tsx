@@ -8,9 +8,10 @@ import {useSession} from "next-auth/react";
 import {useEffect, useMemo, useState} from "react";
 
 import {TypeProduct} from "../../types/product";
-import {useFavoritesStore} from "../../store/favoritesStore";
-import {useUserFavorites} from "../../lib/useUserFavorites";
+
+import {useUserFavorites} from "../../lib/hooks/useUserFavorites";
 import { TrashX } from "../icons/TrashX";
+import { useFavoritesStore } from "../../store/favoritesStore";
 
 type Props = {
   product: TypeProduct;

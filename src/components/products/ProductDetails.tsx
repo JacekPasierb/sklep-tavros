@@ -5,10 +5,11 @@ import {useSession} from "next-auth/react";
 import {Heart, ShoppingBag} from "lucide-react";
 
 import type {TypeProduct} from "../../types/product";
-import {useUserFavorites} from "../../lib/useUserFavorites";
-import {useFavoritesStore} from "../../store/favoritesStore";
-import {useUserCart} from "../../lib/useUserCart";
+import {useUserFavorites} from "../../lib/hooks/useUserFavorites";
+
+import {useUserCart} from "../../lib/hooks/useUserCart";
 import {useCartStore} from "../../store/cartStore";
+import {useFavoritesStore} from "../../store/favoritesStore";
 
 interface ProductInfoProps {
   product: TypeProduct;
@@ -212,8 +213,10 @@ const ProductDetails = ({product}: ProductInfoProps) => {
   // ─────────────────────────────────────────────────────────────
 
   return (
-    <div className="mx-auto  px-4 md:max-w-lg md:w-full
-    lg:sticky lg:top-10 lg:px-0">
+    <div
+      className="mx-auto  px-4 md:max-w-lg md:w-full
+    lg:sticky lg:top-10 lg:px-0"
+    >
       {/* HEADER: title + price + heart */}
       <div className="mt-6 flex items-start justify-between gap-4 md:lg:mt-0">
         <div>

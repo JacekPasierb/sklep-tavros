@@ -10,8 +10,9 @@ import { useRouter } from "next/navigation";
 
 import { useCartUiStore } from "../../store/cartUiStore";
 import { useCartStore } from "../../store/cartStore";
-import { useUserCart } from "../../lib/useUserCart";
+
 import type { CartItem } from "../../types/cart";
+import { useUserCart } from "../../lib/hooks/useUserCart";
 
 type UiCartItem = CartItem & { key?: string };
 

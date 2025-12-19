@@ -1,7 +1,8 @@
 "use client";
 
 import useSWR from "swr";
-import {CartItem} from "../types/cart";
+import { CartItem } from "../../types/cart";
+
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 

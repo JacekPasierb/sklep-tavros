@@ -3,7 +3,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { AccountOrder } from "../../../types/order";
-import { formatPrice } from "../../../lib/utils/orders";
+import { formatPrice } from "../../../lib/orders/orders";
 
 
 type OrderItemsListProps = {

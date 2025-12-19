@@ -1,4 +1,5 @@
-import OrderCounter from "../models/OrderCounter";
+import OrderCounter from "../../models/OrderCounter";
+
 
 export async function getNextOrderNumber() {
   // Atomowy update – zwiększa seq i zwraca nową wartość

@@ -8,8 +8,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useCartUiStore } from "../../../store/cartUiStore";
 import { useCartStore } from "../../../store/cartStore";
 import { CartDrawer } from "../../cart/CartDrawer";
-import { useUserCart } from "../../../lib/useUserCart";
+
 import { CartItem } from "../../../types/cart";
+import { useUserCart } from "../../../lib/hooks/useUserCart";
 
 const IconsBar = () => {
   const { data: session, status } = useSession();
