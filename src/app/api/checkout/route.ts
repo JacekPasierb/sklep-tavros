@@ -7,6 +7,7 @@ import {connectToDatabase} from "../../../lib/mongodb";
 import {authOptions} from "../auth/[...nextauth]/route";
 import {calculateShippingCost, ShippingMethod} from "../../../lib/shipping";
 import {getNextOrderNumber} from "../../../lib/orders/generateOrderNumber";
+import {getCheckoutKey} from "../../../lib/orders/checkoutKey";
 
 type AuthSession = {
   user?: {
@@ -81,6 +82,101 @@ export async function POST(req: Request) {
     const shippingCost = calculateShippingCost(amountSubtotal, method);
     const amountTotal = amountSubtotal + shippingCost;
 
+    // --- checkoutKey (idempotency dla pending) ---
+    const checkoutKey = getCheckoutKey({
+      email,
+      userId,
+      items,
+      customer,
+      shippingMethod: method,
+      shippingCost,
+      currency: "gbp",
+    });
+    
+
+    // 1) Spróbuj znaleźć istniejące pending z tym checkoutKey
+    const existing = await Order.findOne({
+      checkoutKey,
+      paymentStatus: "pending",
+    });
+
+    if (existing?.stripeSessionId) {
+      // spróbuj odzyskać sesję Stripe i dać url do płatności
+      try {
+        const s = await stripe.checkout.sessions.retrieve(
+          existing.stripeSessionId
+        );
+
+        // jeśli sesja jest nadal otwarta, oddaj url (czasem url bywa null przy retrieve)
+        if (s.status === "open" && s.url) {
+          return NextResponse.json({url: s.url}, {status: 200});
+        }
+
+        // jeżeli sesja jest complete, to nie ma sensu płacić – ale webhook powinien ją oznaczyć paid
+        // tu możemy po prostu odesłać info
+        if (s.status === "complete") {
+          return NextResponse.json(
+            {url: `${process.env.NEXT_PUBLIC_URL}/account/orders`},
+            {status: 200}
+          );
+        }
+      } catch (e) {
+        // jeśli retrieve nie działa, polecimy dalej i utworzymy nową sesję
+        console.warn("Stripe retrieve failed, creating new session:", e);
+      }
+
+      // jeśli nie mamy działającego URL → tworzymy nową sesję do TEGO SAMEGO orderu
+      const line_items = items.map((item) => ({
+        price_data: {
+          currency: "gbp",
+          product_data: {name: item.title},
+          unit_amount: Math.round(item.price * 100),
+        },
+        quantity: item.qty,
+      }));
+
+      if (shippingCost > 0) {
+        line_items.push({
+          price_data: {
+            currency: "gbp",
+            product_data: {
+              name:
+                method === "express" ? "Express delivery" : "Standard delivery",
+            },
+            unit_amount: Math.round(shippingCost * 100),
+          },
+          quantity: 1,
+        });
+      }
+
+      const sessionStripe = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        mode: "payment",
+        line_items,
+        success_url: `${process.env.NEXT_PUBLIC_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.NEXT_PUBLIC_URL}/checkout`,
+        customer_email: email ?? undefined,
+        metadata: {
+          orderId: String(existing._id),
+          userId: userId ?? "",
+          shippingMethod: method,
+          shippingCost: shippingCost.toString(),
+        },
+      });
+
+      existing.stripeSessionId = sessionStripe.id;
+      existing.amountSubtotal = amountSubtotal;
+      existing.amountTotal = amountTotal;
+      existing.shippingMethod = method;
+      existing.shippingCost = shippingCost;
+      existing.expiresAt = sessionStripe.expires_at
+        ? new Date(sessionStripe.expires_at * 1000)
+        : null;
+
+      await existing.save();
+
+      return NextResponse.json({url: sessionStripe.url}, {status: 200});
+    }
     // -----------------------------
     //  ZAPIS ZAMÓWIENIA W MONGO
     // -----------------------------
@@ -90,6 +186,7 @@ export async function POST(req: Request) {
       userId,
       email,
       orderNumber,
+      checkoutKey,
       items: items.map((item) => ({
         productId: item.productId,
         slug: item.slug,
@@ -168,6 +265,10 @@ export async function POST(req: Request) {
 
     // zapisujemy id sesji w zamówieniu (przyda się w webhooku)
     order.stripeSessionId = sessionStripe.id;
+    order.expiresAt = sessionStripe.expires_at
+      ? new Date(sessionStripe.expires_at * 1000)
+      : null;
+
     await order.save();
 
     // 🔑 TERAZ ZWRACAMY sessionId, bo front woła redirectToCheckout(sessionId)

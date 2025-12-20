@@ -18,6 +18,7 @@ const orderSchema = new Schema(
     
     userId: { type: Schema.Types.ObjectId, ref: "User", required: false },
     email: { type: String, required: true },
+    checkoutKey: { type: String, index: true },
     orderNumber: {
       type: String,
       unique: true,
@@ -60,6 +61,16 @@ const orderSchema = new Schema(
     stripePaymentIntentId: String,
   },
   { timestamps: true }
+);
+
+
+// ✅ KLUCZ: unikalny checkoutKey TYLKO dla pendingów
+orderSchema.index(
+  { checkoutKey: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { paymentStatus: "pending" },
+  }
 );
 
 export default models.Order || model("Order", orderSchema);
