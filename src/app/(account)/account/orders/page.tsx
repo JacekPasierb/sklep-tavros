@@ -7,7 +7,7 @@ import Link from "next/link";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/navigation";
 import {OrdersResponse} from "../../../../types/order";
-import {ordersFetcher} from "../../../../lib/orders/orders";
+import {ordersFetcher} from "../../../../lib/utils/orders";
 import {OrderHistoryHeader} from "../../../../components/account/orders/OrderHistoryHeader";
 import {OrderCard} from "../../../../components/account/orders/OrderCard";
 

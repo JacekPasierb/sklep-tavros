@@ -107,10 +107,15 @@ const ProductsListPage = ({
       )}
       {/* ---------------------------------------------------- */}
 
-      <FiltersBar
-        selectedSizes={selectedSizes}
-        selectedColors={selectedColors}
-      />
+      {/* Sticky bar – mobile compact */}
+      <div className="sticky top-[65px] z-40 -mx-4 px-4 bg-white/90 backdrop-blur border-b border-zinc-200 md:top-[80px]">
+        <div className="py-3">
+          <FiltersBar
+            selectedSizes={selectedSizes}
+            selectedColors={selectedColors}
+          />
+        </div>
+      </div>
 
       {products.length === 0 ? (
         <EmptyState path={basePath} />

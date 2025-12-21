@@ -6,8 +6,8 @@ import {getServerSession} from "next-auth";
 import {connectToDatabase} from "../../../lib/mongodb";
 import {authOptions} from "../auth/[...nextauth]/route";
 import {calculateShippingCost, ShippingMethod} from "../../../lib/shipping";
-import {getNextOrderNumber} from "../../../lib/orders/generateOrderNumber";
-import {getCheckoutKey} from "../../../lib/orders/checkoutKey";
+import {getNextOrderNumber} from "../../../lib/utils/generateOrderNumber";
+import {getCheckoutKey} from "../../../lib/utils/checkoutKey";
 
 type AuthSession = {
   user?: {

@@ -12,7 +12,7 @@ const Header = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 bg-white">
+    <header className="sticky top-0 z-50 bg-white">
       <div className="container mx-auto px-4 py-4 md:py-5">
         <div className="flex items-center justify-between">
           {/* LEWO: burger (mobile) + nav (desktop) */}
