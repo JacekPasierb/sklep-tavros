@@ -18,7 +18,7 @@ const orderSchema = new Schema(
     
     userId: { type: Schema.Types.ObjectId, ref: "User", required: false },
     email: { type: String, required: true },
-    checkoutKey: { type: String, index: true },
+    checkoutKey: { type: String },
     orderNumber: {
       type: String,
       unique: true,
