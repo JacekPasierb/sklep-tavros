@@ -22,7 +22,9 @@ export default function ProductInfoSections({product}: Props) {
     ? sections.filter((s) => s !== careSection)
     : sections;
 
-  const delivery = product.deliveryReturns?.content?.trim();
+  const deliveryRaw = (product.deliveryReturns?.content ?? "").trim();
+
+  const delivery = deliveryRaw.replace(/\\n/g, "\n");
 
   return (
     <section className="mt-10 border-t border-zinc-200 pt-8">
