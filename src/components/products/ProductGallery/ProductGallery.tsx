@@ -10,18 +10,25 @@ import NavButton from "./NavButton";
 import SliderDots from "./SliderDots";
 import Thumb from "./Thumb";
 import ImageDisplay from "./ImageDisplay";
+import type {ProductImage} from "../../../types/product"; // <-- dopasuj ścieżkę jeśli inna
 
 type Props = {
-  images?: string[];
+  // ✅ akceptujemy oba formaty: stare stringi i nowe obiekty
+  images?: Array<string | ProductImage>;
   title?: string;
   overlay?: ReactNode;
 };
 
+// helper: wyciąga src niezależnie od formatu
+function toSrc(img: string | ProductImage) {
+  return typeof img === "string" ? img : img.src;
+}
+
 const ProductGallery = ({images = [], title = "Product", overlay}: Props) => {
-  const safe = useMemo(
-    () => (images.length ? images.map(getSafeSrc) : ["/placeholder.png"]),
-    [images]
-  );
+  const safe = useMemo(() => {
+    const srcs = images.map(toSrc).filter(Boolean);
+    return srcs.length ? srcs.map(getSafeSrc) : ["/placeholder.png"];
+  }, [images]);
 
   const gallery = useGallery(safe.length);
   const {index, next, prev, setIndex} = gallery;
@@ -66,12 +73,12 @@ const ProductGallery = ({images = [], title = "Product", overlay}: Props) => {
                 onClick={openLightbox}
                 priority={i === 0}
               />
-              {overlay && (
-  <div className="absolute inset-0 pointer-events-none">
-    {overlay}
-  </div>
-)}
 
+              {overlay && (
+                <div className="absolute inset-0 pointer-events-none">
+                  {overlay}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -144,12 +151,12 @@ const ProductGallery = ({images = [], title = "Product", overlay}: Props) => {
             onClick={openLightbox}
             priority
           />
-         {overlay && (
-  <div className="absolute inset-0 pointer-events-none">
-    {overlay}
-  </div>
-)}
 
+          {overlay && (
+            <div className="absolute inset-0 pointer-events-none">
+              {overlay}
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,20 +1,48 @@
-type Variant = {
+// types/product.ts
+
+export type ProductImage = {
+  src: string;
+  alt?: string;
+  primary?: boolean;
+};
+
+export type Variant = {
   size: string;
   sku: string;
   stock: number;
-  color: string; 
+  color: string;
+};
+
+export type ProductSection = {
+  title: string;
+  items: string[];
+};
+
+export type ProductTextBlock = {
+  title?: string;
+  content?: string;
 };
 
 export type TypeProduct = {
   _id: string;
+
   title: string;
   slug: string;
+
   price: number;
   oldPrice?: number;
-  images?: string[];
-  variants?: Variant[];
   currency?: string;
+
+  images?: ProductImage[];          // ✅ było string[]
+  variants?: Variant[];
+
   gender: "MENS" | "WOMENS" | "UNISEX" | "KIDS";
   collectionSlug?: string;
-  tags?: string[]; 
+  tags?: string[];
+
+  // --- CONTENT / DESCRIPTION ---
+  summary?: string;                  // ✅ z modelu
+  sections?: ProductSection[];        // ✅ z modelu
+  styleCode?: string;                // ✅ z modelu
+  deliveryReturns?: ProductTextBlock; // ✅ luźno typowane, bo mongoose default/undefined
 };

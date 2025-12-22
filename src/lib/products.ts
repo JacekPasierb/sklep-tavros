@@ -5,6 +5,7 @@ import {TypeProduct} from "../types/product";
 
 import Product from "../models/Product";
 import {connectToDatabase} from "./mongodb";
+import {Types} from "mongoose";
 
 type GetProductsOptions = {
   gender?: "mens" | "womens" | "kids";
@@ -46,7 +47,7 @@ export async function getProducts(options: GetProductsOptions = {}) {
   }
 
   if (mode === "new") {
-    query.tags = { $in: ["new"] };
+    query.tags = {$in: ["new"]};
   }
 
   if (mode === "collection" && collectionSlug) {
@@ -112,20 +113,50 @@ export async function getProducts(options: GetProductsOptions = {}) {
   };
 }
 
-export async function getProductBySlug(slug: string) {
+type MongoId = Types.ObjectId | string;
+
+type LeanProduct = Omit<TypeProduct, "_id"> & {_id: MongoId};
+
+function normalizeProduct(doc: LeanProduct): TypeProduct {
+  return {
+    ...doc,
+    _id: typeof doc._id === "string" ? doc._id : doc._id.toString(),
+  };
+}
+
+export async function getProductBySlug(
+  slug: string
+): Promise<TypeProduct | null> {
   await connectToDatabase();
 
-  const doc = await Product.findOne({slug}).lean<TypeProduct>();
+  const doc = await Product.findOne({slug})
+    .select(
+      [
+        "title",
+        "slug",
+        "price",
+        "oldPrice",
+        "currency",
+        "images",
+        "gender",
+        "collectionSlug",
+        "tags",
+        "variants",
+        // ✅ opis
+        "summary",
+        "sections",
+        "styleCode",
+        "deliveryReturns",
+      ].join(" ")
+    )
+    .lean<LeanProduct>();
 
   if (!doc) return null;
 
   return {
     ...doc,
-    _id: doc._id.toString(),
+    _id: typeof doc._id === "string" ? doc._id : doc._id.toString(),
   };
-}
-function toPlain<T>(doc: T): T {
-  return JSON.parse(JSON.stringify(doc));
 }
 
 export async function getRelatedProducts(opts: {
@@ -138,22 +169,19 @@ export async function getRelatedProducts(opts: {
 
   await connectToDatabase();
 
-  const where: {gender: string; collectionSlug?: string; _id?: {$ne: string}} =
-    {gender};
-
-  if (collectionSlug) {
-    where.collectionSlug = collectionSlug;
-  }
-
-  if (excludeId) {
-    where._id = {$ne: excludeId};
+  const where: Record<string, unknown> = {gender};
+  if (collectionSlug) where.collectionSlug = collectionSlug;
+  if (excludeId && Types.ObjectId.isValid(excludeId)) {
+    where._id = {$ne: new Types.ObjectId(excludeId)};
   }
 
   const docs = await Product.find(where)
     .sort({createdAt: -1})
     .limit(limit)
-    .select("title price images slug gender collectionSlug")
-    .lean();
+    .select(
+      "title price images slug gender collectionSlug currency tags oldPrice"
+    )
+    .lean<LeanProduct[]>();
 
-  return toPlain(docs) as unknown as TypeProduct[];
+  return docs.map(normalizeProduct);
 }

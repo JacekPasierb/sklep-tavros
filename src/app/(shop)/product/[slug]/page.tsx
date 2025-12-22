@@ -4,6 +4,7 @@ import {getProductBySlug, getRelatedProducts} from "../../../../lib/products";
 import ProductDetails from "../../../../components/products/ProductDetails";
 import Slider from "../../../../components/products/Slider";
 import ProductGallery from "../../../../components/products/ProductGallery/ProductGallery";
+import ProductInfoSections from "../../../../components/products/ProductInfoSections";
 
 type PageProps = {
   params: {slug: string};
@@ -15,7 +16,9 @@ const ProductPage = async ({params}: PageProps) => {
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const imageUrls = product.images || [];
+  
+  const imageUrls = (product.images ?? []).map((img) => img.src);
+
 
   const relatedProducts = await getRelatedProducts({
     gender: product.gender,
@@ -78,7 +81,9 @@ const ProductPage = async ({params}: PageProps) => {
           overlay={overlay}
         />
         <ProductDetails product={product} />
+        <ProductInfoSections product={product} />
       </article>
+
       <div>
         <Slider products={relatedProducts} title="Propose For You" />
       </div>

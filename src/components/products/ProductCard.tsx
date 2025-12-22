@@ -53,7 +53,16 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
   // żeby nie rozjechać się z HTML-em z SSR
   const fav = hydrated ? (isLoggedIn ? isFavUser : isFavGuest) : false;
 
-  const mainImage = product.images?.[0] ?? "/placeholder.png";
+  const mainImage =
+  product.images?.find((i) => i.primary)?.src ??
+  product.images?.[0]?.src ??
+  "/placeholder.png";
+console.log("img",product.images);
+
+  const mainAlt =
+  product.images?.find((i) => i.primary)?.alt ??
+  product.images?.[0]?.alt ??
+  product.title;
 
   // ------- SALE / NEW --------
   const hasSale =
@@ -146,7 +155,7 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
 
           <Image
             src={mainImage}
-            alt={product.title}
+            alt={mainAlt}
             fill
             sizes="(min-width: 1024px) 25vw, 50vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -215,6 +224,7 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
               e.stopPropagation();
               removeFavorite();
             }}
+            title="Remove from wishlist"
             className="ml-2  p-1 border border-zinc-200 align-middle hover:cursor-pointer "
             aria-label="Remove from wishlist"
             disabled={disabled}

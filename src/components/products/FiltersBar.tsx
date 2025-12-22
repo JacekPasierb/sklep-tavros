@@ -5,7 +5,13 @@ import {usePathname, useRouter, useSearchParams} from "next/navigation";
 const SIZES = ["S", "M", "L", "XL"];
 const COLORS = ["black", "white"];
 
-type SortOption = "newest" | "price_asc" | "price_desc" | undefined;
+type SortOption =
+  | "newest"
+  | "price_asc"
+  | "price_desc"
+  | "popular"
+  | "title_asc"
+  | undefined;
 
 type FiltersBarProps = {
   selectedSizes?: string[];
@@ -161,7 +167,9 @@ export function FiltersBar({
           <select
             value={selectedSort ?? "newest"}
             onChange={(e) =>
-              updateSort(e.target.value as "newest" | "price_asc" | "price_desc")
+              updateSort(
+                e.target.value as "newest" | "price_asc" | "price_desc"
+              )
             }
             className="
               h-8 rounded-full border border-zinc-300 bg-white
@@ -190,7 +198,9 @@ export function FiltersBar({
           <select
             value={selectedSort ?? "newest"}
             onChange={(e) =>
-              updateSort(e.target.value as "newest" | "price_asc" | "price_desc")
+              updateSort(
+                e.target.value as "newest" | "price_asc" | "price_desc"
+              )
             }
             className="
               h-9 rounded-full border border-zinc-300 bg-white

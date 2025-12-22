@@ -183,7 +183,7 @@ const ProductDetails = ({product}: ProductInfoProps) => {
         slug: product.slug,
         title: product.title,
         price: product.price,
-        image: product.images?.[0],
+        image: product.images?.[0]?.src,
         qty: 1,
         size: chosenVariant.size,
         color: chosenVariant.color,
