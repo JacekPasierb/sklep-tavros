@@ -10,8 +10,8 @@ import {useEffect, useMemo, useState} from "react";
 import {TypeProduct} from "../../types/product";
 
 import {useUserFavorites} from "../../lib/hooks/useUserFavorites";
-import { TrashX } from "../icons/TrashX";
-import { useFavoritesStore } from "../../store/favoritesStore";
+import {TrashX} from "../icons/TrashX";
+import {useFavoritesStore} from "../../store/favoritesStore";
 
 type Props = {
   product: TypeProduct;
@@ -54,15 +54,14 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
   const fav = hydrated ? (isLoggedIn ? isFavUser : isFavGuest) : false;
 
   const mainImage =
-  product.images?.find((i) => i.primary)?.src ??
-  product.images?.[0]?.src ??
-  "/placeholder.png";
-console.log("img",product.images);
+    product.images?.find((i) => i.primary)?.src ??
+    product.images?.[0]?.src ??
+    "/placeholder.png";
 
   const mainAlt =
-  product.images?.find((i) => i.primary)?.alt ??
-  product.images?.[0]?.alt ??
-  product.title;
+    product.images?.find((i) => i.primary)?.alt ??
+    product.images?.[0]?.alt ??
+    product.title;
 
   // ------- SALE / NEW --------
   const hasSale =
@@ -137,8 +136,8 @@ console.log("img",product.images);
       <Link href={`/product/${product.slug}`} className="block group">
         <div className="relative aspect-[3/4] w-full overflow-hidden  bg-gray-100">
           {hasSale && (
-          <span
-          className="
+            <span
+              className="
             absolute left-3 top-3 z-[5]
             bg-[#E50000]/90 
             backdrop-blur-sm
@@ -148,9 +147,9 @@ console.log("img",product.images);
             uppercase text-white
             shadow-sm
           "
-        >
-          Sale - {discountPercent}%
-        </span>
+            >
+              Sale - {discountPercent}%
+            </span>
           )}
 
           <Image
@@ -229,7 +228,7 @@ console.log("img",product.images);
             aria-label="Remove from wishlist"
             disabled={disabled}
           >
-               <TrashX className="text-zinc-700" size={18} />
+            <TrashX className="text-zinc-700" size={18} />
           </button>
         )}
       </div>
