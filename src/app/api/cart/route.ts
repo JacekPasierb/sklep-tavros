@@ -1,18 +1,56 @@
 // app/api/cart/route.ts
 import {NextResponse} from "next/server";
 import {getServerSession} from "next-auth";
-import {connectToDatabase} from "../../../lib/mongodb";
-import {authOptions} from "../auth/[...nextauth]/route";
-import User from "../../../models/User";
-import {CartEntry} from "../../../types/cart";
 
+import {connectToDatabase} from "../../../lib/mongodb";
+import {authOptions} from "../../../lib/authOptions";
+
+import User from "../../../models/User";
+import Product from "../../../models/Product"; // ✅ rejestruje model "Product" dla populate
+import type {CartEntry} from "../../../types/cart";
+
+void Product; // ✅ ucisza "unused import" i gwarantuje rejestrację
+
+type CartBody = {
+  productId: string;
+  size?: string | null;
+  color?: string | null;
+  qty?: number;
+};
+
+type DeleteBody =
+  | {clearAll: true}
+  | {clearAll?: false; productId: string; size?: string | null; color?: string | null};
+
+function normalizeOpt(v: unknown): string | null {
+  if (typeof v !== "string") return null;
+  const t = v.trim();
+  return t.length ? t : null;
+}
+
+function normalizeQty(v: unknown, fallback = 1): number {
+  const n = typeof v === "number" ? v : Number(v);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(1, Math.floor(n));
+}
+
+function isNonEmptyString(v: unknown): v is string {
+  return typeof v === "string" && v.trim().length > 0;
+}
+
+/**
+ * GET /api/cart
+ * - Zwraca koszyk usera (z populate cart.product)
+ * - Dla gościa: { cart: [] }
+ */
 export async function GET() {
-  await connectToDatabase();
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.email) {
-    return NextResponse.json({cart: []}); // user niezalogowany
+    return NextResponse.json({cart: []});
   }
+
+  await connectToDatabase();
 
   const user = await User.findOne({email: session.user.email})
     .populate("cart.product")
@@ -21,32 +59,45 @@ export async function GET() {
   return NextResponse.json({cart: user?.cart ?? []});
 }
 
+/**
+ * POST /api/cart
+ * - Dodaje do koszyka (variant: productId + size + color)
+ */
 export async function POST(req: Request) {
-  await connectToDatabase();
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email)
+  if (!session?.user?.email) {
     return NextResponse.json({error: "Unauthorized"}, {status: 401});
+  }
 
-  const {productId, size, color, qty = 1} = await req.json();
+  const body = (await req.json()) as Partial<CartBody>;
+
+  if (!isNonEmptyString(body.productId)) {
+    return NextResponse.json({error: "Invalid productId"}, {status: 400});
+  }
+
+  const size = normalizeOpt(body.size);
+  const color = normalizeOpt(body.color);
+  const qty = normalizeQty(body.qty, 1);
+
+  await connectToDatabase();
 
   const user = await User.findOne({email: session.user.email});
-
   if (!user) {
     return NextResponse.json({error: "User not found"}, {status: 404});
   }
-  // znajdź wariant w koszyku
+
   const existing = user.cart.find(
     (item: CartEntry) =>
-      item.product.toString() === productId &&
-      item.size === size &&
-      item.color === color
+      item.product.toString() === body.productId &&
+      (item.size ?? null) === size &&
+      (item.color ?? null) === color
   );
 
   if (existing) {
-    existing.qty += qty;
+    existing.qty = normalizeQty(existing.qty + qty, 1);
   } else {
     user.cart.push({
-      product: productId,
+      product: body.productId,
       qty,
       size,
       color,
@@ -54,25 +105,45 @@ export async function POST(req: Request) {
   }
 
   await user.save();
-
   return NextResponse.json({ok: true});
 }
 
+/**
+ * PATCH /api/cart
+ * - Aktualizuje qty (variant: productId + size + color)
+ */
 export async function PATCH(req: Request) {
-  await connectToDatabase();
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email)
+  if (!session?.user?.email) {
     return NextResponse.json({error: "Unauthorized"}, {status: 401});
+  }
 
-  const {productId, size, color, qty} = await req.json();
+  const body = (await req.json()) as Partial<CartBody>;
+
+  if (!isNonEmptyString(body.productId)) {
+    return NextResponse.json({error: "Invalid productId"}, {status: 400});
+  }
+
+  const size = normalizeOpt(body.size);
+  const color = normalizeOpt(body.color);
+
+  if (typeof body.qty === "undefined") {
+    return NextResponse.json({error: "Missing qty"}, {status: 400});
+  }
+  const qty = normalizeQty(body.qty, 1);
+
+  await connectToDatabase();
 
   const user = await User.findOne({email: session.user.email});
   if (!user) {
     return NextResponse.json({error: "User not found"}, {status: 404});
   }
+
   const item = user.cart.find(
     (i: CartEntry) =>
-      i.product.toString() === productId && i.size === size && i.color === color
+      i.product.toString() === body.productId &&
+      (i.size ?? null) === size &&
+      (i.color ?? null) === color
   );
 
   if (!item) {
@@ -85,32 +156,44 @@ export async function PATCH(req: Request) {
   return NextResponse.json({ok: true});
 }
 
+/**
+ * DELETE /api/cart
+ * - clearAll: true -> czyści cały koszyk
+ * - inaczej: usuwa konkretny variant (productId + size + color)
+ */
 export async function DELETE(req: Request) {
-  await connectToDatabase();
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email)
+  if (!session?.user?.email) {
     return NextResponse.json({error: "Unauthorized"}, {status: 401});
+  }
 
-  const {productId, size, color, clearAll} = await req.json();
+  const body = (await req.json()) as DeleteBody;
+
+  await connectToDatabase();
 
   const user = await User.findOne({email: session.user.email});
   if (!user) {
     return NextResponse.json({error: "User not found"}, {status: 404});
   }
 
-  // 🔹 wariant 1: czyścimy cały koszyk
-  if (clearAll) {
+  if ("clearAll" in body && body.clearAll) {
     user.cart.splice(0, user.cart.length);
     await user.save();
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ok: true});
   }
 
-  // 🔹 wariant 2: usuwamy tylko konkretną pozycję (dotychczasowa logika)
+  if (!("productId" in body) || !isNonEmptyString(body.productId)) {
+    return NextResponse.json({error: "Invalid productId"}, {status: 400});
+  }
+
+  const size = normalizeOpt(body.size);
+  const color = normalizeOpt(body.color);
+
   const itemsToRemove = user.cart.filter(
     (i: CartEntry) =>
-      i.product.toString() === productId &&
-      i.size === size &&
-      i.color === color
+      i.product.toString() === body.productId &&
+      (i.size ?? null) === size &&
+      (i.color ?? null) === color
   );
 
   itemsToRemove.forEach((item) => {
@@ -118,6 +201,5 @@ export async function DELETE(req: Request) {
   });
 
   await user.save();
-
   return NextResponse.json({ok: true});
 }

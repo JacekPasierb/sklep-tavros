@@ -3,9 +3,10 @@ import {NextResponse} from "next/server";
 import {getServerSession} from "next-auth/next";
 import {Types} from "mongoose";
 import { connectToDatabase } from "../../../lib/mongodb";
-import { authOptions } from "../auth/[...nextauth]/route";
+
 import User from "../../../models/User";
 import Product from "../../../models/Product";
+import { authOptions } from "../../../lib/authOptions";
 
 // 👈 ważne: 2x ".."
 

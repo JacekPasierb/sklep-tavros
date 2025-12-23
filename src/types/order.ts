@@ -1,28 +1,12 @@
-export type OrderItem = {
-    _id: string;
-    orderNumber: string;
-    totalAmount: number;
-    currency: string;
-    status: string;
-    createdAt: string;
-  };
+export type PaymentStatus = "pending" | "paid" | "canceled";
 
-  // app/(account)/account/orders/page.tsx
-  export type OrderItems = {
-    productId: OrderItemProduct;
-    title: string;
-    qty: number;
-    price: number;
-  };
-
-  export type FulfillmentStatus =
+export type FulfillmentStatus =
   | "created"
   | "processing"
   | "shipped"
   | "delivered"
   | "canceled";
 
-// stałe kroki timeline
 export const ORDER_STEPS = [
   "Order placed",
   "Processing",
@@ -30,7 +14,6 @@ export const ORDER_STEPS = [
   "Delivered",
 ] as const;
 
-// mapowanie statusu na index kroku
 export const FULFILLMENT_STEP_INDEX: Record<FulfillmentStatus, number> = {
   created: 0,
   processing: 1,
@@ -39,21 +22,34 @@ export const FULFILLMENT_STEP_INDEX: Record<FulfillmentStatus, number> = {
   canceled: 0,
 };
 
+export type ProductImage = {
+  src: string;
+  alt?: string;
+  primary?: boolean;
+};
+
 export type OrderItemProduct = {
   _id: string;
   slug: string;
-  images?: string[];
+  images?: ProductImage[];
   title?: string;
   price?: number;
   currency?: string;
 };
 
-
+export type OrderItems = {
+  productId: OrderItemProduct;
+  title: string;
+  qty: number;
+  price: number;
+  size?:string;
+  color?:string;
+};
 
 export type AccountOrder = {
   _id: string;
   orderNumber: string;
-  paymentStatus: "pending" | "paid" | "canceled";
+  paymentStatus: PaymentStatus;
   fulfillmentStatus?: FulfillmentStatus;
   createdAt: string;
   amountTotal: number;
@@ -66,4 +62,12 @@ export type AccountOrder = {
 export type OrdersResponse = {
   orders: AccountOrder[];
 };
-  
+
+export type AccountOrderListRow = {
+  _id: string;
+  orderNumber: string;
+  amountTotal: number;
+  currency: string;
+  paymentStatus: PaymentStatus;
+  createdAt: string;
+};

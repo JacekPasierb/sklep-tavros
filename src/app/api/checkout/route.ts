@@ -4,10 +4,11 @@ import {stripe} from "../../../lib/stripe";
 import Order from "../../../models/Order";
 import {getServerSession} from "next-auth";
 import {connectToDatabase} from "../../../lib/mongodb";
-import {authOptions} from "../auth/[...nextauth]/route";
+
 import {calculateShippingCost, ShippingMethod} from "../../../lib/shipping";
 import {getNextOrderNumber} from "../../../lib/utils/generateOrderNumber";
 import {getCheckoutKey} from "../../../lib/utils/checkoutKey";
+import { authOptions } from "../../../lib/authOptions";
 
 type AuthSession = {
   user?: {

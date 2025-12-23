@@ -13,6 +13,7 @@ import { useCartStore } from "../../store/cartStore";
 
 import type { CartItem } from "../../types/cart";
 import { useUserCart } from "../../lib/hooks/useUserCart";
+import { getImageSrc } from "../../lib/utils/getImageSrc";
 
 type UiCartItem = CartItem & { key?: string };
 
@@ -257,11 +258,9 @@ export const CartDrawer = () => {
           ) : (
             <ul className="space-y-4">
               {items.map((item) => {
-                const img =
-                  item.image ??
-                  item.images?.[0] ??
-                  item.heroImage ??
-                  "/placeholder.png";
+               const img = getImageSrc(item.image, item.images);
+
+              
 
                 return (
                   <li

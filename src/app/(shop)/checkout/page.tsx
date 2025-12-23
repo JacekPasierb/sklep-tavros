@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { CartItem } from "../../../types/cart";
 import { useCartStore } from "../../../store/cartStore";
 import { useUserCart } from "../../../lib/hooks/useUserCart";
+import { getImageSrc } from "../../../lib/utils/getImageSrc";
 
 type UiCartItem = CartItem & { key?: string };
 type ShippingMethod = "standard" | "express";
@@ -441,11 +442,7 @@ export default function CheckoutPage() {
 
               <div className="mt-4 space-y-3 max-h-64 overflow-y-auto pr-1">
                 {items.map((item) => {
-                  const img =
-                    item.image ??
-                    item.images?.[0] ??
-                    item.heroImage ??
-                    "/placeholder.png";
+                  const img = getImageSrc(item.image ?? item.images?.[0] ?? item.heroImage);
 
                   return (
                     <div
