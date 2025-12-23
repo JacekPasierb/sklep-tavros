@@ -4,7 +4,8 @@ import Product from "../../../models/Product";
 import {Types} from "mongoose";
 import {generateStyleCode} from "../../../lib/utils/generateStyleCode";
 import {getServerSession} from "next-auth";
-import {authOptions} from "../auth/[...nextauth]/route";
+import { authOptions } from "../../../lib/authOptions";
+
 
 type ProductGender = "MENS" | "WOMENS" | "KIDS" | "UNISEX";
 

@@ -1,10 +1,11 @@
 // app/api/account/orders/[id]/pay/route.ts
 import { NextResponse, type NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../../../auth/[...nextauth]/route";
+
 import { connectToDatabase } from "../../../../../../lib/mongodb";
 import Order from "../../../../../../models/Order";
 import { stripe } from "../../../../../../lib/stripe";
+import { authOptions } from "../../../../../../lib/authOptions";
 
 
 // USUŃ swój typ RouteParams
