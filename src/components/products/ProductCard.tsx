@@ -12,6 +12,7 @@ import {TypeProduct} from "../../types/product";
 import {useUserFavorites} from "../../lib/hooks/useUserFavorites";
 import {TrashX} from "../icons/TrashX";
 import {useFavoritesStore} from "../../store/favoritesStore";
+import { isCustomerSession } from "../../lib/utils/isCustomer";
 
 type Props = {
   product: TypeProduct;
@@ -20,8 +21,12 @@ type Props = {
 };
 
 const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
-  const {status} = useSession();
-  const isLoggedIn = status === "authenticated";
+  const {data: session, status} = useSession();
+  const isCustomer = isCustomerSession(session, status);
+  
+
+
+  // const isLoggedIn = status === "authenticated";
 
   // 👇 prosty, standardowy guard na hydrację (żeby SSR == 1. render klienta)
   const [hydrated, setHydrated] = useState(false);
@@ -40,7 +45,7 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
     add,
     remove,
     isLoading: favsLoading,
-  } = useUserFavorites(isLoggedIn);
+  } = useUserFavorites(isCustomer);
 
   const isFavUser = useMemo(
     () => serverFavIds?.has(product._id) ?? false,
@@ -51,7 +56,7 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
 
   // dopóki nie zhydratujemy, traktujemy jak nie-ulubiony,
   // żeby nie rozjechać się z HTML-em z SSR
-  const fav = hydrated ? (isLoggedIn ? isFavUser : isFavGuest) : false;
+  const fav = hydrated ? (isCustomer ? isFavUser : isFavGuest) : false;
 
   const mainImage =
     product.images?.find((i) => i.primary)?.src ??
@@ -83,14 +88,14 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
       currency: product.currency ?? "GBP",
     }).format(value);
 
-  const disabled = busy || (isLoggedIn && favsLoading);
+  const disabled = busy || (isCustomer && favsLoading);
 
   // ------- HANDLERY ULUBIONYCH -------
   async function toggleFavorite() {
     if (disabled) return;
 
     // gość – tylko lokalny store
-    if (!isLoggedIn) {
+    if (!isCustomer) {
       toggleGuest(product._id);
       return;
     }
@@ -113,7 +118,7 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
   async function removeFavorite() {
     if (disabled) return;
 
-    if (!isLoggedIn) {
+    if (!isCustomer) {
       removeGuest(product._id);
       onRemoved?.(product._id);
       return;

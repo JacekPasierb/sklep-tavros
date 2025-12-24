@@ -10,6 +10,7 @@ import {useUserFavorites} from "../../lib/hooks/useUserFavorites";
 import {useUserCart} from "../../lib/hooks/useUserCart";
 import {useCartStore} from "../../store/cartStore";
 import {useFavoritesStore} from "../../store/favoritesStore";
+import { isCustomerSession } from "../../lib/utils/isCustomer";
 
 interface ProductInfoProps {
   product: TypeProduct;
@@ -27,8 +28,8 @@ const ProductDetails = ({product}: ProductInfoProps) => {
   // ─────────────────────────────────────────────────────────────
   //  AUTH / SESSION
   // ─────────────────────────────────────────────────────────────
-  const {status} = useSession();
-  const isLoggedIn = status === "authenticated";
+  const { data: session, status } = useSession();
+  const isCustomer = isCustomerSession(session, status);
 
   // HYDRATION GUARD
   // -------------------------------------------------
@@ -58,7 +59,7 @@ const ProductDetails = ({product}: ProductInfoProps) => {
     add: addFavorite,
     remove: removeFavorite,
     isLoading: favoritesLoading,
-  } = useUserFavorites(isLoggedIn);
+  } = useUserFavorites(isCustomer);
 
   const isFavUser = useMemo(
     () => serverFavIds?.has(product._id) ?? false,
@@ -68,14 +69,14 @@ const ProductDetails = ({product}: ProductInfoProps) => {
   const [favoritePending, setFavoritePending] = useState(false);
 
   // finalny stan ulubionych widoczny w UI
-  const isFavorite = hydrated ? (isLoggedIn ? isFavUser : isFavGuest) : false;
-  const favoriteDisabled = favoritePending || (isLoggedIn && favoritesLoading);
+  const isFavorite = hydrated ? (isCustomer? isFavUser : isFavGuest) : false;
+  const favoriteDisabled = favoritePending || (isCustomer && favoritesLoading);
 
   const handleToggleFavorite = async () => {
     if (favoriteDisabled) return;
 
     // gość – tylko lokalny store
-    if (!isLoggedIn) {
+    if (!isCustomer) {
       toggleGuestFavorite(product._id);
       return;
     }
@@ -100,7 +101,7 @@ const ProductDetails = ({product}: ProductInfoProps) => {
   // ─────────────────────────────────────────────────────────────
 
   // user – koszyk w MongoDB, obsługiwany przez SWR
-  const {addItem, isLoading: cartLoading} = useUserCart(isLoggedIn);
+  const {addItem, isLoading: cartLoading} = useUserCart(isCustomer);
 
   // ─────────────────────────────────────────────────────────────
   //  VARIANTS: COLORS, SIZES, PRICES
@@ -175,7 +176,7 @@ const ProductDetails = ({product}: ProductInfoProps) => {
     }
 
     // 1) GOŚĆ → zapis w localStorage (Zustand)
-    if (!isLoggedIn) {
+    if (!isCustomer) {
       useCartStore.getState().add({
         // klucz wariantu wygeneruje store – tu placeholder
         key: "",
