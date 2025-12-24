@@ -1,10 +1,7 @@
 import Link from "next/link";
-import {Button} from "./Button";
-import { AdminNav } from "./AdminNav";
 
-
-
-
+import {AdminNav} from "./AdminNav";
+import {AdminSignOut} from "./AdminSignOut";
 
 export function AdminShell({children}: {children: React.ReactNode}) {
   return (
@@ -16,16 +13,16 @@ export function AdminShell({children}: {children: React.ReactNode}) {
               <span className="text-xs font-semibold tracking-[0.18em]">T</span>
             </div>
             <div>
-              <div className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Admin</div>
+              <div className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+                Admin
+              </div>
               <div className="text-sm font-semibold text-black">Tavros</div>
             </div>
           </div>
 
           <div className="hidden sm:flex items-center gap-2">
-           <AdminNav/>
-            <Button variant="primary" type="button">
-              Sign out
-            </Button>
+            <AdminNav />
+            <AdminSignOut />
           </div>
 
           <div className="sm:hidden">

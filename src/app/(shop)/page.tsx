@@ -1,8 +1,9 @@
 // app/(shop)/page.tsx
-import BannerSection from "../components/home/BannerSection";
-import HomeGenderSection from "../components/home/HomeGenderSection";
-import {getCollections} from "../lib/collections";
-import {getProducts} from "../lib/products";
+
+import BannerSection from "../../components/home/BannerSection";
+import HomeGenderSection from "../../components/home/HomeGenderSection";
+import {getCollections} from "../../lib/collections";
+import {getProducts} from "../../lib/products";
 
 export default async function HomePage() {
   // 1. Kolekcje dla wszystkich płci
