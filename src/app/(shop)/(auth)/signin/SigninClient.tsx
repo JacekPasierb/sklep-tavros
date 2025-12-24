@@ -4,13 +4,20 @@
 import {Formik, Form, Field, ErrorMessage} from "formik";
 import * as Yup from "yup";
 import {useRouter, useSearchParams} from "next/navigation";
-import {signIn} from "next-auth/react";
+import {getSession, signIn} from "next-auth/react";
 import {useState} from "react";
 
 const LoginSchema = Yup.object({
   email: Yup.string().email("Nieprawidłowy email").required("Wymagane"),
   password: Yup.string().required("Wymagane"),
 });
+
+// tylko wewnętrzne ścieżki (żeby nie było open redirect)
+function sanitizeCallbackUrl(raw: string | null, fallback: string) {
+  if (!raw) return fallback;
+  if (raw.startsWith("/") && !raw.startsWith("//")) return raw;
+  return fallback;
+}
 
 export default function SignInClient() {
   const router = useRouter();
@@ -19,10 +26,7 @@ export default function SignInClient() {
 
   const reason = searchParams.get("reason");
   const rawCallbackUrl = searchParams.get("callbackUrl");
-  const callbackUrl =
-    rawCallbackUrl && rawCallbackUrl.startsWith("/")
-      ? rawCallbackUrl
-      : "/account";
+  const safeCallbackUrl = sanitizeCallbackUrl(rawCallbackUrl, "/account");
 
   const initialValues = {email: "", password: ""};
 
@@ -37,7 +41,7 @@ export default function SignInClient() {
         email: values.email,
         password: values.password,
         redirect: false,
-        callbackUrl,
+        callbackUrl: safeCallbackUrl,
       });
 
       if (!res) {
@@ -50,7 +54,27 @@ export default function SignInClient() {
         return;
       }
 
-      router.push(callbackUrl);
+      // 🔑 tu decydujemy gdzie iść po zalogowaniu
+      const session = await getSession();
+      const role = (session?.user as {role?: string} | undefined)?.role;
+
+      const isAdmin = role === "admin";
+
+      // Admin zawsze idzie do /admin (chyba że callbackUrl już prowadzi do /admin/...)
+      if (isAdmin) {
+        const adminTarget = safeCallbackUrl.startsWith("/admin")
+          ? safeCallbackUrl
+          : "/admin";
+        router.push(adminTarget);
+        return;
+      }
+
+      // Zwykły user – jeśli ktoś mu poda /admin jako callback, to i tak nie wpuszczamy (UX)
+      const userTarget = safeCallbackUrl.startsWith("/admin")
+        ? "/account"
+        : safeCallbackUrl;
+
+      router.push(userTarget);
     } catch (e) {
       console.error(e);
       setServerError("Błąd logowania. Spróbuj ponownie.");
@@ -72,7 +96,8 @@ export default function SignInClient() {
         )}
         {reason === "favorites" && (
           <div className="mb-4 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            Ulubione wymagają zalogowania. Zaloguj się, aby zobaczyć swoją listę.
+            Ulubione wymagają zalogowania. Zaloguj się, aby zobaczyć swoją
+            listę.
           </div>
         )}
         {reason === "myaccount" && (
