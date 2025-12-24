@@ -12,7 +12,7 @@ export async function proxy(req: NextRequest) {
 
   if (!token) {
     const url = req.nextUrl.clone();
-    url.pathname = "/account/signin";
+    url.pathname = "/signin";
     url.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(url);
   }
