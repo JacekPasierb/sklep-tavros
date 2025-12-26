@@ -1,20 +1,24 @@
 // components/layout/Header/IconsBar.tsx
 "use client";
 
-import { Heart, ShoppingBag, User } from "lucide-react";
+import {Heart, ShoppingBag, User} from "lucide-react";
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useCartUiStore } from "../../../store/cartUiStore";
-import { useCartStore } from "../../../store/cartStore";
-import { CartDrawer } from "../../cart/CartDrawer";
+import {useSession, signOut} from "next-auth/react";
+import {useEffect, useMemo, useRef, useState} from "react";
+import {useCartUiStore} from "../../../store/cartUiStore";
+import {useCartStore} from "../../../store/cartStore";
+import {CartDrawer} from "../../cart/CartDrawer";
 
-import { CartItem } from "../../../types/cart";
-import { useUserCart } from "../../../lib/hooks/useUserCart";
+import {CartItem} from "../../../types/cart";
+import {useUserCart} from "../../../lib/hooks/useUserCart";
+import {isAdminSession, isCustomerSession} from "../../../lib/utils/isCustomer";
 
 const IconsBar = () => {
-  const { data: session, status } = useSession();
-  const isAuthenticated = status === "authenticated";
+  const {data: session, status} = useSession();
+
+  const isCustomer = isCustomerSession(session, status);
+  const isAdmin = isAdminSession(session, status);
+
   const isAuthLoading = status === "loading";
 
   const openCart = useCartUiStore((s) => s.open);
@@ -22,23 +26,16 @@ const IconsBar = () => {
   // ---- GOŚĆ: licznik z Zustand ----
   const guestRawItems = useCartStore((s) => s.items);
   const guestCount = useMemo(
-    () =>
-      Object.values(guestRawItems).reduce(
-        (sum, item) => sum + item.qty,
-        0
-      ),
+    () => Object.values(guestRawItems).reduce((sum, item) => sum + item.qty, 0),
     [guestRawItems]
   );
 
   // ---- USER: licznik z API (/api/cart) ----
-  const { cart } = useUserCart(isAuthenticated);
+  const {cart} = useUserCart(isCustomer);
   const userCount = useMemo(
     () =>
       cart
-        ? cart.reduce(
-            (sum: number, item: CartItem) => sum + item.qty,
-            0
-          )
+        ? cart.reduce((sum: number, item: CartItem) => sum + item.qty, 0)
         : 0,
     [cart]
   );
@@ -51,11 +48,7 @@ const IconsBar = () => {
   }, []);
 
   // liczba do wyświetlenia w badge
-  const cartCount = hydrated
-    ? isAuthenticated
-      ? userCount
-      : guestCount
-    : 0;
+  const cartCount = hydrated ? (isCustomer ? userCount : guestCount) : 0;
 
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLLIElement | null>(null);
@@ -75,20 +68,24 @@ const IconsBar = () => {
   }, [userMenuOpen]);
 
   const userName =
-    session?.user?.name ||
-    session?.user?.email?.split("@")[0] ||
-    "My account";
+    session?.user?.name || session?.user?.email?.split("@")[0] || "My account";
 
   const wishlistHref = "/favorites";
 
   // dla mobile – gdy ładuje sesję, traktujemy jako "sprawdź konto"
-  const accountHref =
-    status === "authenticated"
-      ? "/account"
-      : status === "unauthenticated"
-      ? "/signin"
-      : "/account";
-
+  // const accountHref =
+  //   status === "authenticated"
+  //     ? "/account"
+  //     : status === "unauthenticated"
+  //     ? "/signin"
+  //     : "/account";
+  const accountHref = isAuthLoading
+    ? "/account"
+    : isAdmin
+    ? "/admin"
+    : isCustomer
+    ? "/account"
+    : "/signin";
   return (
     <>
       <div className="flex gap-1 justify-self-end md:gap-4">
@@ -132,7 +129,46 @@ const IconsBar = () => {
                       Please wait a moment while we check your login status.
                     </p>
                   </div>
-                ) : isAuthenticated ? (
+                ) : isAdmin ? (
+                  // 🔹 WARIANT: ADMIN (zalogowany, ale traktowany w sklepie jak guest)
+                  <>
+                    <div className="px-4 pb-3">
+                      <p className="text-xs uppercase tracking-wide text-zinc-500">
+                        Signed in as
+                      </p>
+                      <p className="truncate text-sm font-medium text-zinc-900">
+                        {userName}
+                      </p>
+                      <span className="mt-2 inline-flex w-fit rounded-full bg-black px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
+                        Admin
+                      </span>
+                    </div>
+
+                    <div className="border-t border-zinc-100" />
+
+                    <div className="flex flex-col gap-1 px-2 py-2">
+                      <Link
+                        href="/admin"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="rounded-lg px-3 py-2 text-left hover:bg-zinc-50"
+                      >
+                        Go to dashboard
+                      </Link>
+                    </div>
+
+                    <div className="border-t border-zinc-100" />
+
+                    <div className="px-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => signOut({callbackUrl: "/"})}
+                        className="w-full rounded-full bg-black px-4 py-2.5 text-xs font-semibold text-white hover:bg-black/90"
+                      >
+                        Log out
+                      </button>
+                    </div>
+                  </>
+                ) : isCustomer ? (
                   /* 🔹 WARIANT: ZALOGOWANY */
                   <>
                     <div className="px-4 pb-3">
@@ -168,7 +204,7 @@ const IconsBar = () => {
                     <div className="px-3 pt-2">
                       <button
                         type="button"
-                        onClick={() => signOut({ callbackUrl: "/" })}
+                        onClick={() => signOut({callbackUrl: "/"})}
                         className="w-full rounded-full bg-black px-4 py-2.5 text-xs font-semibold text-white hover:bg-black/90"
                       >
                         Log out

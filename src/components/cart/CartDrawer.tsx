@@ -14,6 +14,7 @@ import { useCartStore } from "../../store/cartStore";
 import type { CartItem } from "../../types/cart";
 import { useUserCart } from "../../lib/hooks/useUserCart";
 import { getImageSrc } from "../../lib/utils/getImageSrc";
+import { isCustomerSession } from "../../lib/utils/isCustomer";
 
 type UiCartItem = CartItem & { key?: string };
 
@@ -23,9 +24,11 @@ export const CartDrawer = () => {
   const { isOpen, close } = useCartUiStore();
   const router = useRouter();
 
-  const { status } = useSession();
+  const { data: session, status } = useSession();
+const isCustomer = isCustomerSession(session, status);
+  
   const isAuthLoading = status === "loading";
-  const isLoggedIn = status === "authenticated";
+  // const isLoggedIn = status === "authenticated";
 
   // ---- KOSZYK USERA (API) ----
   const {
@@ -33,7 +36,7 @@ export const CartDrawer = () => {
     isLoading: userLoading,
     updateQty,
     removeItem,
-  } = useUserCart(isLoggedIn);
+  } = useUserCart(isCustomer);
 
   // ---- KOSZYK GOŚCIA (ZUSTAND) ----
   const guestRawItems = useCartStore((s) => s.items);
@@ -59,9 +62,9 @@ export const CartDrawer = () => {
   );
 
   // ---- WYBÓR ŹRÓDŁA ----
-  const items: UiCartItem[] = isLoggedIn ? cart ?? [] : guestItems;
+  const items: UiCartItem[] = isCustomer ? cart ?? [] : guestItems;
 
-  const subtotal = isLoggedIn
+  const subtotal = isCustomer
     ? items.reduce((sum, item) => {
         const price = Number(item.price) || 0;
         const qty = Number(item.qty) || 0;
@@ -69,12 +72,12 @@ export const CartDrawer = () => {
       }, 0)
     : getGuestSubtotal();
 
-  const count = isLoggedIn
+  const count = isCustomer
     ? items.reduce((sum, item) => sum + item.qty, 0)
     : getGuestCount();
 
   // 🔹 globalny stan ładowania: auth (czy user zalogowany) + koszyk usera
-  const isLoading = isAuthLoading || (isLoggedIn && userLoading);
+  const isLoading = isAuthLoading || (isCustomer && userLoading);
 
   const freeShippingLeft = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const freeShippingProgress = Math.min(
@@ -85,7 +88,7 @@ export const CartDrawer = () => {
   if (!isOpen) return null;
 
   const handleDecrease = (item: UiCartItem) => {
-    if (isLoggedIn) {
+    if (isCustomer) {
       if (item.qty <= 1) {
         removeItem({
           productId: item.productId,
@@ -112,7 +115,7 @@ export const CartDrawer = () => {
   };
 
   const handleIncrease = (item: UiCartItem) => {
-    if (isLoggedIn) {
+    if (isCustomer) {
       updateQty({
         productId: item.productId,
         size: item.size,
@@ -127,7 +130,7 @@ export const CartDrawer = () => {
   };
 
   const handleRemove = (item: UiCartItem) => {
-    if (isLoggedIn) {
+    if (isCustomer) {
       removeItem({
         productId: item.productId,
         size: item.size,

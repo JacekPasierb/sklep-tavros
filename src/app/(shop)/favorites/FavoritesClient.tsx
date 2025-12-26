@@ -11,6 +11,7 @@ import {useFavoritesStore} from "../../../store/favoritesStore";
 import {TypeProduct} from "../../../types/product";
 import ProductCard from "../../../components/products/ProductCard";
 import {Pagination} from "../../../components/products/Pagination";
+import {isCustomerSession} from "../../../lib/utils/isCustomer";
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -19,8 +20,8 @@ const fetcher = async (url: string) => {
 };
 
 export default function FavoritesClient() {
-  const {status} = useSession();
-  const isLoggedIn = status === "authenticated";
+  const {data: session, status} = useSession();
+  const isCustomer = isCustomerSession(session, status);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -36,7 +37,7 @@ export default function FavoritesClient() {
     products: userProducts,
     remove: removeServer,
     isLoading: userLoading,
-  } = useUserFavorites(isLoggedIn);
+  } = useUserFavorites(isCustomer);
 
   const favoritesMap = useFavoritesStore((s) => s.favorites);
   const guestIds = useMemo(() => Object.keys(favoritesMap), [favoritesMap]);
@@ -45,7 +46,7 @@ export default function FavoritesClient() {
   const clearGuest = useFavoritesStore((s) => s.clear);
 
   const guestKey =
-    !isLoggedIn && guestIds.length
+    !isCustomer && guestIds.length
       ? `/api/products?ids=${encodeURIComponent(guestIds.join(","))}`
       : null;
 
@@ -54,12 +55,12 @@ export default function FavoritesClient() {
   });
 
   const loading =
-    status === "loading" || (isLoggedIn ? userLoading : guestLoading);
+    status === "loading" || (isCustomer ? userLoading : guestLoading);
 
   const products: TypeProduct[] = useMemo(() => {
-    if (isLoggedIn) return (userProducts as TypeProduct[]) ?? [];
+    if (isCustomer) return (userProducts as TypeProduct[]) ?? [];
     return (guestData?.data as TypeProduct[]) ?? [];
-  }, [isLoggedIn, userProducts, guestData?.data]);
+  }, [isCustomer, userProducts, guestData?.data]);
 
   const totalItems = products.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
@@ -83,11 +84,11 @@ export default function FavoritesClient() {
 
   const handleRemove = useCallback(
     async (id: string) => {
-      if (isLoggedIn) await removeServer(id);
+      if (isCustomer) await removeServer(id);
       else removeGuest(id);
       router.refresh();
     },
-    [isLoggedIn, removeServer, removeGuest, router]
+    [isCustomer, removeServer, removeGuest, router]
   );
 
   if (loading) {
@@ -110,7 +111,7 @@ export default function FavoritesClient() {
         </p>
       </div>
 
-      {!isLoggedIn && (
+      {!isCustomer && (
         <div className="mt-4 mb-6 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-4 text-left sm:flex sm:items-center sm:justify-between">
           <p className="text-sm text-zinc-600">
             Your favourites are saved only in this browser. Create a free Tavros
@@ -167,7 +168,8 @@ export default function FavoritesClient() {
             <div className="mt-8 flex flex-col items-center gap-2">
               <p className="text-sm text-gray-500">
                 Wyświetlane {(currentPage - 1) * pageSize + 1}–{" "}
-                {Math.min(currentPage * pageSize, totalItems)} z {totalItems} produktów
+                {Math.min(currentPage * pageSize, totalItems)} z {totalItems}{" "}
+                produktów
               </p>
               <Pagination currentPage={currentPage} totalPages={totalPages} />
             </div>
