@@ -7,8 +7,8 @@ export type ProductImage = {
 };
 
 export type Variant = {
-  size: string;
-  sku: string;
+  size?: string;
+  sku?: string;
   stock: number;
   color: string;
 };
@@ -46,3 +46,5 @@ export type TypeProduct = {
   styleCode?: string;                // ✅ z modelu
   deliveryReturns?: ProductTextBlock; // ✅ luźno typowane, bo mongoose default/undefined
 };
+
+// export type ProductInput = Omit<TypeProduct, "_id">;

@@ -3,9 +3,24 @@ import {connectToDatabase} from "../../../../lib/mongodb";
 import Order from "../../../../models/Order";
 import {SectionHeader} from "../../../../components/admin/SectionHeader";
 import {Pagination} from "../../../../components/products/Pagination";
+import {OrderStatusControls} from "../../../../components/admin/orders/OrderStatusContrlos";
 
 import type {FulfillmentStatus, PaymentStatus} from "../../../../types/order";
-import { OrderStatusControls } from "../../../../components/admin/orders/OrderStatusContrlos";
+
+type CustomerAddress = {
+  street?: string | null;
+  city?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+};
+
+type Customer = {
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  address?: CustomerAddress | null;
+};
 
 type PublicOrder = {
   id: string;
@@ -16,11 +31,38 @@ type PublicOrder = {
   paymentStatus: PaymentStatus;
   fulfillmentStatus: FulfillmentStatus;
   createdAt: string;
+  customer?: Customer | null;
 };
 
 function parseIntSafe(value: string | undefined, fallback: number) {
   const n = Number(value);
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
+}
+
+function formatCustomerName(c?: Customer | null) {
+  const first = c?.firstName?.trim();
+  const last = c?.lastName?.trim();
+  const full = [first, last].filter(Boolean).join(" ");
+  return full || "—";
+}
+
+function formatAddress(a?: CustomerAddress | null) {
+  if (!a) return "—";
+
+  // ładniej niż “data w adresie” 🙂: street, city, postalCode, country
+  const parts = [a.street, a.city, a.postalCode, a.country].filter(Boolean);
+  return parts.length ? parts.join(", ") : "—";
+}
+
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  // en-GB: 27 Dec 2025
+  return d.toLocaleDateString("en-GB", {day: "2-digit", month: "short", year: "numeric"});
+}
+
+function formatTime(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleTimeString("en-GB", {hour: "2-digit", minute: "2-digit"});
 }
 
 export default async function AdminOrdersPage({
@@ -51,6 +93,9 @@ export default async function AdminOrdersPage({
     filter.$or = [
       {orderNumber: {$regex: q, $options: "i"}},
       {email: {$regex: q, $options: "i"}},
+      {"customer.email": {$regex: q, $options: "i"}},
+      {"customer.firstName": {$regex: q, $options: "i"}},
+      {"customer.lastName": {$regex: q, $options: "i"}},
     ];
   }
   if (paymentStatus) filter.paymentStatus = paymentStatus;
@@ -67,11 +112,12 @@ export default async function AdminOrdersPage({
     .select({
       orderNumber: 1,
       email: 1,
-      amountTotal: 1, // ✅ w modelu
+      amountTotal: 1,
       currency: 1,
       paymentStatus: 1,
       fulfillmentStatus: 1,
       createdAt: 1,
+      customer: 1, // ✅ potrzebne do adresu
     })
     .lean<
       Array<{
@@ -83,6 +129,7 @@ export default async function AdminOrdersPage({
         paymentStatus: PaymentStatus;
         fulfillmentStatus: FulfillmentStatus;
         createdAt: Date;
+        customer?: Customer | null;
       }>
     >();
 
@@ -95,6 +142,7 @@ export default async function AdminOrdersPage({
     paymentStatus: o.paymentStatus,
     fulfillmentStatus: o.fulfillmentStatus,
     createdAt: o.createdAt.toISOString(),
+    customer: o.customer ?? null,
   }));
 
   return (
@@ -115,7 +163,7 @@ export default async function AdminOrdersPage({
             <input
               name="q"
               defaultValue={q}
-              placeholder="Order number or email…"
+              placeholder="Order number, email, customer…"
               className="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-sm outline-none focus:border-black"
             />
           </div>
@@ -187,60 +235,86 @@ export default async function AdminOrdersPage({
 
         {/* headers */}
         <div className="hidden sm:block px-5 py-3 border-b border-zinc-200">
-          <div className="grid grid-cols-12 gap-4 text-[11px] uppercase tracking-[0.18em] text-zinc-500">
-            <div className="col-span-3">Order</div>
+          <div className="grid grid-cols-13 gap-4 text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+            <div className="col-span-2">Order</div>
+            <div className="col-span-2">Date</div>
             <div className="col-span-3">Customer</div>
             <div className="col-span-2 text-right">Total</div>
-            <div className="col-span-2">Payment</div>
-            <div className="col-span-2">Fulfillment</div>
+            <div className="col-span-2">Pay</div>
+            <div className="col-span-2">Ship</div>
           </div>
         </div>
 
         <div className="divide-y divide-zinc-200">
-          {orders.map((o) => (
-            <div key={o.id} className="px-5 py-4">
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-12 sm:gap-4 sm:items-center">
-                <div className="sm:col-span-3 min-w-0">
-                  <div className="text-sm font-semibold text-black truncate">
-                    {o.orderNumber}
+          {orders.map((o) => {
+            const customerName = formatCustomerName(o.customer);
+            const customerEmail = o.customer?.email || o.email;
+            const address = formatAddress(o.customer?.address);
+
+            return (
+              <div key={o.id} className="px-5 py-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-13 sm:gap-4 sm:items-center">
+                  {/* ORDER NUMBER */}
+                  <div className="sm:col-span-2 min-w-0">
+                    <div className="text-sm font-semibold text-black truncate">
+                      {o.orderNumber}
+                    </div>
+
+                    {/* mobile: date under order */}
+                    <div className="mt-1 sm:hidden text-xs text-zinc-500">
+                      {formatDate(o.createdAt)} • {formatTime(o.createdAt)}
+                    </div>
                   </div>
-                  <div className="mt-1 sm:hidden text-xs text-zinc-500">
-                    {new Date(o.createdAt).toLocaleDateString("en-GB")}
+
+                  {/* DATE (desktop) */}
+                  <div className="hidden sm:block sm:col-span-2 text-xs text-zinc-700">
+                    <div className="font-medium text-zinc-900">{formatDate(o.createdAt)}</div>
+                    <div className="text-[11px] text-zinc-500">{formatTime(o.createdAt)}</div>
                   </div>
-                </div>
 
-                <div className="sm:col-span-3 min-w-0">
-                  <div className="text-sm text-zinc-700 truncate">{o.email}</div>
-                  <div className="hidden sm:block text-xs text-zinc-500">
-                    {new Date(o.createdAt).toLocaleDateString("en-GB")}
+                  {/* CUSTOMER + ADDRESS */}
+                  <div className="sm:col-span-3 min-w-0">
+                    <div className="text-sm font-medium text-zinc-900 truncate">
+                      {customerName}
+                    </div>
+                    <div className="text-xs text-zinc-600 truncate">
+                      {customerEmail}
+                      {o.customer?.phone ? ` • ${o.customer.phone}` : ""}
+                    </div>
+                    <div className="mt-1 text-[11px] text-zinc-500 line-clamp-2">
+                      {address}
+                    </div>
                   </div>
-                </div>
 
-                <div className="sm:col-span-2 sm:text-right text-sm text-black">
-                  {Number.isFinite(o.total) ? o.total.toFixed(2) : "—"}{" "}
-                  {o.currency}
-                </div>
+                  {/* TOTAL */}
+                  <div className="sm:col-span-2 sm:text-right text-sm text-black">
+                    {Number.isFinite(o.total) ? o.total.toFixed(2) : "—"}{" "}
+                    {o.currency}
+                  </div>
 
-                <div className="sm:col-span-2">
-                  <OrderStatusControls
-                    orderId={o.id}
-                    paymentStatus={o.paymentStatus}
-                    fulfillmentStatus={o.fulfillmentStatus}
-                    kind="payment"
-                  />
-                </div>
+                  {/* PAYMENT */}
+                  <div className="sm:col-span-2">
+                    <OrderStatusControls
+                      orderId={o.id}
+                      paymentStatus={o.paymentStatus}
+                      fulfillmentStatus={o.fulfillmentStatus}
+                      kind="payment"
+                    />
+                  </div>
 
-                <div className="sm:col-span-2">
-                  <OrderStatusControls
-                    orderId={o.id}
-                    paymentStatus={o.paymentStatus}
-                    fulfillmentStatus={o.fulfillmentStatus}
-                    kind="fulfillment"
-                  />
+                  {/* FULFILLMENT */}
+                  <div className="sm:col-span-2">
+                    <OrderStatusControls
+                      orderId={o.id}
+                      paymentStatus={o.paymentStatus}
+                      fulfillmentStatus={o.fulfillmentStatus}
+                      kind="fulfillment"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {orders.length === 0 ? (
             <div className="px-5 py-10 text-sm text-zinc-600">No orders found.</div>

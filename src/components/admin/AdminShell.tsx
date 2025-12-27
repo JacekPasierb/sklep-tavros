@@ -1,7 +1,7 @@
-import Link from "next/link";
-
 import {AdminNav} from "./AdminNav";
 import {AdminSignOut} from "./AdminSignOut";
+import {AdminPreviewStore} from "./AdminPreviewStore";
+import {AdminMobileMenu} from "./AdminMobileMenu";
 
 export function AdminShell({children}: {children: React.ReactNode}) {
   return (
@@ -22,16 +22,12 @@ export function AdminShell({children}: {children: React.ReactNode}) {
 
           <div className="hidden sm:flex items-center gap-2">
             <AdminNav />
+            <AdminPreviewStore />
             <AdminSignOut />
           </div>
 
           <div className="sm:hidden">
-            <Link
-              href="/admin"
-              className="rounded-full px-4 py-2 text-sm border border-zinc-200 hover:bg-zinc-50 transition"
-            >
-              Menu
-            </Link>
+            <AdminMobileMenu />
           </div>
         </div>
       </header>

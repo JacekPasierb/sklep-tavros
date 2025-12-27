@@ -8,7 +8,7 @@ type Item = {href: string; label: string};
 const items: Item[] = [
   {href: "/admin", label: "Dashboard"},
   {href: "/admin/orders", label: "Orders"},
-  
+  { href: "/admin/products", label: "Products" },
   {href: "/admin/users", label: "Users"},
 ];
 

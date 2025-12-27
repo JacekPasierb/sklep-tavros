@@ -7,6 +7,7 @@ import { CartItem } from "../../../types/cart";
 import { useCartStore } from "../../../store/cartStore";
 import { useUserCart } from "../../../lib/hooks/useUserCart";
 import { getImageSrc } from "../../../lib/utils/getImageSrc";
+import { isCustomerSession } from "../../../lib/utils/isCustomer";
 
 type UiCartItem = CartItem & { key?: string };
 type ShippingMethod = "standard" | "express";
@@ -20,10 +21,10 @@ export default function CheckoutPage() {
   const { data: session, status } = useSession();
 
   const isAuthLoading = status === "loading";
-  const isLoggedIn = status === "authenticated";
-
+  // const isLoggedIn = status === "authenticated";
+  const isCustomer = isCustomerSession(session, status);
   // ---- KOSZYK USERA (API) ----
-  const { cart, isLoading: userLoading } = useUserCart(isLoggedIn);
+  const { cart, isLoading: userLoading } = useUserCart(isCustomer);
 
   // ---- KOSZYK GOŚCIA (ZUSTAND) ----
   const guestRawItems = useCartStore((s) => s.items);
@@ -43,7 +44,7 @@ export default function CheckoutPage() {
     [guestRawItems]
   );
 
-  const items: UiCartItem[] = isLoggedIn ? cart ?? [] : guestItems;
+  const items: UiCartItem[] = isCustomer ? cart ?? [] : guestItems;
 
   const subtotal = items.reduce((sum, item) => {
     const price = Number(item.price) || 0;
@@ -65,7 +66,7 @@ export default function CheckoutPage() {
       currency: "GBP",
     }).format(value);
 
-  const isCartLoading = isLoggedIn && userLoading;
+  const isCartLoading = isCustomer && userLoading;
   const isPageLoading = isAuthLoading || isCartLoading;
 
   // -----------------------------
