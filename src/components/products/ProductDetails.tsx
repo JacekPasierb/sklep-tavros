@@ -317,7 +317,7 @@ const ProductDetails = ({product}: ProductInfoProps) => {
                     type="button"
                     onClick={() => {
                       if (!disabled) {
-                        setSelectedSize(v.size);
+                        setSelectedSize(v.size?? null);
                         setSizeError(false);
                       }
                     }}
