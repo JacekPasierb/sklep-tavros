@@ -9,14 +9,24 @@ export default async function AdminProductsPage() {
 
   const products = await Product.find({})
     .sort({createdAt: -1})
-    .select({title: 1, slug: 1, styleCode:1, price: 1, currency: 1, gender: 1, createdAt: 1})
+    .select({
+      title: 1,
+      slug: 1,
+      styleCode: 1,
+      price: 1,
+      currency: 1,
+      gender: 1,
+      status: 1,
+      category: 1,
+      createdAt: 1,
+    })
     .limit(200)
     .lean<
       Array<{
         _id: unknown;
         title: string;
         slug: string;
-        styleCode:string;
+        styleCode: string;
         price: number;
         currency?: string | null;
         gender?: string | null;
@@ -34,7 +44,8 @@ export default async function AdminProductsPage() {
 
       <div className="flex items-center justify-between gap-3">
         <div className="text-sm text-zinc-600">
-          Total: <span className="font-semibold text-black">{products.length}</span>
+          Total:{" "}
+          <span className="font-semibold text-black">{products.length}</span>
         </div>
 
         <Link
@@ -69,11 +80,14 @@ export default async function AdminProductsPage() {
                 </div>
 
                 <div className="hidden sm:block sm:col-span-3 min-w-0">
-                  <div className="truncate text-sm text-zinc-700">{p.styleCode}</div>
+                  <div className="truncate text-sm text-zinc-700">
+                    {p.styleCode}
+                  </div>
                 </div>
 
                 <div className="sm:col-span-2 sm:text-right text-sm text-black">
-                  {Number(p.price).toFixed(2)} {(p.currency ?? "GBP").toUpperCase()}
+                  {Number(p.price).toFixed(2)}{" "}
+                  {(p.currency ?? "GBP").toUpperCase()}
                 </div>
 
                 <div className="sm:col-span-2 text-xs text-zinc-500">

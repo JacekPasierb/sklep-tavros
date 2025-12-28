@@ -36,6 +36,8 @@ type ColorRow = {
   stockBySize: Record<Size, string>; // input string
 };
 
+type Category = "TSHIRT" | "HOODIE";
+
 const emptyImg = (): ImgInput => ({src: ""});
 
 const emptySection = (): SectionInput => ({
@@ -104,6 +106,7 @@ export function AdminCreateProductForm() {
   const [oldPrice, setOldPrice] = useState<string>("");
 
   const [gender, setGender] = useState<Gender>("MENS");
+  const [category, setCategory] = useState<Category>("TSHIRT");
 
   // COLLECTION SELECT
   const [collections, setCollections] = useState<CollectionDTO[]>([]);
@@ -147,11 +150,15 @@ export function AdminCreateProductForm() {
 
   const collectionsForGender = useMemo(() => {
     const g = genderUpperToLower(gender);
-    return collections.filter((c) => (c.gender?.length ? c.gender.includes(g) : true));
+    return collections.filter((c) =>
+      c.gender?.length ? c.gender.includes(g) : true
+    );
   }, [collections, gender]);
 
   function updateImage(idx: number, patch: Partial<ImgInput>) {
-    setImages((prev) => prev.map((img, i) => (i === idx ? {...img, ...patch} : img)));
+    setImages((prev) =>
+      prev.map((img, i) => (i === idx ? {...img, ...patch} : img))
+    );
   }
 
   async function onPickFile(idx: number, file: File | null) {
@@ -165,13 +172,17 @@ export function AdminCreateProductForm() {
     } catch (e) {
       console.error(e);
       updateImage(idx, {uploading: false});
-      setError("Image upload failed. Check /api/admin/upload and Cloudinary envs.");
+      setError(
+        "Image upload failed. Check /api/admin/upload and Cloudinary envs."
+      );
     }
   }
 
   // ---- COLORS helpers ----
   function updateColorRow(i: number, patch: Partial<ColorRow>) {
-    setColorRows((prev) => prev.map((r, idx) => (idx === i ? {...r, ...patch} : r)));
+    setColorRows((prev) =>
+      prev.map((r, idx) => (idx === i ? {...r, ...patch} : r))
+    );
   }
 
   function updateStock(i: number, size: Size, value: string) {
@@ -295,7 +306,9 @@ export function AdminCreateProductForm() {
 
       const variantsPayload = buildVariants();
       if (variantsPayload.length === 0) {
-        setError("Add at least one color (variants are generated for all sizes).");
+        setError(
+          "Add at least one color (variants are generated for all sizes)."
+        );
         return;
       }
 
@@ -305,6 +318,7 @@ export function AdminCreateProductForm() {
         price: priceNumber,
         oldPrice: oldPriceNumber, // tylko gdy sale
         gender,
+        category,
         collectionSlug: collectionSlug || undefined,
         tags: buildTags(),
 
@@ -343,7 +357,10 @@ export function AdminCreateProductForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="rounded-3xl border border-zinc-200 bg-white p-5 space-y-6">
+    <form
+      onSubmit={onSubmit}
+      className="rounded-3xl border border-zinc-200 bg-white p-5 space-y-6"
+    >
       {error && (
         <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
@@ -353,7 +370,9 @@ export function AdminCreateProductForm() {
       {/* BASIC */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Title</label>
+          <label className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+            Title
+          </label>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -368,7 +387,9 @@ export function AdminCreateProductForm() {
         </div>
 
         <div>
-          <label className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Price</label>
+          <label className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+            Price
+          </label>
           <input
             value={price}
             onChange={(e) => setPrice(e.target.value)}
@@ -377,9 +398,24 @@ export function AdminCreateProductForm() {
             placeholder="e.g. 29.99"
           />
         </div>
+        <div>
+          <label className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+            Category
+          </label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value as Category)}
+            className="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-sm outline-none focus:border-black"
+          >
+            <option value="TSHIRT">TSHIRT</option>
+            <option value="HOODIE">HOODIE</option>
+          </select>
+        </div>
 
         <div>
-          <label className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Gender</label>
+          <label className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+            Gender
+          </label>
           <select
             value={gender}
             onChange={(e) => {
@@ -395,7 +431,9 @@ export function AdminCreateProductForm() {
         </div>
 
         <div className="sm:col-span-2">
-          <label className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Collection</label>
+          <label className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+            Collection
+          </label>
           <select
             value={collectionSlug}
             onChange={(e) => setCollectionSlug(e.target.value)}
@@ -413,7 +451,9 @@ export function AdminCreateProductForm() {
 
       {/* ✅ TAGS: CHECKBOXY + oldPrice tylko dla SALE */}
       <div className="rounded-3xl border border-zinc-200 bg-zinc-50/50 p-4 sm:p-5">
-        <p className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Badges</p>
+        <p className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+          Badges
+        </p>
 
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
           <label className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white px-4 py-3">
@@ -457,7 +497,9 @@ export function AdminCreateProductForm() {
                       ? "border-zinc-200 bg-white focus:border-black"
                       : "border-zinc-200 bg-zinc-100 text-zinc-500 cursor-not-allowed",
                   ].join(" ")}
-                  placeholder={tagSale ? "Old price (e.g. 49.99)" : "Enable Sale to edit"}
+                  placeholder={
+                    tagSale ? "Old price (e.g. 49.99)" : "Enable Sale to edit"
+                  }
                 />
               </div>
             </div>
@@ -491,7 +533,10 @@ export function AdminCreateProductForm() {
 
         <div className="grid grid-cols-1 gap-3">
           {images.map((img, idx) => (
-            <div key={idx} className="rounded-2xl border border-zinc-200 bg-white p-3">
+            <div
+              key={idx}
+              className="rounded-2xl border border-zinc-200 bg-white p-3"
+            >
               <div className="flex items-center justify-between gap-3">
                 <div className="text-xs font-semibold text-zinc-700">
                   {idx === 0 ? "Main image" : `Image #${idx + 1}`}
@@ -507,7 +552,9 @@ export function AdminCreateProductForm() {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => onPickFile(idx, e.target.files?.[0] ?? null)}
+                    onChange={(e) =>
+                      onPickFile(idx, e.target.files?.[0] ?? null)
+                    }
                   />
                   {img.uploading ? "Uploading…" : "Upload"}
                 </label>
@@ -566,7 +613,10 @@ export function AdminCreateProductForm() {
             </p>
             <p className="text-sm text-zinc-600">
               Dodajesz kolor, a potem wpisujesz stock dla:{" "}
-              <span className="font-semibold text-black">{SIZES.join(", ")}</span>.
+              <span className="font-semibold text-black">
+                {SIZES.join(", ")}
+              </span>
+              .
             </p>
           </div>
 
@@ -604,9 +654,11 @@ export function AdminCreateProductForm() {
                   </label>
                   <input
                     value={row.skuPrefix ?? ""}
-                    onChange={(e) => updateColorRow(i, {skuPrefix: e.target.value})}
+                    onChange={(e) =>
+                      updateColorRow(i, {skuPrefix: e.target.value})
+                    }
                     className="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-sm outline-none focus:border-black"
-                    placeholder="TVR-TSHIRT-BLK"
+                    placeholder={`TVR-${category}-BLK`}
                   />
                 </div>
 
@@ -674,15 +726,24 @@ export function AdminCreateProductForm() {
         </div>
 
         <div className="rounded-2xl border border-zinc-200 bg-zinc-50/50 p-3 space-y-3">
-          <p className="text-xs font-semibold text-zinc-700">Sections (bullets)</p>
+          <p className="text-xs font-semibold text-zinc-700">
+            Sections (bullets)
+          </p>
 
           {sections.map((s, i) => (
-            <div key={i} className="rounded-2xl border border-zinc-200 bg-white p-3 space-y-2">
+            <div
+              key={i}
+              className="rounded-2xl border border-zinc-200 bg-white p-3 space-y-2"
+            >
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold text-zinc-700">Section #{i + 1}</p>
+                <p className="text-xs font-semibold text-zinc-700">
+                  Section #{i + 1}
+                </p>
                 <button
                   type="button"
-                  onClick={() => setSections((prev) => prev.filter((_, idx) => idx !== i))}
+                  onClick={() =>
+                    setSections((prev) => prev.filter((_, idx) => idx !== i))
+                  }
                   disabled={sections.length <= 1}
                   className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold hover:bg-zinc-50 disabled:opacity-50"
                 >
@@ -694,7 +755,9 @@ export function AdminCreateProductForm() {
                 value={s.title}
                 onChange={(e) =>
                   setSections((prev) =>
-                    prev.map((x, idx) => (idx === i ? {...x, title: e.target.value} : x))
+                    prev.map((x, idx) =>
+                      idx === i ? {...x, title: e.target.value} : x
+                    )
                   )
                 }
                 className="w-full rounded-2xl border border-zinc-200 px-4 py-2 text-sm outline-none focus:border-black"
@@ -705,7 +768,9 @@ export function AdminCreateProductForm() {
                 value={s.itemsText}
                 onChange={(e) =>
                   setSections((prev) =>
-                    prev.map((x, idx) => (idx === i ? {...x, itemsText: e.target.value} : x))
+                    prev.map((x, idx) =>
+                      idx === i ? {...x, itemsText: e.target.value} : x
+                    )
                   )
                 }
                 className="w-full min-h-[90px] rounded-2xl border border-zinc-200 px-4 py-3 text-sm outline-none focus:border-black"
@@ -724,7 +789,9 @@ export function AdminCreateProductForm() {
         </div>
 
         <div className="rounded-2xl border border-zinc-200 bg-zinc-50/50 p-3 space-y-2">
-          <p className="text-xs font-semibold text-zinc-700">Delivery & Returns</p>
+          <p className="text-xs font-semibold text-zinc-700">
+            Delivery & Returns
+          </p>
 
           <input
             value={deliveryTitle}
