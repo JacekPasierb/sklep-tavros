@@ -48,6 +48,21 @@ const ProductSchema = new Schema(
       index: true,
     },
 
+    category: {
+      type: String,
+      enum: ["TSHIRT", "HOODIE"],
+      required: true,
+      index: true,
+    },
+
+    // ✅ NOWE: ukrywanie bez usuwania
+    status: {
+      type: String,
+      enum: ["ACTIVE", "HIDDEN"],
+      default: "ACTIVE",
+      index: true,
+    },
+
     collectionSlug: {type: String, index: true},
     tags: {type: [String], default: [], index: true},
 
