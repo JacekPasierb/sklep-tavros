@@ -1,7 +1,5 @@
-// src/app/(admin)/admin/products/new/page.tsx
-import { AdminCreateProductForm } from "../../../../../components/admin/products/AdminCreateProductForm";
+import {AdminProductForm} from "../../../../../components/admin/products/AdminProductForm";
 import {SectionHeader} from "../../../../../components/admin/SectionHeader";
-
 
 export default function AdminNewProductPage() {
   return (
@@ -11,7 +9,7 @@ export default function AdminNewProductPage() {
         title="New product"
         description="Create a product (basic fields first — you can extend later)."
       />
-      <AdminCreateProductForm />
+      <AdminProductForm mode="create" />
     </div>
   );
 }

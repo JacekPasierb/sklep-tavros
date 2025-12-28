@@ -56,7 +56,6 @@ const GenderAllPage = async (props: PageProps) => {
     sort,
   });
 
-
   return (
     <ProductsListPage
       gender={gender}

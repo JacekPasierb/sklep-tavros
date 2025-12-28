@@ -32,7 +32,7 @@ export async function getProducts(options: GetProductsOptions = {}) {
     sort,
   } = options;
 
-  const query: Record<string, unknown> = {};
+  const query: Record<string, unknown> = {status: "ACTIVE"};
 
   if (gender) {
     query.gender = gender.toUpperCase();
@@ -129,7 +129,7 @@ export async function getProductBySlug(
 ): Promise<TypeProduct | null> {
   await connectToDatabase();
 
-  const doc = await Product.findOne({slug})
+  const doc = await Product.findOne({slug, status: "ACTIVE"})
     .select(
       [
         "title",
@@ -169,7 +169,7 @@ export async function getRelatedProducts(opts: {
 
   await connectToDatabase();
 
-  const where: Record<string, unknown> = {gender};
+  const where: Record<string, unknown> = {gender, status: "ACTIVE"};
   if (collectionSlug) where.collectionSlug = collectionSlug;
   if (excludeId && Types.ObjectId.isValid(excludeId)) {
     where._id = {$ne: new Types.ObjectId(excludeId)};
