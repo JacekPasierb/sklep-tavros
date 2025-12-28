@@ -9,7 +9,7 @@ export default async function AdminProductsPage() {
 
   const products = await Product.find({})
     .sort({createdAt: -1})
-    .select({title: 1, slug: 1, price: 1, currency: 1, gender: 1, createdAt: 1})
+    .select({title: 1, slug: 1, styleCode:1, price: 1, currency: 1, gender: 1, createdAt: 1})
     .limit(200)
     .lean<
       Array<{
