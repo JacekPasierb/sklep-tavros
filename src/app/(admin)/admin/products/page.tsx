@@ -16,6 +16,7 @@ export default async function AdminProductsPage() {
         _id: unknown;
         title: string;
         slug: string;
+        styleCode:string;
         price: number;
         currency?: string | null;
         gender?: string | null;
@@ -48,7 +49,7 @@ export default async function AdminProductsPage() {
         <div className="hidden sm:block px-5 py-3 border-b border-zinc-200">
           <div className="grid grid-cols-12 gap-4 text-[11px] uppercase tracking-[0.18em] text-zinc-500">
             <div className="col-span-5">Title</div>
-            <div className="col-span-3">Slug</div>
+            <div className="col-span-3">StyleCode</div>
             <div className="col-span-2 text-right">Price</div>
             <div className="col-span-2">Created</div>
           </div>
@@ -63,12 +64,12 @@ export default async function AdminProductsPage() {
                     {p.title}
                   </div>
                   <div className="sm:hidden text-xs text-zinc-500 truncate">
-                    {p.slug}
+                    {p.styleCode}
                   </div>
                 </div>
 
                 <div className="hidden sm:block sm:col-span-3 min-w-0">
-                  <div className="truncate text-sm text-zinc-700">{p.slug}</div>
+                  <div className="truncate text-sm text-zinc-700">{p.styleCode}</div>
                 </div>
 
                 <div className="sm:col-span-2 sm:text-right text-sm text-black">
