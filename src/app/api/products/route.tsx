@@ -4,8 +4,7 @@ import Product from "../../../models/Product";
 import {Types} from "mongoose";
 import {generateStyleCode} from "../../../lib/utils/generateStyleCode";
 import {getServerSession} from "next-auth";
-import { authOptions } from "../../../lib/authOptions";
-
+import {authOptions} from "../../../lib/authOptions";
 
 type ProductGender = "MENS" | "WOMENS" | "KIDS" | "UNISEX";
 
@@ -18,6 +17,7 @@ function parseGender(value: unknown): ProductGender | undefined {
 }
 
 type Where = {
+  status?: "ACTIVE" | "HIDDEN";
   gender?: string;
   collectionSlug?: string;
   isBestseller?: boolean;
@@ -61,7 +61,8 @@ type CreateProductBody = {
 
   images?: unknown;
   variants?: unknown;
-
+  category?: unknown;
+  status?: unknown;
   gender?: unknown;
   collectionSlug?: unknown;
   tags?: unknown;
@@ -74,6 +75,22 @@ type CreateProductBody = {
   styleCode?: unknown;
   deliveryReturns?: unknown;
 };
+
+type ProductCategory = "TSHIRT" | "HOODIE";
+function parseCategory(value: unknown): ProductCategory | undefined {
+  if (typeof value !== "string") return undefined;
+  const v = value.trim().toUpperCase();
+  if (v === "TSHIRT" || v === "HOODIE") return v;
+  return undefined;
+}
+
+type ProductStatus = "ACTIVE" | "HIDDEN";
+function parseStatus(value: unknown): ProductStatus | undefined {
+  if (typeof value !== "string") return undefined;
+  const v = value.trim().toUpperCase();
+  if (v === "ACTIVE" || v === "HIDDEN") return v;
+  return undefined;
+}
 
 type SortKey = "newest" | "price_asc" | "price_desc" | "popular" | "title_asc";
 
@@ -104,7 +121,7 @@ export async function GET(req: NextRequest) {
       if (!ids.length) return NextResponse.json({ok: true, data: []});
 
       const products = await Product.find(
-        {_id: {$in: ids}},
+        {_id: {$in: ids}, status: "ACTIVE"},
         {
           title: 1,
           slug: 1,
@@ -157,6 +174,7 @@ export async function GET(req: NextRequest) {
     };
 
     const where: Where = {};
+    where.status = "ACTIVE";
     if (gender) where.gender = gender.toUpperCase();
     if (collection) where.collectionSlug = collection;
     if (bestseller) where.isBestseller = true;
@@ -228,6 +246,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const category = parseCategory(body.category);
+    if (!category) {
+      return NextResponse.json(
+        {ok: false, error: "category is required (TSHIRT | HOODIE)"},
+        {status: 400}
+      );
+    }
+
+    const status = parseStatus(body.status) ?? "ACTIVE";
+
     await connectToDatabase();
 
     // slug unique
@@ -270,8 +298,11 @@ export async function POST(req: NextRequest) {
         if (!v || typeof v !== "object") return null;
 
         const sku = typeof v.sku === "string" ? v.sku.trim() : "";
-        const size = typeof v.size === "string" ? v.size.trim() : "";
-        const color = typeof v.color === "string" ? v.color.trim() : "";
+        const size =
+          typeof v.size === "string" ? v.size.trim().toUpperCase() : "";
+        const color =
+          typeof v.color === "string" ? v.color.trim().toLowerCase() : "";
+
         const stockNum = Number(v.stock);
 
         return {
@@ -350,6 +381,8 @@ export async function POST(req: NextRequest) {
       images,
 
       gender,
+      category,
+      status,
       collectionSlug,
       tags,
 
