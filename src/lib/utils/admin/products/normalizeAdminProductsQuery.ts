@@ -1,11 +1,10 @@
 import {
   AdminProductsQuery,
   AdminProductsSearchParams,
-  ProductCategory,
-  ProductGender,
-  ProductStatus,
+  
   StockFilter,
 } from "../../../../types/admin/products";
+import { ProductCategory, ProductGender, ProductStatus } from "../../../../types/product";
 
 const asString = (v: string | string[] | undefined) => {
   return typeof v === "string" ? v : "";
