@@ -1,11 +1,10 @@
-import { ProductGender } from "./product";
-
+export type Gender = "mens" | "womens" | "kids" | "unisex";
 
 export type TypeCollection = {
   _id: string;
   slug: string;
   name: string;
-  gender: ProductGender[];
+  gender: Gender[];
   heroImage?: string;
   sortOrder?: number;
   isFeatured: boolean;
