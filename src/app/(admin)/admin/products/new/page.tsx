@@ -1,7 +1,7 @@
 import {AdminProductForm} from "../../../../../components/admin/products/AdminProductForm";
-import {SectionHeader} from "../../../../../components/admin/SectionHeader";
+import SectionHeader from "../../../../../components/admin/SectionHeader";
 
-export default function AdminNewProductPage() {
+const AdminNewProductPage = () => {
   return (
     <div className="space-y-6">
       <SectionHeader
@@ -12,4 +12,5 @@ export default function AdminNewProductPage() {
       <AdminProductForm mode="create" />
     </div>
   );
-}
+};
+export default AdminNewProductPage;

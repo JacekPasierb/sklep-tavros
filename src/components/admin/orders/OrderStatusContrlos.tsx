@@ -11,12 +11,12 @@ type Props = {
   kind: "payment" | "fulfillment";
 };
 
-export function OrderStatusControls({
+const OrderStatusControls = ({
   orderId,
   paymentStatus,
   fulfillmentStatus,
   kind,
-}: Props) {
+}: Props) => {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
 
@@ -67,4 +67,5 @@ export function OrderStatusControls({
       )}
     </select>
   );
-}
+};
+export default OrderStatusControls;

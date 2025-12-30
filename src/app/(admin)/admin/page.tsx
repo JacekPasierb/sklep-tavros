@@ -1,4 +1,4 @@
-import { SectionHeader } from "../../../components/admin/SectionHeader";
+import  SectionHeader  from "../../../components/admin/SectionHeader";
 import { StatCard } from "../../../components/admin/StatCard";
 
 

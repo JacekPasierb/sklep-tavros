@@ -1,5 +1,5 @@
 import Link from "next/link";
-import {SectionHeader} from "../../../../components/admin/SectionHeader";
+import SectionHeader from "../../../../components/admin/SectionHeader";
 import {connectToDatabase} from "../../../../lib/mongodb";
 import User from "../../../../models/User";
 import {Pagination} from "../../../../components/products/Pagination";

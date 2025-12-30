@@ -1,4 +1,12 @@
 // types/product.ts
+// src/types/product.ts
+export type ProductGender = "MENS" | "WOMENS" | "KIDS";
+export type ProductCategory = "TSHIRT" | "HOODIE";
+export type ProductStatus = "ACTIVE" | "HIDDEN";
+
+export const PRODUCT_GENDERS = ["MENS", "WOMENS", "KIDS"] as const;
+export const PRODUCT_CATEGORIES = ["TSHIRT", "HOODIE"] as const;
+export const PRODUCT_STATUSES = ["ACTIVE", "HIDDEN"] as const;
 
 export type ProductImage = {
   src: string;
