@@ -117,6 +117,6 @@ const getAdminProducts = async (
     .lean<ProductRow[]>();
 
   const products = rows.map(toAdminListItem);
-  return {products, total: products.length, where};
+  return {products, total: products.length};
 };
 export default getAdminProducts;
