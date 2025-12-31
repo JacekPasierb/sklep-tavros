@@ -1,5 +1,6 @@
-import { ColorRow, Size, SIZES } from "../../../types/admin/productForm";
-import { ProductCategory } from "../../../types/product";
+import { ColorRow, Size, SIZES } from "../../../../../types/admin/productForm";
+import { ProductCategory } from "../../../../../types/product";
+
 
 
 type Props = {
