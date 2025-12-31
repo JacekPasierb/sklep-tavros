@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ImgInput } from "../../../types/admin/productForm";
+import { ImgInput } from "../../../../../types/admin/productForm";
 
 
 type Props = {

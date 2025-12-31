@@ -1,5 +1,6 @@
-import { CollectionDTO } from "../../../types/admin/productForm";
-import { ProductCategory, ProductGender } from "../../../types/product";
+import { CollectionDTO } from "../../../../../types/admin/productForm";
+import { ProductCategory, ProductGender } from "../../../../../types/product";
+
 
 
 type Props = {
@@ -22,7 +23,7 @@ type Props = {
   collectionsForGender: CollectionDTO[];
 };
 
-export function ProductBasicsSection({
+export function ProductBasicSection({
   title,
   setTitle,
   slug,

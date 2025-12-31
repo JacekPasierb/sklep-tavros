@@ -1,4 +1,4 @@
-import type {FilterQuery} from "mongoose";
+
 import { ProductCategory, ProductGender, ProductStatus } from "../product";
 
 
@@ -54,5 +54,5 @@ export type AdminProductListItem = {
 export type AdminProductsResult = {
   products: AdminProductListItem[];
   total: number;
-  where: FilterQuery<ProductDocForQuery>;
+  
 };

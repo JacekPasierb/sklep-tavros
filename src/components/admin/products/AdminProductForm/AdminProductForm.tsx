@@ -9,29 +9,30 @@ import {
   ImgInput,
   SectionInput,
   Size,
-} from "../../../types/admin/productForm";
+} from "../../../../types/admin/productForm";
 import {
   genderUpperToLower,
   toSlugFromTitle,
-} from "../../../lib/utils/admin/products/formText";
-import {ProductCategory, ProductGender} from "../../../types/product";
+} from "../../../../lib/utils/admin/products/formText";
+import {ProductCategory, ProductGender} from "../../../../types/product";
 import {
   emptyColorRow,
   emptyImg,
   emptySection,
-} from "../../../lib/utils/admin/products/formDefaults";
+} from "../../../../lib/utils/admin/products/formDefaults";
 import {
   sectionsToInputs,
   variantsToColorRows,
-} from "../../../lib/utils/admin/products/formTransform";
-import {uploadProductImage} from "../../../lib/services/admin/image.service";
-import {saveAdminProduct} from "../../../lib/services/admin/productsForm.service";
-import {ProductBasicsSection} from "./ProductBasicSection";
-import {BadgesSection} from "./BadgesSection";
-import {ImagesSection} from "./ImagesSection";
-import {VariantsSection} from "./VariantsSection";
-import {SectionsEditor} from "./SectionsEditor";
-import {DeliveryReturnsEditor} from "./DeliveryReturnsEditor";
+} from "../../../../lib/utils/admin/products/formTransform";
+import {uploadProductImage} from "../../../../lib/services/admin/image.service";
+import {saveAdminProduct} from "../../../../lib/services/admin/productsForm.service";
+
+import {BadgesSection} from "./sections/BadgesSection";
+import {ImagesSection} from "./sections/ImagesSection";
+import {VariantsSection} from "./sections/VariantsSection";
+import {SectionsEditor} from "./sections/SectionsEditor";
+import {DeliveryReturnsEditor} from "./sections/DeliveryReturnsEditor";
+import { ProductBasicSection } from "./sections/ProductBasicSection";
 
 export function AdminProductForm({
   mode,
@@ -221,7 +222,7 @@ export function AdminProductForm({
         </div>
       )}
 
-      <ProductBasicsSection
+      <ProductBasicSection
         title={title}
         setTitle={setTitle}
         slug={slug}

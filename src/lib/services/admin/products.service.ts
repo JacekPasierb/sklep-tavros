@@ -1,4 +1,5 @@
 import type {FilterQuery} from "mongoose";
+
 import {
   AdminProductListItem,
   AdminProductsQuery,
