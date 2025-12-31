@@ -1,4 +1,5 @@
-import { SectionInput } from "../../../types/admin/productForm";
+import { SectionInput } from "../../../../../types/admin/productForm";
+
 
 
 type Props = {
