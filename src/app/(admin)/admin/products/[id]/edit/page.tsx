@@ -5,8 +5,7 @@ import {notFound} from "next/navigation";
 import SectionHeader from "../../../../../../components/admin/SectionHeader";
 import {AdminProductForm} from "../../../../../../components/admin/products/AdminProductForm/AdminProductForm";
 import {getProductLeanById} from "../../../../../../lib/services/admin/productEdit.service";
-import { toAdminProductInitial } from "../../../../../../lib/mappers/admin/productEdit.mapper";
-
+import {toAdminProductInitial} from "../../../../../../lib/mappers/admin/productEdit.mapper";
 
 const AdminEditProductPage = async ({
   params,

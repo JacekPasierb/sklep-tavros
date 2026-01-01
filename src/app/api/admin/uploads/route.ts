@@ -10,6 +10,10 @@ type UploadedImage = {
   height?: number;
 };
 
+const ALLOWED_FOLDERS = new Set(["products", "collections"]);
+const MAX_MB = 8;
+const MAX_BYTES = MAX_MB * 1024 * 1024;
+
 function uploadToCloudinary(buffer: Buffer, folder: string) {
   return new Promise<UploadApiResponse>((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
@@ -39,12 +43,24 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing file" }, { status: 400 });
   }
 
-  const folder = String(formData.get("folder") ?? "tavros/products");
+  if (!file.type.startsWith("image/")) {
+    return NextResponse.json({ error: "Only images are allowed" }, { status: 400 });
+  }
 
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
+  if (file.size > MAX_BYTES) {
+    return NextResponse.json(
+      { error: `File too large (max ${MAX_MB}MB)` },
+      { status: 400 }
+    );
+  }
 
+  const requested = String(formData.get("folder") ?? "products");
+  const folderKey = ALLOWED_FOLDERS.has(requested) ? requested : "products";
+  const folder = `tavros/${folderKey}`;
+
+  const buffer = Buffer.from(await file.arrayBuffer());
   const result = await uploadToCloudinary(buffer, folder);
+
 
   const payload: UploadedImage = {
     url: result.secure_url,

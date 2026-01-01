@@ -23,7 +23,6 @@ const AdminProductsPage = async (props: {
         title="Products"
         description="Create and manage products available in the store."
       />
-
       <AdminProductsFilters
         defaults={{
           q: query.q,
@@ -34,9 +33,7 @@ const AdminProductsPage = async (props: {
           stock: query.stock,
         }}
       />
-
       <AdminProductsTopBar total={total} />
-
       <AdminProductsList products={products} />
     </div>
   );
