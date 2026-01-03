@@ -1,86 +1,43 @@
-// app/(auth)/signin/SignInClient.tsx
 "use client";
 
 import {Formik, Form, Field, ErrorMessage} from "formik";
-import * as Yup from "yup";
 import {useRouter, useSearchParams} from "next/navigation";
-import {getSession, signIn} from "next-auth/react";
 import {useState} from "react";
+import {SignInFormValues, SignInReason} from "../../../../types/auth/signin";
+import {getSignInReasonMessage} from "../../../../lib/utils/auth/signinReasonMessages";
+import {signInUser} from "../../../../lib/services/auth/signin.service";
+import {SignInSchema} from "../../../../lib/validations/auth/signin.schema";
 
-const LoginSchema = Yup.object({
-  email: Yup.string().email("Nieprawidłowy email").required("Wymagane"),
-  password: Yup.string().required("Wymagane"),
-});
+const toneClasses = (tone: "success" | "warning") => {
+  if (tone === "success") {
+    return "border-emerald-300 bg-emerald-50 text-emerald-700";
+  }
+  return "border-amber-300 bg-amber-50 text-amber-800";
+};
 
-// tylko wewnętrzne ścieżki (żeby nie było open redirect)
-function sanitizeCallbackUrl(raw: string | null, fallback: string) {
-  if (!raw) return fallback;
-  if (raw.startsWith("/") && !raw.startsWith("//")) return raw;
-  return fallback;
-}
-
-export default function SignInClient() {
+const SignInClient = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const reason = searchParams.get("reason");
+  const reason = (searchParams.get("reason") as SignInReason) ?? null;
   const rawCallbackUrl = searchParams.get("callbackUrl");
-  const safeCallbackUrl = sanitizeCallbackUrl(rawCallbackUrl, "/account");
 
-  const initialValues = {email: "", password: ""};
+  const reasonMsg = getSignInReasonMessage(reason);
 
-  const handleSubmit = async (
-    values: typeof initialValues,
-    {setSubmitting}: {setSubmitting: (b: boolean) => void}
-  ) => {
+  const initialValues: SignInFormValues = {email: "", password: ""};
+
+  const handleSubmit = async (values: SignInFormValues) => {
     setServerError(null);
 
-    try {
-      const res = await signIn("credentials", {
-        email: values.email,
-        password: values.password,
-        redirect: false,
-        callbackUrl: safeCallbackUrl,
-      });
+    const result = await signInUser(values, rawCallbackUrl);
 
-      if (!res) {
-        setServerError("Brak odpowiedzi z serwera logowania.");
-        return;
-      }
-
-      if (res.error) {
-        setServerError("Błędny email lub hasło.");
-        return;
-      }
-
-      // 🔑 tu decydujemy gdzie iść po zalogowaniu
-      const session = await getSession();
-      const role = (session?.user as {role?: string} | undefined)?.role;
-
-      const isAdmin = role === "admin";
-
-      // Admin zawsze idzie do /admin (chyba że callbackUrl już prowadzi do /admin/...)
-      if (isAdmin) {
-        const adminTarget = safeCallbackUrl.startsWith("/admin")
-          ? safeCallbackUrl
-          : "/admin";
-        router.push(adminTarget);
-        return;
-      }
-
-      // Zwykły user – jeśli ktoś mu poda /admin jako callback, to i tak nie wpuszczamy (UX)
-      const userTarget = safeCallbackUrl.startsWith("/admin")
-        ? "/account"
-        : safeCallbackUrl;
-
-      router.push(userTarget);
-    } catch (e) {
-      console.error(e);
-      setServerError("Błąd logowania. Spróbuj ponownie.");
-    } finally {
-      setSubmitting(false);
+    if (!result.ok) {
+      setServerError(result.error);
+      return;
     }
+
+    router.push(result.redirectTo);
   };
 
   return (
@@ -88,25 +45,16 @@ export default function SignInClient() {
       <div className="mx-auto w-full max-w-md rounded-2xl bg-white px-6 py-8 shadow-sm">
         <h1 className="mb-4 text-center text-2xl font-semibold">Log in</h1>
 
-        {/* komunikat na podstawie reason w URL */}
-        {reason === "registered" && (
-          <div className="mb-4 rounded-md border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-            Konto zostało utworzone. Możesz się teraz zalogować.
-          </div>
-        )}
-        {reason === "favorites" && (
-          <div className="mb-4 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            Ulubione wymagają zalogowania. Zaloguj się, aby zobaczyć swoją
-            listę.
-          </div>
-        )}
-        {reason === "myaccount" && (
-          <div className="mb-4 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            Dostęp do konta wymaga zalogowania.
+        {reasonMsg && (
+          <div
+            className={`mb-4 rounded-md border px-3 py-2 text-sm ${toneClasses(
+              reasonMsg.tone
+            )}`}
+          >
+            {reasonMsg.text}
           </div>
         )}
 
-        {/* błąd serwera / logowania */}
         {serverError && (
           <div className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
             {serverError}
@@ -115,7 +63,7 @@ export default function SignInClient() {
 
         <Formik
           initialValues={initialValues}
-          validationSchema={LoginSchema}
+          validationSchema={SignInSchema}
           onSubmit={handleSubmit}
         >
           {({isSubmitting}) => (
@@ -163,7 +111,7 @@ export default function SignInClient() {
               </button>
 
               <p className="pt-2 text-center text-xs text-zinc-600">
-                Nie masz konta?{" "}
+                Don&apos;t have an account?{" "}
                 <button
                   type="button"
                   onClick={() => router.push("/register")}
@@ -178,4 +126,5 @@ export default function SignInClient() {
       </div>
     </section>
   );
-}
+};
+export default SignInClient;

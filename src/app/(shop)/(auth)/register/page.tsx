@@ -1,39 +1,17 @@
 "use client";
 
 import {Formik, Form, Field, ErrorMessage} from "formik";
-import * as Yup from "yup";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
+import {RegisterFormValues} from "../../../../types/auth/register";
+import {registerUser} from "../../../../lib/services/auth/register.service";
+import {RegisterSchema} from "../../../../lib/validations/auth/register.schema";
 
-interface FormValues {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  marketingOptIn: boolean;
-}
-
-const RegisterSchema = Yup.object({
-  firstName: Yup.string()
-    .min(2, "Minimum 2 znaki")
-    .required("Imię jest wymagane"),
-  lastName: Yup.string()
-    .min(2, "Minimum 2 znaki")
-    .required("Nazwisko jest wymagane"),
-  email: Yup.string()
-    .email("Nieprawidłowy adres e-mail")
-    .required("E-mail jest wymagany"),
-  password: Yup.string()
-    .min(8, "Hasło musi mieć co najmniej 8 znaków")
-    .required("Hasło jest wymagane"),
-  marketingOptIn: Yup.boolean(),
-});
-
-export default function RegisterPage() {
+const RegisterPage = () => {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const initialValues: FormValues = {
+  const initialValues: RegisterFormValues = {
     firstName: "",
     lastName: "",
     email: "",
@@ -41,33 +19,17 @@ export default function RegisterPage() {
     marketingOptIn: false,
   };
 
-  const handleSubmit = async (values: FormValues) => {
+  const handleSubmit = async (values: RegisterFormValues) => {
     setServerError(null);
 
-    try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(values),
-      });
+    const result = await registerUser(values);
 
-      if (res.status === 201) {
-        // po udanej rejestracji kierujemy na logowanie
-        router.push("/signin?reason=registered");
-        return;
-      }
-
-      if (res.status === 409) {
-        setServerError("Ten adres e-mail jest już używany.");
-        return;
-      }
-
-      const data = await res.json().catch(() => ({}));
-      setServerError(data?.message || "Nie udało się utworzyć konta.");
-    } catch (err) {
-      console.error(err);
-      setServerError("Błąd sieci. Spróbuj ponownie za chwilę.");
+    if (result.ok) {
+      router.push("/signin?reason=registered");
+      return;
     }
+
+    setServerError(result.error);
   };
 
   return (
@@ -94,7 +56,6 @@ export default function RegisterPage() {
         >
           {({isSubmitting}) => (
             <Form className="space-y-4">
-              {/* Imię */}
               <div>
                 <label
                   htmlFor="firstName"
@@ -117,7 +78,6 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Nazwisko */}
               <div>
                 <label
                   htmlFor="lastName"
@@ -140,7 +100,6 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Email */}
               <div>
                 <label
                   htmlFor="email"
@@ -163,7 +122,6 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Hasło */}
               <div>
                 <label
                   htmlFor="password"
@@ -186,7 +144,6 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Marketing checkbox */}
               <label className="flex items-start gap-3 rounded-lg bg-zinc-50 px-3 py-3">
                 <Field
                   type="checkbox"
@@ -224,4 +181,5 @@ export default function RegisterPage() {
       </div>
     </section>
   );
-}
+};
+export default RegisterPage;

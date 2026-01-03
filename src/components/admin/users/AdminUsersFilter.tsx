@@ -4,7 +4,7 @@ type Props = {
   defaultQ: string;
 };
 
-const AdminUsersFilters=({ defaultQ }: Props) =>{
+const AdminUsersFilters = ({defaultQ}: Props) => {
   return (
     <div className="rounded-3xl border border-zinc-200 bg-white p-4 sm:p-5">
       <form className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -38,5 +38,5 @@ const AdminUsersFilters=({ defaultQ }: Props) =>{
       </form>
     </div>
   );
-}
+};
 export default AdminUsersFilters;

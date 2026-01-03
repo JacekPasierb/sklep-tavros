@@ -5,7 +5,7 @@ type Props = {
   users: PublicUser[];
 };
 
-function formatDate(value: string) {
+const formatDate = (value: string) =>{
   return new Date(value).toLocaleDateString("en-GB");
 }
 

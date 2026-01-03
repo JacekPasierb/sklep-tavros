@@ -1,6 +1,5 @@
-import  SectionHeader  from "../../../components/admin/SectionHeader";
-import { StatCard } from "../../../components/admin/StatCard";
-
+import SectionHeader from "../../../components/admin/SectionHeader";
+import {StatCard} from "../../../components/admin/StatCard";
 
 export default function AdminDashboardPage() {
   return (
@@ -18,9 +17,12 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="rounded-3xl border border-zinc-200 bg-white p-5">
-        <div className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Next step</div>
+        <div className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+          Next step
+        </div>
         <p className="mt-2 text-sm text-zinc-600">
-          Add: users list endpoint, orders list, product CRUD, and admin navigation.
+          Add: users list endpoint, orders list, product CRUD, and admin
+          navigation.
         </p>
       </div>
     </div>
