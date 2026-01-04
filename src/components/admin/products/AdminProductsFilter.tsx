@@ -19,7 +19,8 @@ export function AdminProductsFilters({defaults}: Props) {
   const sp = useSearchParams();
 
   const initial = useMemo(() => {
-    const get = (k: string) => sp.get(k) ?? defaults?.[k as keyof Props["defaults"]] ?? "";
+    const get = (k: string) =>
+      sp.get(k) ?? defaults?.[k as keyof Props["defaults"]] ?? "";
     return {
       q: get("q"),
       status: get("status"),
@@ -113,10 +114,9 @@ export function AdminProductsFilters({defaults}: Props) {
             className="mt-1 w-full rounded-2xl border border-zinc-200 px-3 py-2 text-sm"
           >
             <option value="">All</option>
-            <option value="MENS">MENS</option>
-            <option value="WOMENS">WOMENS</option>
-            <option value="KIDS">KIDS</option>
-            <option value="UNISEX">UNISEX</option>
+            <option value="mens">MENS</option>
+            <option value="womens">WOMENS</option>
+            <option value="kids">KIDS</option>
           </select>
         </div>
 
