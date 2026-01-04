@@ -1,5 +1,4 @@
-import { CollectionGender } from "../../../../types/admin/productForm";
-import { ProductGender } from "../../../../types/product";
+
 
 
 export const toSlugFromTitle = (title: string) =>
@@ -10,11 +9,7 @@ export const toSlugFromTitle = (title: string) =>
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
 
-export const genderUpperToLower = (g: ProductGender): CollectionGender => {
-  if (g === "MENS") return "mens";
-  if (g === "WOMENS") return "womens";
-  return "kids";
-};
+
 
 export const normalizeColor = (value: string) => value.trim().toLowerCase();
 

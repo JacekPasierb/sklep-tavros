@@ -11,7 +11,7 @@ import {
   Size,
 } from "../../../../types/admin/productForm";
 import {
-  genderUpperToLower,
+ 
   toSlugFromTitle,
 } from "../../../../lib/utils/admin/products/formText";
 import {ProductCategory, ProductGender} from "../../../../types/product";
@@ -125,9 +125,9 @@ export function AdminProductForm({
   }, []);
 
   const collectionsForGender = useMemo(() => {
-    const g = genderUpperToLower(gender);
+    
     return collections.filter((c) =>
-      c.gender?.length ? c.gender.includes(g) : true
+      c.gender?.length ? c.gender.includes(gender) : true
     );
   }, [collections, gender]);
 
