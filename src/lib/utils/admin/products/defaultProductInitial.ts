@@ -6,7 +6,7 @@ export const DEFAULT_PRODUCT_INITIAL: AdminProductFormInitial = {
   slug: "",
   price: 0,
   oldPrice: null,
-  gender: "MENS",
+  gender: "mens",
   category: "TSHIRT",
   collectionSlug: "",
   tags: [],
