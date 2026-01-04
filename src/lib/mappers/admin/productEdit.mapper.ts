@@ -12,7 +12,7 @@ export const toAdminProductInitial = (
     slug: p.slug ?? "",
     price: Number(p.price ?? 0),
     oldPrice: p.oldPrice ?? null,
-    gender: p.gender ?? "MENS",
+    gender: p.gender ?? "mens",
     category: p.category ?? "TSHIRT",
     collectionSlug: p.collectionSlug ?? "",
     tags: Array.isArray(p.tags) ? p.tags : [],
