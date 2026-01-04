@@ -34,7 +34,12 @@ const AdminProductsPage = async (props: {
         }}
       />
       <AdminProductsTopBar total={total} />
-      <AdminProductsList products={products} total={total} page={page} pages={pages} />
+      <AdminProductsList
+        products={products}
+        total={total}
+        page={page}
+        pages={pages}
+      />
     </div>
   );
 };

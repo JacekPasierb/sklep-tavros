@@ -2,8 +2,7 @@
 
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 
-const SIZES = ["S", "M", "L", "XL"];
-const COLORS = ["black", "white"];
+
 
 type SortOption =
   | "newest"
@@ -14,11 +13,15 @@ type SortOption =
   | undefined;
 
 type FiltersBarProps = {
+  availableSizes: string[];
+  availableColors: string[];
   selectedSizes?: string[];
   selectedColors?: string[];
 };
 
 export function FiltersBar({
+  availableSizes,
+  availableColors,
   selectedSizes = [],
   selectedColors = [],
 }: FiltersBarProps) {
@@ -95,7 +98,7 @@ export function FiltersBar({
                 All
               </button>
 
-              {SIZES.map((size) => {
+              {availableSizes.map((size) => {
                 const active = selectedSizes.includes(size);
                 return (
                   <button
@@ -132,7 +135,7 @@ export function FiltersBar({
                 All
               </button>
 
-              {COLORS.map((color) => {
+              {availableColors.map((color) => {
                 const active = selectedColors.includes(color);
                 return (
                   <button

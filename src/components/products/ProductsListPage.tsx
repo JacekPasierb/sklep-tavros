@@ -28,6 +28,9 @@ type Props = {
   totalItems: number;
   pageSize: number;
   selectedSort?: SortOption;
+
+  availableSizes: string[];
+  availableColors: string[];
 };
 
 const ProductsListPage = ({
@@ -41,6 +44,8 @@ const ProductsListPage = ({
   totalPages,
   totalItems,
   pageSize,
+  availableSizes,
+  availableColors,
 }: Props) => {
   // bazowy path do "Wyczyść filtry" (bez query)
   const basePath =
@@ -75,6 +80,8 @@ const ProductsListPage = ({
       <div className="sticky top-[65px] z-40 -mx-4 px-4 bg-white/90 backdrop-blur border-b border-zinc-200 md:top-[80px]">
         <div className="py-3">
           <FiltersBar
+            availableSizes={availableSizes}
+            availableColors={availableColors}
             selectedSizes={selectedSizes}
             selectedColors={selectedColors}
           />

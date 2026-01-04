@@ -1,7 +1,10 @@
 // app/(shop)/[gender]/bestseller/page.tsx
 
 import ProductsListPage from "../../../../components/products/ProductsListPage";
-import {getProducts} from "../../../../lib/services/shop/products.service";
+import {
+  getAvailableProductFilters,
+  getProducts,
+} from "../../../../lib/services/shop/products.service";
 import {normalizeProductsListQuery} from "../../../../lib/utils/shop/normalizeProductsListQuery";
 
 import {
@@ -16,18 +19,27 @@ type PageProps = {
 
 const GenderBestsellerPage = async (props: PageProps) => {
   const {gender} = await props.params;
-const searchParams = await props.searchParams;
+  const searchParams = await props.searchParams;
   const query = normalizeProductsListQuery(searchParams);
 
-  const {items, total, totalPages, page, limit} = await getProducts({
-    gender,
-    mode: "bestseller",
-    sizes: query.sizes,
-    colors: query.colors,
-    page: query.page,
-    limit: 12,
-    sort: query.sort,
-  });
+  const [productsRes, filtersRes] = await Promise.all([
+    getProducts({
+      gender,
+      mode: "bestseller",
+      sizes: query.sizes,
+      colors: query.colors,
+      page: query.page,
+      limit: 24,
+      sort: query.sort,
+    }),
+
+    getAvailableProductFilters({
+      gender,
+      mode: "bestseller",
+    }),
+  ]);
+
+  const {items, total, totalPages, page, limit} = productsRes;
 
   return (
     <ProductsListPage
@@ -36,6 +48,8 @@ const searchParams = await props.searchParams;
       products={items}
       selectedSizes={query.sizes}
       selectedColors={query.colors}
+      availableSizes={filtersRes.sizes}
+      availableColors={filtersRes.colors}
       currentPage={page}
       totalPages={totalPages}
       totalItems={total}
