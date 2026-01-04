@@ -28,7 +28,7 @@ const isCategory = (v: string): v is ProductCategory => {
 };
 
 const isGender = (v: string): v is ProductGender => {
-  return v === "MENS" || v === "WOMENS" || v === "KIDS" || v === "UNISEX";
+  return v === "mens" || v === "womens" || v === "kids" ;
 };
 
 const isStock = (v: string): v is StockFilter => {
