@@ -86,9 +86,9 @@ export async function saveAdminProduct(input: {
     category: s.category,
     collectionSlug: s.collectionSlug || undefined,
     tags: buildTags({
-      isNew: s.tagNew,
-      isSale: s.tagSale,
-      isBestseller: s.tagBestseller,
+      tagNew: s.tagNew,
+      tagSale: s.tagSale,
+      tagBestseller: s.tagBestseller,
     }),
     images: imagesPayload,
     variants: variantsPayload,
@@ -104,7 +104,7 @@ export async function saveAdminProduct(input: {
   const url =
     input.mode === "edit"
       ? `/api/admin/products/${input.productId}`
-      : "/api/products";
+      : "/api/admin/products";
   const method = input.mode === "edit" ? "PATCH" : "POST";
 
   const res = await fetch(url, {

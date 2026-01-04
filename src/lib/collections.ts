@@ -1,6 +1,6 @@
-import {connectToDatabase} from "./mongodb";
+import { connectToDatabase } from "./mongodb";
 import Collection from "../models/Collection";
-import {Gender, TypeCollection} from "../types/collection";
+import type { Gender, TypeCollection } from "../types/collection";
 
 type GetCollectionsOptions = {
   gender?: Gender;
@@ -8,10 +8,10 @@ type GetCollectionsOptions = {
 };
 
 type CollectionMongoDoc = {
-  _id: {toString(): string};
+  _id: { toString(): string };
   slug: string;
   name: string;
-  gender: string[];
+  gender: Gender[]; // ✅ już małe litery w DB
   heroImage?: string;
   sortOrder?: number;
   isFeatured?: boolean;
@@ -20,38 +20,28 @@ type CollectionMongoDoc = {
 export async function getCollections(
   options: GetCollectionsOptions = {}
 ): Promise<TypeCollection[]> {
-  const {gender, limit} = options;
+  const { gender, limit } = options;
 
   await connectToDatabase();
 
   const query: Record<string, unknown> = {};
-
   if (gender) {
-    // w DB trzymasz MENS/WOMENS/KIDS
-    query.gender = {$in: [gender.toUpperCase()]};
+    // ✅ w DB trzymasz: "mens" | "womens" | "kids"
+    query.gender = { $in: [gender] };
   }
 
-  const docs = await Collection.find(query)
-    .sort({sortOrder: 1})
-    .limit(limit ?? 0) // 0 = bez limitu
-    .lean<CollectionMongoDoc[]>() // ⬅️ typujemy wynik
-    .exec();
+  const q = Collection.find(query).sort({ sortOrder: 1 });
+  if (typeof limit === "number" && limit > 0) q.limit(limit);
 
-  const items: TypeCollection[] = docs.map((doc: CollectionMongoDoc) => {
-    const genders: Gender[] = Array.isArray(doc.gender)
-      ? doc.gender.map((g) => g.toLowerCase() as Gender)
-      : [];
+  const docs = await q.lean<CollectionMongoDoc[]>().exec();
 
-    return {
-      _id: doc._id.toString(),
-      name: doc.name,
-      slug: doc.slug,
-      gender: genders, // ← teraz tablica
-      heroImage: doc.heroImage,
-      sortOrder: doc.sortOrder,
-      isFeatured: doc.isFeatured ?? false,
-    };
-  });
-
-  return items;
+  return docs.map((doc) => ({
+    _id: doc._id.toString(),
+    name: doc.name,
+    slug: doc.slug,
+    gender: Array.isArray(doc.gender) ? doc.gender : [],
+    heroImage: doc.heroImage,
+    sortOrder: doc.sortOrder,
+    isFeatured: doc.isFeatured ?? false,
+  }));
 }

@@ -3,7 +3,8 @@
 import BannerSection from "../../components/home/BannerSection";
 import HomeGenderSection from "../../components/home/HomeGenderSection";
 import {getCollections} from "../../lib/collections";
-import {getProducts} from "../../lib/products";
+import { getProducts } from "../../lib/services/shop/products.service";
+
 
 export default async function HomePage() {
   // 1. Kolekcje dla wszystkich płci

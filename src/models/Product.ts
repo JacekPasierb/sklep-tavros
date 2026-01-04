@@ -44,7 +44,7 @@ const ProductSchema = new Schema(
 
     gender: {
       type: String,
-      enum: ["MENS", "WOMENS", "KIDS", "UNISEX"],
+      enum: ["mens", "womens", "kids"],
       index: true,
     },
 
@@ -68,7 +68,6 @@ const ProductSchema = new Schema(
 
     variants: {type: [VariantSchema], default: []},
 
-    isBestseller: {type: Boolean, default: false, index: true},
     popularity: {type: Number, default: 0, index: true},
 
     // --- CONTENT / DESCRIPTION ---

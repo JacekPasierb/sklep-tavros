@@ -99,17 +99,17 @@ export const buildVariants = (colorRows: ColorRow[]) => {
 };
 
 export type ProductTagFlags = {
-  isNew?: boolean;
-  isSale?: boolean;
-  isBestseller?: boolean;
+  tagNew?: boolean;
+  tagSale?: boolean;
+  tagBestseller?: boolean;
 };
 
 export function buildTags(flags: ProductTagFlags): string[] {
   const tags: string[] = [];
 
-  if (flags.isNew) tags.push("new");
-  if (flags.isSale) tags.push("sale");
-  if (flags.isBestseller) tags.push("bestseller");
+  if (flags.tagNew) tags.push("new");
+  if (flags.tagSale) tags.push("sale");
+  if (flags.tagBestseller) tags.push("bestseller");
 
   return tags;
 }

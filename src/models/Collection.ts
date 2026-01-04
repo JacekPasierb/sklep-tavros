@@ -6,7 +6,7 @@ const CollectionSchema = new Schema(
     slug: { type: String, required: true, unique: true, index: true, trim: true },
     gender: {
       type: String,
-      enum: ["MENS", "WOMENS", "KIDS", "UNISEX"],
+      enum: ["mens", "womens", "kids", "unisex"],
       required: true,
       index: true,
     },

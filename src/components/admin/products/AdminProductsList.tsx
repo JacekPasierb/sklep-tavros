@@ -1,3 +1,4 @@
+import {Pagination} from "../../products/Pagination";
 import {ProductRow} from "./ProductRow";
 
 type ProductRowModel = {
@@ -19,9 +20,12 @@ type ProductRowModel = {
 
 type Props = {
   products: ProductRowModel[];
+  total: number;
+  page: number;
+  pages: number;
 };
 
-const AdminProductsList = ({products}: Props) => {
+const AdminProductsList = ({products, page, pages}: Props) => {
   return (
     <div className="rounded-3xl border border-zinc-200 bg-white overflow-hidden">
       <div className="hidden sm:block px-5 py-3 border-b border-zinc-200">
@@ -49,6 +53,11 @@ const AdminProductsList = ({products}: Props) => {
           </div>
         ) : null}
       </div>
+      {pages > 1 ? (
+        <div className="px-5 py-4 border-t border-zinc-200">
+          <Pagination currentPage={page} totalPages={pages} />
+        </div>
+      ) : null}
     </div>
   );
 };

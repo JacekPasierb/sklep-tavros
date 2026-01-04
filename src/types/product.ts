@@ -1,10 +1,10 @@
 // types/product.ts
 // src/types/product.ts
-export type ProductGender = "MENS" | "WOMENS" | "KIDS";
+export type ProductGender = "mens" | "womens" | "kids";
 export type ProductCategory = "TSHIRT" | "HOODIE";
 export type ProductStatus = "ACTIVE" | "HIDDEN";
 
-export const PRODUCT_GENDERS = ["MENS", "WOMENS", "KIDS"] as const;
+export const PRODUCT_GENDERS = ["mens", "womens", "kids"] as const;
 export const PRODUCT_CATEGORIES = ["TSHIRT", "HOODIE"] as const;
 export const PRODUCT_STATUSES = ["ACTIVE", "HIDDEN"] as const;
 
@@ -41,18 +41,18 @@ export type TypeProduct = {
   oldPrice?: number;
   currency?: string;
 
-  images?: ProductImage[];          // ✅ było string[]
+  images?: ProductImage[]; 
   variants?: Variant[];
 
-  gender: "MENS" | "WOMENS" | "UNISEX" | "KIDS";
+  gender: ProductGender;
   collectionSlug?: string;
   tags?: string[];
 
   // --- CONTENT / DESCRIPTION ---
-  summary?: string;                  // ✅ z modelu
-  sections?: ProductSection[];        // ✅ z modelu
-  styleCode?: string;                // ✅ z modelu
-  deliveryReturns?: ProductTextBlock; // ✅ luźno typowane, bo mongoose default/undefined
+  summary?: string; 
+  sections?: ProductSection[]; 
+  styleCode?: string; 
+  deliveryReturns?: ProductTextBlock; 
 };
 
 // export type ProductInput = Omit<TypeProduct, "_id">;

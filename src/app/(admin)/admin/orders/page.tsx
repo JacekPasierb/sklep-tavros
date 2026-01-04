@@ -19,7 +19,7 @@ const AdminOrdersPage = async ({
 }) => {
   const sp = await searchParams;
 
-  const query = normalizeOrdersQuery(sp, {limit: 20});
+  const query = normalizeOrdersQuery(sp, {limit: 10});
   const {orders, total, page, pages} = await getAdminOrders(query);
 
   return (

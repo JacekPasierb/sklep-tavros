@@ -1,21 +1,28 @@
-//Nowy
 // components/products/ProductsListPage.tsx
 "use client";
 
-import {SortOption} from "../../types/filters";
-import {TypeProduct} from "../../types/product";
+import type {SortOption} from "../../types/filters";
+import type {TypeProduct} from "../../types/product";
+import type {ShopGender} from "../../types/shop/productsList";
+
 import EmptyState from "../common/EmptyState";
 import {FiltersBar} from "./FiltersBar";
 import {Pagination} from "./Pagination";
 import ProductCard from "./ProductCard";
 
+import {getProductsListHeading} from "../../lib/utils/shop/productsListHeadings";
+
+type Mode = "all" | "bestseller" | "collection" | "sale" | "new";
+
 type Props = {
-  gender: "mens" | "womens";
-  mode: "all" | "bestseller" | "collection" | "sale" | "new";
+  gender: ShopGender;
+  mode: Mode;
   collectionSlug?: string;
+
   products: TypeProduct[];
   selectedSizes?: string[];
   selectedColors?: string[];
+
   currentPage: number;
   totalPages: number;
   totalItems: number;
@@ -35,7 +42,7 @@ const ProductsListPage = ({
   totalItems,
   pageSize,
 }: Props) => {
-  // 🔹 bazowy path do "Wyczyść filtry" (bez query)
+  // bazowy path do "Wyczyść filtry" (bez query)
   const basePath =
     mode === "all"
       ? `/${gender}/all`
@@ -48,64 +55,21 @@ const ProductsListPage = ({
       : mode === "collection" && collectionSlug
       ? `/${gender}/collection/${collectionSlug}`
       : `/${gender}/all`;
+
+  const heading = getProductsListHeading({gender, mode, collectionSlug});
+
   return (
     <section className="container mx-auto px-4 py-8">
-      {/* 🔵 Nagłówek TYLKO dla ALL */}
-      {mode === "all" && (
-        <div className="text-center py-4">
-          <h1 className="mb-6 text-2xl font-semibold">
-            {gender === "mens" ? "MEN’S — CLOTHING" : "WOMEN’S — CLOTHING"}
-          </h1>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores
-            incidunt fugit ratione ducimus porro praesentium temporibus nam
-            consequuntur earum aspernatur?
-          </p>
-        </div>
-      )}
+      {/* Header */}
+      <div className="text-center py-4">
+        <h1 className="mb-6 text-2xl font-semibold">{heading.title}</h1>
 
-      {/* 🔵 Nagłówek dla bestseller */}
-      {mode === "bestseller" && (
-        <div className="text-center py-4">
-          <h1 className="text-center text-xl font-semibold mb-6">
-            {gender === "mens" ? "MEN’S — BESTSELLERS" : "WOMEN’S — BESTSELLER"}
-          </h1>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores
-            incidunt fugit ratione ducimus porro praesentium temporibus nam
-            consequuntur earum aspernatur?
+        {heading.description && (
+          <p className="text-sm text-zinc-600 max-w-2xl mx-auto">
+            {heading.description}
           </p>
-        </div>
-      )}
-
-      {/* 🔵 Nagłówek dla sale */}
-      {mode === "sale" && (
-        <h1 className="text-center text-xl font-semibold mb-6">
-          SALE — {gender === "mens" ? "MEN’S" : "WOMEN’S"} COLLECTION
-        </h1>
-      )}
-      {/* 🔵 Nagłówek dla new */}
-      {mode === "new" && (
-        <h1 className="text-center text-xl font-semibold mb-6">
-          {gender === "mens" ? "MEN’S — NEW IN" : "WOMEN’S — NEW IN"}
-        </h1>
-      )}
-
-      {/* 🔵 Nagłówek dla collection */}
-      {mode === "collection" && collectionSlug && (
-        <div className="text-center py-4">
-          <h1 className="text-center text-xl font-semibold mb-6">
-            {gender === "mens" ? "MEN’S" : "WOMEN’S"} — COLLECTION{" "}
-            {collectionSlug.toUpperCase()}
-          </h1>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores
-            incidunt fugit ratione ducimus porro praesentium temporibus nam
-            consequuntur earum aspernatur?
-          </p>
-        </div>
-      )}
-      {/* ---------------------------------------------------- */}
+        )}
+      </div>
 
       {/* Sticky bar – mobile compact */}
       <div className="sticky top-[65px] z-40 -mx-4 px-4 bg-white/90 backdrop-blur border-b border-zinc-200 md:top-[80px]">
@@ -127,13 +91,12 @@ const ProductsListPage = ({
             ))}
           </section>
 
-          {/* 🔹 Paginacja tylko jeśli są produkty */}
           {totalPages > 1 && (
             <div className="mt-8 flex flex-col items-center gap-2">
               <p className="text-sm text-gray-500">
-                Wyświetlane {(currentPage - 1) * pageSize + 1}–
-                {Math.min(currentPage * pageSize, totalItems)} z {totalItems}{" "}
-                produktów
+                Showing {(currentPage - 1) * pageSize + 1}–
+                {Math.min(currentPage * pageSize, totalItems)} of {totalItems}{" "}
+                products
               </p>
               <Pagination currentPage={currentPage} totalPages={totalPages} />
             </div>

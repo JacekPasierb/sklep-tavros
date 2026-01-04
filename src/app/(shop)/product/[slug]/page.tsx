@@ -1,10 +1,11 @@
 import {notFound} from "next/navigation";
-import {getProductBySlug, getRelatedProducts} from "../../../../lib/products";
+
 
 import ProductDetails from "../../../../components/products/ProductDetails";
 import Slider from "../../../../components/products/Slider";
 import ProductGallery from "../../../../components/products/ProductGallery/ProductGallery";
 import ProductInfoSections from "../../../../components/products/ProductInfoSections";
+import { getProductBySlug, getRelatedProducts } from "../../../../lib/services/shop/products.service";
 
 type PageProps = {
   params: {slug: string};

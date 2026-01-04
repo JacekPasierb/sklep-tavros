@@ -1,4 +1,4 @@
-export type Gender = "mens" | "womens" | "kids" | "unisex";
+export type Gender = "mens" | "womens" | "kids" ;
 
 export type TypeCollection = {
   _id: string;

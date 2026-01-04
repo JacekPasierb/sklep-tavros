@@ -1,67 +1,37 @@
 // app/(shop)/[gender]/collection/[collectionSlug]/page.tsx
 
 import ProductsListPage from "../../../../../components/products/ProductsListPage";
+import {getProducts} from "../../../../../lib/services/shop/products.service";
+import {normalizeProductsListQuery} from "../../../../../lib/utils/shop/normalizeProductsListQuery";
 
-import type {SortOption} from "../../../../../types/filters";
-import {getProducts} from "../../../../../lib/products";
+import {
+  ProductsListSearchParams,
+  ShopGender,
+} from "../../../../../types/shop/productsList";
 
 type PageProps = {
   params: {
-    gender: "mens" | "womens";
+    gender: ShopGender;
     collectionSlug: string;
   };
-  searchParams: {
-    [key: string]: string | string[] | undefined;
-  };
+  searchParams: ProductsListSearchParams;
 };
 
-export default async function GenderCollectionPage(props: PageProps) {
-  const params = await props.params;
+const GenderCollectionPage = async (props: PageProps) => {
+  const {gender, collectionSlug} = await props.params;
   const searchParams = await props.searchParams;
 
-  const {gender, collectionSlug} = params;
-
-  // 🔹 page
-  const pageParam = searchParams.page;
-  const currentPage =
-    typeof pageParam === "string" && !Number.isNaN(Number(pageParam))
-      ? Math.max(1, Number(pageParam))
-      : 1;
-
-  // 🔹 sizes (multi)
-  const sizeParam = searchParams.size;
-  let sizes: string[] | undefined;
-
-  if (Array.isArray(sizeParam)) {
-    sizes = sizeParam as string[];
-  } else if (typeof sizeParam === "string") {
-    sizes = [sizeParam];
-  }
-
-  // 🔹 colors (multi)
-  const colorParam = searchParams.color;
-  let colors: string[] | undefined;
-
-  if (Array.isArray(colorParam)) {
-    colors = colorParam as string[];
-  } else if (typeof colorParam === "string") {
-    colors = [colorParam];
-  }
-
-  // 🔹 sort
-  const sortParam = searchParams.sort;
-  const sort: SortOption =
-    typeof sortParam === "string" ? (sortParam as SortOption) : "newest";
+  const query = normalizeProductsListQuery(searchParams);
 
   const {items, total, totalPages, page, limit} = await getProducts({
     gender,
     mode: "collection",
     collectionSlug,
-    sizes,
-    colors,
-    page: currentPage,
+    sizes: query.sizes,
+    colors: query.colors,
+    page: query.page,
     limit: 12,
-    sort,
+    sort: query.sort,
   });
 
   return (
@@ -70,13 +40,14 @@ export default async function GenderCollectionPage(props: PageProps) {
       mode="collection"
       collectionSlug={collectionSlug}
       products={items}
-      selectedSizes={sizes}
-      selectedColors={colors}
+      selectedSizes={query.sizes}
+      selectedColors={query.colors}
       currentPage={page}
       totalPages={totalPages}
       totalItems={total}
       pageSize={limit}
-      selectedSort={sort}
+      selectedSort={query.sort}
     />
   );
-}
+};
+export default GenderCollectionPage;

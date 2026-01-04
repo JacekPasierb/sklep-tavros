@@ -175,7 +175,7 @@ export async function GET(req: NextRequest) {
 
     const where: Where = {};
     where.status = "ACTIVE";
-    if (gender) where.gender = gender.toUpperCase();
+    if (gender) where.gender = gender;
     if (collection) where.collectionSlug = collection;
     if (bestseller) where.isBestseller = true;
 

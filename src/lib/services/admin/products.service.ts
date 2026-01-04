@@ -98,8 +98,17 @@ const getAdminProducts = async (
 
   const where = buildProductsWhere(query);
 
+  const total = await Product.countDocuments(where);
+
+  const limit = query.limit;
+  const pages = Math.max(1, Math.ceil(total / limit));
+  const page = Math.min(query.page, pages);
+  const skip = (page - 1) * limit;
+
   const rows = await Product.find(where)
     .sort({createdAt: -1})
+    .skip(skip)
+    .limit(limit)
     .select({
       title: 1,
       slug: 1,
@@ -113,10 +122,8 @@ const getAdminProducts = async (
       category: 1,
       createdAt: 1,
     })
-    .limit(query.limit)
     .lean<ProductRow[]>();
 
-  const products = rows.map(toAdminListItem);
-  return {products, total: products.length};
+  return {products: rows.map(toAdminListItem), total, page, pages, limit};
 };
 export default getAdminProducts;

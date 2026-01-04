@@ -10,6 +10,11 @@ const asString = (v: string | string[] | undefined) => {
   return typeof v === "string" ? v : "";
 };
 
+const parsePositiveInt = (value: string, fallback: number) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
+};
+
 const normalizeText = (v: string) => {
   return v.trim();
 };
@@ -34,7 +39,7 @@ const normalizeAdminProductsQuery = (
   sp: AdminProductsSearchParams,
   options?: {limit?: number}
 ): AdminProductsQuery => {
-  const limit = options?.limit ?? 200;
+  const limit = options?.limit ?? 20;
 
   const q = normalizeText(asString(sp.q));
   const statusRaw = asString(sp.status);
@@ -43,14 +48,17 @@ const normalizeAdminProductsQuery = (
   const collection = normalizeText(asString(sp.collection));
   const stockRaw = asString(sp.stock);
 
+  const page = parsePositiveInt(asString(sp.page), 1);
   return {
+    page,
+    limit,
     q,
     status: isStatus(statusRaw) ? statusRaw : "",
     category: isCategory(categoryRaw) ? categoryRaw : "",
     gender: isGender(genderRaw) ? genderRaw : "",
     collection,
     stock: isStock(stockRaw) ? stockRaw : "",
-    limit,
+    
   };
 };
 export default normalizeAdminProductsQuery;

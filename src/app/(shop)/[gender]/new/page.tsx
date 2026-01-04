@@ -1,55 +1,31 @@
 import ProductsListPage from "../../../../components/products/ProductsListPage";
-import { getProducts } from "../../../../lib/products";
-import type { SortOption } from "../../../../types/filters";
+import {getProducts} from "../../../../lib/services/shop/products.service";
+import {normalizeProductsListQuery} from "../../../../lib/utils/shop/normalizeProductsListQuery";
+
+import {
+  ProductsListSearchParams,
+  ShopGender,
+} from "../../../../types/shop/productsList";
 
 type PageProps = {
-  params: { gender: "mens" | "womens" };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: {gender: ShopGender};
+  searchParams: ProductsListSearchParams;
 };
 
 const GenderNewPage = async (props: PageProps) => {
-  const params = await props.params;
+  const {gender} = await props.params;
   const searchParams = await props.searchParams;
-  const { gender } = params;
 
-  // page
-  const pageParam = searchParams.page;
-  const currentPage =
-    typeof pageParam === "string" && !Number.isNaN(Number(pageParam))
-      ? Math.max(1, Number(pageParam))
-      : 1;
+  const query = normalizeProductsListQuery(searchParams);
 
-  // sizes
-  const sizeParam = searchParams.size;
-  const sizes =
-    Array.isArray(sizeParam)
-      ? (sizeParam as string[])
-      : typeof sizeParam === "string"
-      ? [sizeParam]
-      : undefined;
-
-  // colors
-  const colorParam = searchParams.color;
-  const colors =
-    Array.isArray(colorParam)
-      ? (colorParam as string[])
-      : typeof colorParam === "string"
-      ? [colorParam]
-      : undefined;
-
-  // sort
-  const sortParam = searchParams.sort;
-  const sort: SortOption =
-    typeof sortParam === "string" ? (sortParam as SortOption) : "newest";
-
-  const { items, total, totalPages, page, limit } = await getProducts({
+  const {items, total, totalPages, page, limit} = await getProducts({
     gender,
     mode: "new",
-    sizes,
-    colors,
-    page: currentPage,
+    sizes: query.sizes,
+    colors: query.colors,
+    page: query.page,
     limit: 12,
-    sort,
+    sort: query.sort,
   });
 
   return (
@@ -57,13 +33,13 @@ const GenderNewPage = async (props: PageProps) => {
       gender={gender}
       mode="new"
       products={items}
-      selectedSizes={sizes}
-      selectedColors={colors}
+      selectedSizes={query.sizes}
+      selectedColors={query.colors}
       currentPage={page}
       totalPages={totalPages}
       totalItems={total}
       pageSize={limit}
-      selectedSort={sort}
+      selectedSort={query.sort}
     />
   );
 };

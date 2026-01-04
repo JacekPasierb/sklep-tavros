@@ -60,7 +60,8 @@ const getAdminOrders = async (query: OrdersQuery): Promise<OrdersResult> => {
   const filter = buildOrdersFilter(query);
 
   const total = await Order.countDocuments(filter);
-  const pages = Math.max(1, Math.ceil(total / query.limit));
+  const limit = query.limit;
+  const pages = Math.max(1, Math.ceil(total / limit));
   const page = Math.min(query.page, pages);
 
   const rows = await Order.find(filter)

@@ -1,7 +1,4 @@
-
-import { ProductCategory, ProductGender, ProductStatus } from "../product";
-
-
+import {ProductCategory, ProductGender, ProductStatus} from "../product";
 
 export type StockFilter = "" | "OUT" | "LOW" | "GOOD";
 
@@ -17,6 +14,7 @@ export type AdminProductsQuery = {
   gender: "" | ProductGender;
   collection: string;
   stock: StockFilter;
+  page: number;
   limit: number;
 };
 
@@ -54,5 +52,7 @@ export type AdminProductListItem = {
 export type AdminProductsResult = {
   products: AdminProductListItem[];
   total: number;
-  
+  page: number;
+  pages: number;
+  limit: number;
 };

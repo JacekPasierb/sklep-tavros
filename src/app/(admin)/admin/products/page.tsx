@@ -13,8 +13,8 @@ const AdminProductsPage = async (props: {
   searchParams: Record<string, string | string[] | undefined>;
 }) => {
   const searchParams = await props.searchParams;
-  const query = normalizeAdminProductsQuery(searchParams, {limit: 200});
-  const {products, total} = await getAdminProducts(query);
+  const query = normalizeAdminProductsQuery(searchParams, {limit: 20});
+  const {products, total, page, pages} = await getAdminProducts(query);
 
   return (
     <div className="space-y-6">
@@ -34,7 +34,7 @@ const AdminProductsPage = async (props: {
         }}
       />
       <AdminProductsTopBar total={total} />
-      <AdminProductsList products={products} />
+      <AdminProductsList products={products} total={total} page={page} pages={pages} />
     </div>
   );
 };
