@@ -12,7 +12,8 @@ import {TypeProduct} from "../../types/product";
 import {useUserFavorites} from "../../lib/hooks/useUserFavorites";
 import {TrashX} from "../icons/TrashX";
 import {useFavoritesStore} from "../../store/favoritesStore";
-import { isCustomerSession } from "../../lib/utils/isCustomer";
+import {isCustomerSession} from "../../lib/utils/isCustomer";
+import formatMoney from "../../lib/utils/shop/formatMoney";
 
 type Props = {
   product: TypeProduct;
@@ -23,8 +24,6 @@ type Props = {
 const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
   const {data: session, status} = useSession();
   const isCustomer = isCustomerSession(session, status);
-  
-
 
   // const isLoggedIn = status === "authenticated";
 
@@ -82,12 +81,6 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
 
   const isNew = product.tags?.includes("new");
 
-  const formatPrice = (value: number) =>
-    Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency: product.currency ?? "GBP",
-    }).format(value);
-
   const disabled = busy || (isCustomer && favsLoading);
 
   // ------- HANDLERY ULUBIONYCH -------
@@ -134,6 +127,7 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
       setBusy(false);
     }
   }
+  const currency = product.currency ?? "GBP";
 
   return (
     <article className="flex flex-col">
@@ -209,12 +203,12 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
           <div className="mt-1 flex items-baseline gap-2">
             {hasSale && product.oldPrice && (
               <span className="text-xs text-gray-400 line-through">
-                {formatPrice(product.oldPrice)}
+                {formatMoney(product.oldPrice, currency)}
               </span>
             )}
 
             <span className="text-sm font-semibold text-gray-900">
-              {formatPrice(product.price)}
+              {formatMoney(product.price, currency)}
             </span>
           </div>
         </div>

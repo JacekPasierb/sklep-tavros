@@ -1,0 +1,30 @@
+import type {ShopGender} from "../../../types/shop/productsList";
+
+export type ProductsListMode = "all" | "bestseller" | "collection" | "sale" | "new";
+
+/**
+ * getProductsListBasePath
+ *
+ * Zwraca bazowy path (bez query string) dla listy produktów.
+ * Używane głównie do linku "Reset/Clear filters" oraz EmptyState.
+ */
+export const getProductsListBasePath = (opts: {
+  gender: ShopGender;
+  mode: ProductsListMode;
+  collectionSlug?: string;
+}) => {
+  const {gender, mode, collectionSlug} = opts;
+
+  if (mode === "collection" && collectionSlug) {
+    return `/${gender}/collection/${collectionSlug}`;
+  }
+
+  const map: Record<Exclude<ProductsListMode, "collection">, string> = {
+    all: `/${gender}/all`,
+    bestseller: `/${gender}/bestseller`,
+    sale: `/${gender}/sale`,
+    new: `/${gender}/new`,
+  };
+
+  return map[mode === "collection" ? "all" : mode] ?? `/${gender}/all`;
+};

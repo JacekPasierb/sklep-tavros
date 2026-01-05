@@ -54,7 +54,6 @@ const GenderBestsellerPage = async (props: PageProps) => {
       totalPages={totalPages}
       totalItems={total}
       pageSize={limit}
-      selectedSort={query.sort}
     />
   );
 };
