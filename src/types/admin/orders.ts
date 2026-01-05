@@ -17,6 +17,15 @@ export type OrdersQuery = {
   fulfillmentStatus: FulfillmentStatus | "";
 };
 
+export type PublicOrderItem = {
+  slug?: string;
+  title?: string;
+  price?: number;
+  qty?: number;
+  size?: string;
+  color?: string;
+};
+
 export type PublicOrder = {
   id: string;
   orderNumber: string;
@@ -27,6 +36,9 @@ export type PublicOrder = {
   fulfillmentStatus: FulfillmentStatus;
   createdAt: string;
   customer?: Customer | null;
+  items: PublicOrderItem[];
+  shippingMethod?: "standard" | "express";
+  shippingCost?: number;
 };
 
 export type OrdersResult = {

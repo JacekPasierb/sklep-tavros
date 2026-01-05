@@ -1,3 +1,7 @@
+"use client";
+
+import {useState} from "react";
+
 import {
   formatAddress,
   formatCustomerName,
@@ -7,7 +11,7 @@ import {
 import {PublicOrder} from "../../../types/admin/orders";
 import {Pagination} from "../../products/Pagination";
 import OrderStatusControls from "./OrderStatusContrlos";
-
+import OrderItemsPreview from "./OrderItemsPreview";
 
 type Props = {
   orders: PublicOrder[];
@@ -17,6 +21,8 @@ type Props = {
 };
 
 const OrdersList = ({orders, total, page, pages}: Props) => {
+  const [openId, setOpenId] = useState<string | null>(null);
+
   return (
     <div className="rounded-3xl border border-zinc-200 bg-white overflow-hidden">
       <div className="px-5 py-4 border-b border-zinc-200 flex items-center justify-between gap-3">
@@ -45,6 +51,7 @@ const OrdersList = ({orders, total, page, pages}: Props) => {
           const customerName = formatCustomerName(o.customer);
           const customerEmail = o.customer?.email || o.email;
           const address = formatAddress(o.customer?.address);
+          const isOpen = openId === o.id;
 
           return (
             <div key={o.id} className="px-5 py-4">
@@ -55,9 +62,21 @@ const OrdersList = ({orders, total, page, pages}: Props) => {
                     {o.orderNumber}
                   </div>
 
-                  {/* mobile: date under order */}
-                  <div className="mt-1 sm:hidden text-xs text-zinc-500">
-                    {formatDate(o.createdAt)} • {formatTime(o.createdAt)}
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setOpenId(isOpen ? null : o.id)}
+                      className="inline-flex rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50"
+                    >
+                      {isOpen
+                        ? "Hide items"
+                        : `Items (${o.items?.length ?? 0})`}
+                    </button>
+
+                    {/* mobile: date under order */}
+                    <div className="sm:hidden text-xs text-zinc-500">
+                      {formatDate(o.createdAt)} • {formatTime(o.createdAt)}
+                    </div>
                   </div>
                 </div>
 
@@ -86,9 +105,19 @@ const OrdersList = ({orders, total, page, pages}: Props) => {
                 </div>
 
                 {/* TOTAL */}
-                <div className="sm:col-span-2 sm:text-right text-sm text-black">
-                  {Number.isFinite(o.total) ? o.total.toFixed(2) : "—"}{" "}
-                  {o.currency}
+                <div className="sm:col-span-2 sm:text-right">
+                  <div className="text-sm text-black">
+                    {Number.isFinite(o.total) ? o.total.toFixed(2) : "—"}{" "}
+                    {o.currency}
+                  </div>
+
+                  <div className="mt-0.5 text-[11px] text-zinc-500">
+                    Shipping:{" "}
+                    {o.shippingMethod === "express" ? "Express" : "Standard"}
+                    {typeof o.shippingCost === "number"
+                      ? ` • ${o.shippingCost.toFixed(2)} ${o.currency}`
+                      : ""}
+                  </div>
                 </div>
 
                 {/* PAYMENT */}
@@ -111,6 +140,13 @@ const OrdersList = ({orders, total, page, pages}: Props) => {
                   />
                 </div>
               </div>
+
+              {/* EXPANDED ITEMS */}
+              {isOpen ? (
+                <div className="mt-4">
+                  <OrderItemsPreview items={o.items ?? []} />
+                </div>
+              ) : null}
             </div>
           );
         })}
@@ -128,4 +164,5 @@ const OrdersList = ({orders, total, page, pages}: Props) => {
     </div>
   );
 };
+
 export default OrdersList;

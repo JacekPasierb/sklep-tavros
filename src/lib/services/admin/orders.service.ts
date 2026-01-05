@@ -18,6 +18,17 @@ type OrderRow = {
   fulfillmentStatus: FulfillmentStatus;
   createdAt: Date;
   customer?: Customer | null;
+  items?: Array<{
+    slug?: string;
+    title?: string;
+    price?: number;
+    qty?: number;
+    size?: string;
+    color?: string;
+  }>;
+
+  shippingMethod?: "standard" | "express";
+  shippingCost?: number;
 };
 
 const buildOrdersFilter = (query: OrdersQuery): Record<string, unknown> => {
@@ -51,6 +62,18 @@ const toPublicOrder = (row: OrderRow): PublicOrder => {
     fulfillmentStatus: row.fulfillmentStatus,
     createdAt: row.createdAt.toISOString(),
     customer: row.customer ?? null,
+    items: Array.isArray(row.items)
+      ? row.items.map((it) => ({
+          slug: it.slug,
+          title: it.title,
+          price: it.price,
+          qty: it.qty,
+          size: it.size,
+          color: it.color,
+        }))
+      : [],
+    shippingMethod: row.shippingMethod,
+    shippingCost: row.shippingCost,
   };
 };
 
@@ -77,6 +100,9 @@ const getAdminOrders = async (query: OrdersQuery): Promise<OrdersResult> => {
       fulfillmentStatus: 1,
       createdAt: 1,
       customer: 1,
+      items: 1,
+      shippingMethod: 1, // ✅
+      shippingCost: 1,
     })
     .lean<OrderRow[]>();
 
