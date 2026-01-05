@@ -1,12 +1,7 @@
 // src/lib/utils/shop/productsListHeadings.ts
-import type {ShopGender} from "../../../types/shop/productsList";
+import type {ProductsListMode, ShopGender} from "../../../types/shop/productsList";
 
-export type ProductsListMode =
-  | "all"
-  | "bestseller"
-  | "collection"
-  | "sale"
-  | "new";
+
 
 const GENDER_SHORT: Record<ShopGender, string> = {
   mens: "MEN’S",

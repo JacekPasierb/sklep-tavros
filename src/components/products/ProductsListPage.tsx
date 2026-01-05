@@ -1,18 +1,15 @@
 "use client";
 
 import type {TypeProduct} from "../../types/product";
-import type {ShopGender} from "../../types/shop/productsList";
+import type {ProductsListMode, ShopGender} from "../../types/shop/productsList";
 
-import EmptyState from "../common/EmptyState";
 import {FiltersBar} from "./FiltersBar";
 import {Pagination} from "./Pagination";
 import ProductCard from "./ProductCard";
 
 import {getProductsListHeading} from "../../lib/utils/shop/productsListHeadings";
-import {
-  getProductsListBasePath,
-  ProductsListMode,
-} from "../../lib/utils/shop/productsListBasePath";
+import {getProductsListBasePath} from "../../lib/utils/shop/productsListBasePath";
+import EmptyState from "../common/EmptyState";
 
 type Props = {
   gender: ShopGender;

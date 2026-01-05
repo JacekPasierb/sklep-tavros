@@ -1,6 +1,3 @@
-
-
-
 export const toSlugFromTitle = (title: string) =>
   title
     .toLowerCase()
@@ -8,8 +5,6 @@ export const toSlugFromTitle = (title: string) =>
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
-
-
 
 export const normalizeColor = (value: string) => value.trim().toLowerCase();
 

@@ -1,18 +1,9 @@
 "use client";
 
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
+import {SortOption} from "../../types/filters";
 
-
-
-type SortOption =
-  | "newest"
-  | "price_asc"
-  | "price_desc"
-  | "popular"
-  | "title_asc"
-  | undefined;
-
-type FiltersBarProps = {
+type Props = {
   availableSizes: string[];
   availableColors: string[];
   selectedSizes?: string[];
@@ -24,7 +15,7 @@ export function FiltersBar({
   availableColors,
   selectedSizes = [],
   selectedColors = [],
-}: FiltersBarProps) {
+}: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -169,11 +160,7 @@ export function FiltersBar({
         <div className="relative">
           <select
             value={selectedSort ?? "newest"}
-            onChange={(e) =>
-              updateSort(
-                e.target.value as "newest" | "price_asc" | "price_desc"
-              )
-            }
+            onChange={(e) => updateSort(e.target.value as SortOption)}
             className="
               h-8 rounded-full border border-zinc-300 bg-white
               px-3 pr-7 text-[12px] font-medium text-zinc-900
@@ -200,11 +187,7 @@ export function FiltersBar({
         <div className="relative">
           <select
             value={selectedSort ?? "newest"}
-            onChange={(e) =>
-              updateSort(
-                e.target.value as "newest" | "price_asc" | "price_desc"
-              )
-            }
+            onChange={(e) => updateSort(e.target.value as SortOption)}
             className="
               h-9 rounded-full border border-zinc-300 bg-white
               px-4 pr-8 text-xs font-medium text-zinc-900

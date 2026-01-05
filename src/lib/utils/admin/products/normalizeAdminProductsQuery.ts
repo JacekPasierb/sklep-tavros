@@ -1,7 +1,6 @@
 import {
   AdminProductsQuery,
   AdminProductsSearchParams,
-  
   StockFilter,
 } from "../../../../types/admin/products";
 import { ProductCategory, ProductGender, ProductStatus } from "../../../../types/product";

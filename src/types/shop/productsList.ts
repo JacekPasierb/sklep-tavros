@@ -1,5 +1,7 @@
 export type ShopGender = "mens" | "womens" | "kids";
 
+export type ProductsListMode = "all" | "bestseller" | "collection" | "sale" | "new";
+
 export type ProductsListSearchParams = Record<
   string,
   string | string[] | undefined

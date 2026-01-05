@@ -17,7 +17,7 @@ import formatMoney from "../../lib/utils/shop/formatMoney";
 
 type Props = {
   product: TypeProduct;
-  showHeart?: boolean; // na liście true, na stronie /favorites można dać false
+  showHeart?: boolean; 
   onRemoved?: (id: string) => void;
 };
 
@@ -25,7 +25,7 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
   const {data: session, status} = useSession();
   const isCustomer = isCustomerSession(session, status);
 
-  // const isLoggedIn = status === "authenticated";
+ 
 
   // 👇 prosty, standardowy guard na hydrację (żeby SSR == 1. render klienta)
   const [hydrated, setHydrated] = useState(false);

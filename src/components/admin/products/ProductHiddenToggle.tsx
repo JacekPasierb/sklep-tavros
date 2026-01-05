@@ -2,19 +2,20 @@
 
 import {useRouter} from "next/navigation";
 import {useState} from "react";
+import {ProductStatus} from "../../../types/product";
 
 type Props = {
   productId: string;
-  status: "ACTIVE" | "HIDDEN";
+  status: ProductStatus;
 };
 
-export function ProductHiddenToggle({productId, status}: Props) {
+export const ProductHiddenToggle = ({productId, status}: Props) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const hidden = status === "HIDDEN";
 
-  async function onChange(nextHidden: boolean) {
+  const onChange = async (nextHidden: boolean) => {
     setLoading(true);
 
     const nextStatus = nextHidden ? "HIDDEN" : "ACTIVE";
@@ -34,7 +35,7 @@ export function ProductHiddenToggle({productId, status}: Props) {
     }
 
     router.refresh();
-  }
+  };
 
   return (
     <label className="inline-flex items-center gap-2 text-xs text-zinc-700">
@@ -48,4 +49,4 @@ export function ProductHiddenToggle({productId, status}: Props) {
       Hidden
     </label>
   );
-}
+};

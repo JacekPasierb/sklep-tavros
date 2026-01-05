@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 
+
 export default function AccountPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+
 
   // jeśli nie zalogowany → przekieruj
   useEffect(() => {
@@ -21,7 +23,7 @@ export default function AccountPage() {
       <section className="container mx-auto px-4 py-10">
         <div className="mx-auto w-full max-w-md rounded-2xl bg-white px-6 py-8 shadow-sm">
           <p className="text-center text-sm text-zinc-600">
-            Sprawdzam status logowania…
+             Checking your session…
           </p>
         </div>
       </section>
@@ -43,7 +45,7 @@ export default function AccountPage() {
         {/* Nagłówek */}
         <h1 className="text-3xl font-semibold mb-2 tracking-tight">My Account</h1>
         <p className="text-sm text-zinc-600 mb-8">
-          Zarządzaj swoimi zamówieniami, danymi i ulubionymi produktami.
+        Manage your orders, personal details, and saved items.
         </p>
 
         {/* Dane użytkownika */}
@@ -81,7 +83,7 @@ export default function AccountPage() {
             href="/favorites"
             className="flex items-center justify-between rounded-lg border px-4 py-3 hover:bg-zinc-50"
           >
-            <span className="text-sm font-medium">Favorite products</span>
+            <span className="text-sm font-medium">Wishlist</span>
             <span className="text-zinc-400">&rarr;</span>
           </Link>
 
@@ -96,7 +98,7 @@ export default function AccountPage() {
 
         {/* Logout */}
         <div className="flex justify-between items-center pt-4 border-t">
-          <p className="text-xs text-zinc-500">Chcesz zakończyć sesję?</p>
+          <p className="text-xs text-zinc-500">Want to end your session?</p>
 
           <button
             onClick={() => signOut({ callbackUrl: "/" })}

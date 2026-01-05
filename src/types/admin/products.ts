@@ -6,7 +6,12 @@ export type AdminProductsSearchParams = Record<
   string,
   string | string[] | undefined
 >;
-
+export type AdminProductVariantRow = {
+  sku?: string;
+  size?: string;
+  color?: string;
+  stock?: number;
+};
 export type AdminProductsQuery = {
   q: string;
   status: "" | ProductStatus;
@@ -40,12 +45,7 @@ export type AdminProductListItem = {
   status: ProductStatus;
   category?: ProductCategory;
   collectionSlug?: string | null;
-  variants: Array<{
-    sku?: string;
-    size?: string;
-    color?: string;
-    stock?: number;
-  }>;
+  variants: AdminProductVariantRow[];
   createdAt: string;
 };
 
@@ -76,12 +76,7 @@ export type ProductRow = {
   gender?: ProductGender| null;
   status?: ProductStatus;
   category?: ProductCategory;
-  variants?: Array<{
-    sku?: string;
-    size?: string;
-    color?: string;
-    stock?: number;
-  }>;
+  variants?: AdminProductVariantRow[];
   collectionSlug?: string | null;
   createdAt: Date;
 };

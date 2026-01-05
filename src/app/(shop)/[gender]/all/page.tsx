@@ -37,7 +37,6 @@ const GenderAllPage = async (props: PageProps) => {
     }),
   ]);
 
-
   const {items, total, totalPages, page, limit} = productsRes;
 
   return (
@@ -53,7 +52,6 @@ const GenderAllPage = async (props: PageProps) => {
       totalPages={totalPages}
       totalItems={total}
       pageSize={limit}
-     
     />
   );
 };

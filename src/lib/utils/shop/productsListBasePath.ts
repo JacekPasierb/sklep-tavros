@@ -1,6 +1,7 @@
-import type {ShopGender} from "../../../types/shop/productsList";
-
-export type ProductsListMode = "all" | "bestseller" | "collection" | "sale" | "new";
+import type {
+  ProductsListMode,
+  ShopGender,
+} from "../../../types/shop/productsList";
 
 /**
  * getProductsListBasePath

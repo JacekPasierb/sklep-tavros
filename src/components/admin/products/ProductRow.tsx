@@ -3,63 +3,24 @@
 import Link from "next/link";
 import {useMemo, useState} from "react";
 import {ProductHiddenToggle} from "./ProductHiddenToggle";
+import {
+  AdminProductListItem,
+  AdminProductVariantRow,
+} from "../../../types/admin/products";
+import formatMoney from "../../../lib/utils/shop/formatMoney";
+import {
+  getStockBadgeClass,
+  getStockStatus,
+} from "../../../lib/utils/admin/products/stock";
 
-type Variant = {
-  sku?: string;
-  size?: string;
-  color?: string;
-  stock?: number;
+type Props = {
+  product: AdminProductListItem;
 };
 
-type ProductRowProps = {
-  product: {
-    _id: string;
-    title: string;
-    styleCode: string;
-    price: number;
-    currency?: string | null;
-    status?: "ACTIVE" | "HIDDEN";
-    category?: "TSHIRT" | "HOODIE";
-    collectionSlug?: string | null;
-    variants?: Variant[];
-  };
-};
-
-type StockStatus = "OUT" | "LOW" | "GOOD" | "—";
-
-function getStockStatus(variants: Variant[]): StockStatus {
-  if (!variants.length) return "—";
-
-  const stocks = variants.map((v) => Math.max(0, Number(v.stock ?? 0)));
-
-  // OUT: wszystkie 0
-  if (stocks.every((s) => s === 0)) return "OUT";
-
-  // LOW: jeśli chociaż jeden wariant ma < 5 (w tym 0)
-  // (czyli "GOOD" tylko wtedy, gdy każdy wariant >= 5)
-  if (stocks.some((s) => s < 5)) return "LOW";
-
-  // GOOD: wszystkie >= 5
-  return "GOOD";
-}
-
-function stockBadgeClass(status: StockStatus) {
-  switch (status) {
-    case "OUT":
-      return "bg-red-100 text-red-700";
-    case "LOW":
-      return "bg-amber-100 text-amber-700";
-    case "GOOD":
-      return "bg-emerald-100 text-emerald-700";
-    default:
-      return "bg-zinc-100 text-zinc-600";
-  }
-}
-
-export function ProductRow({product}: ProductRowProps) {
+export const ProductRow = ({product}: Props) => {
   const [open, setOpen] = useState(false);
 
-  const variants = useMemo<Variant[]>(() => {
+  const variants = useMemo<AdminProductVariantRow[]>(() => {
     return Array.isArray(product.variants) ? product.variants : [];
   }, [product.variants]);
 
@@ -134,7 +95,7 @@ export function ProductRow({product}: ProductRowProps) {
           <span
             className={[
               "inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold",
-              stockBadgeClass(stockStatus),
+              getStockBadgeClass(stockStatus),
             ].join(" ")}
           >
             {stockStatus}
@@ -143,8 +104,7 @@ export function ProductRow({product}: ProductRowProps) {
 
         {/* Price */}
         <div className="sm:col-span-2 sm:text-right text-sm text-black">
-          {Number(product.price).toFixed(2)}{" "}
-          {(product.currency ?? "GBP").toUpperCase()}
+          {formatMoney(product.price, product.currency ?? "GBP")}
         </div>
 
         {/* Status */}
@@ -211,4 +171,4 @@ export function ProductRow({product}: ProductRowProps) {
       ) : null}
     </div>
   );
-}
+};
