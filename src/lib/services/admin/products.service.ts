@@ -1,33 +1,14 @@
 import type {FilterQuery} from "mongoose";
 
 import {
-  AdminProductListItem,
   AdminProductsQuery,
   AdminProductsResult,
   ProductDocForQuery,
+  ProductRow,
 } from "../../../types/admin/products";
 import {connectToDatabase} from "../../mongodb";
 import Product from "../../../models/Product";
-
-type ProductRow = {
-  _id: unknown;
-  title: string;
-  slug: string;
-  styleCode: string;
-  price: number;
-  currency?: string | null;
-  gender?: string | null;
-  status?: "ACTIVE" | "HIDDEN";
-  category?: "TSHIRT" | "HOODIE";
-  variants?: Array<{
-    sku?: string;
-    size?: string;
-    color?: string;
-    stock?: number;
-  }>;
-  collectionSlug?: string | null;
-  createdAt: Date;
-};
+import {toAdminListItem} from "../../mappers/admin/products.mapper";
 
 const buildProductsWhere = (
   query: AdminProductsQuery
@@ -52,43 +33,29 @@ const buildProductsWhere = (
   // LOW: istnieje wariant stock < 5 oraz istnieje wariant stock > 0
   // GOOD: brak wariantu stock < 5 oraz istnieje wariant stock >= 5
   if (query.stock === "OUT") {
-    where.variants = {$not: {$elemMatch: {stock: {$gt: 0}}}};
+    where.$and = [
+      ...(where.$and ?? []),
+      {variants: {$not: {$elemMatch: {stock: {$gt: 0}}}}},
+    ];
   }
 
   if (query.stock === "LOW") {
     where.$and = [
       ...(where.$and ?? []),
-      {variants: {$elemMatch: {stock: {$lt: 5}}}},
-      {variants: {$elemMatch: {stock: {$gt: 0}}}},
+      {variants: {$elemMatch: {stock: {$type: "number", $lt: 5}}}},
+      {variants: {$elemMatch: {stock: {$type: "number", $gt: 0}}}},
     ];
   }
 
   if (query.stock === "GOOD") {
     where.$and = [
       ...(where.$and ?? []),
-      {variants: {$not: {$elemMatch: {stock: {$lt: 5}}}}},
-      {variants: {$elemMatch: {stock: {$gte: 5}}}},
+      {variants: {$not: {$elemMatch: {stock: {$type: "number", $lt: 5}}}}},
+      {variants: {$elemMatch: {stock: {$type: "number", $gte: 5}}}},
     ];
   }
 
   return where;
-};
-
-const toAdminListItem = (p: ProductRow): AdminProductListItem => {
-  return {
-    _id: String(p._id),
-    title: p.title,
-    slug: p.slug,
-    styleCode: p.styleCode,
-    price: p.price,
-    currency: p.currency ?? "GBP",
-    gender: p.gender ?? null,
-    status: p.status ?? "ACTIVE",
-    category: p.category,
-    collectionSlug: p.collectionSlug ?? null,
-    variants: Array.isArray(p.variants) ? p.variants : [],
-    createdAt: p.createdAt.toISOString(),
-  };
 };
 
 const getAdminProducts = async (

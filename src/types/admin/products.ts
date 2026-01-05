@@ -36,7 +36,7 @@ export type AdminProductListItem = {
   styleCode: string;
   price: number;
   currency: string;
-  gender?: string | null;
+  gender?: ProductGender | null;
   status: ProductStatus;
   category?: ProductCategory;
   collectionSlug?: string | null;
@@ -55,4 +55,33 @@ export type AdminProductsResult = {
   page: number;
   pages: number;
   limit: number;
+};
+
+/**
+ * ProductRow
+ *
+ * Typ wewnętrzny reprezentujący rekord produktu w formacie zwracanym
+ * bezpośrednio z MongoDB (np. po .lean()).
+ *
+ * ❗ Nie używać w UI bezpośrednio.
+ * Rekord powinien zostać przemapowany do AdminProductListItem.
+ */
+export type ProductRow = {
+  _id: unknown;
+  title: string;
+  slug: string;
+  styleCode: string;
+  price: number;
+  currency?: string | null;
+  gender?: ProductGender| null;
+  status?: ProductStatus;
+  category?: ProductCategory;
+  variants?: Array<{
+    sku?: string;
+    size?: string;
+    color?: string;
+    stock?: number;
+  }>;
+  collectionSlug?: string | null;
+  createdAt: Date;
 };

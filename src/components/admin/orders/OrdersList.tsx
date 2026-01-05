@@ -12,6 +12,7 @@ import {PublicOrder} from "../../../types/admin/orders";
 import {Pagination} from "../../products/Pagination";
 import OrderStatusControls from "./OrderStatusContrlos";
 import OrderItemsPreview from "./OrderItemsPreview";
+import formatMoney from "../../../lib/utils/shop/formatMoney";
 
 type Props = {
   orders: PublicOrder[];
@@ -107,15 +108,14 @@ const OrdersList = ({orders, total, page, pages}: Props) => {
                 {/* TOTAL */}
                 <div className="sm:col-span-2 sm:text-right">
                   <div className="text-sm text-black">
-                    {Number.isFinite(o.total) ? o.total.toFixed(2) : "—"}{" "}
-                    {o.currency}
+                    {formatMoney(o.total, o.currency)}
                   </div>
 
                   <div className="mt-0.5 text-[11px] text-zinc-500">
                     Shipping:{" "}
                     {o.shippingMethod === "express" ? "Express" : "Standard"}
                     {typeof o.shippingCost === "number"
-                      ? ` • ${o.shippingCost.toFixed(2)} ${o.currency}`
+                      ? ` • ${formatMoney(o.shippingCost, o.currency)}`
                       : ""}
                   </div>
                 </div>

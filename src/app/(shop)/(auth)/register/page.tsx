@@ -7,29 +7,34 @@ import {RegisterFormValues} from "../../../../types/auth/register";
 import {registerUser} from "../../../../lib/services/auth/register.service";
 import {RegisterSchema} from "../../../../lib/validations/auth/register.schema";
 
+const initialValues: RegisterFormValues = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  password: "",
+  marketingOptIn: false,
+};
+
 const RegisterPage = () => {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
-
-  const initialValues: RegisterFormValues = {
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    marketingOptIn: false,
-  };
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (values: RegisterFormValues) => {
     setServerError(null);
 
-    const result = await registerUser(values);
-
-    if (result.ok) {
-      router.push("/signin?reason=registered");
-      return;
+    try {
+      const result = await registerUser(values);
+      if (result.ok) {
+        router.push("/signin?reason=registered");
+        return;
+      }
+      setServerError(result.error);
+    } catch {
+      setServerError(
+        "An error occurred during registration. Please try again."
+      );
     }
-
-    setServerError(result.error);
   };
 
   return (
@@ -39,8 +44,7 @@ const RegisterPage = () => {
           Create your account
         </h1>
         <p className="mb-6 text-center text-sm text-zinc-600">
-          Zapisz ulubione produkty, śledź zamówienia i szybciej finalizuj
-          zakupy.
+          Save your favorite products, track orders, and check out faster.
         </p>
 
         {serverError && (
@@ -129,14 +133,52 @@ const RegisterPage = () => {
                 >
                   Password
                 </label>
-                <Field
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black/10"
-                  placeholder="Minimum 8 characters"
-                />
+
+                <div className="relative mt-1">
+                  <Field
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    className="w-full rounded-md border border-zinc-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black/10"
+                    placeholder="Minimum 8 characters"
+                  />
+
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    aria-pressed={showPassword}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-black focus:outline-none"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-4 w-4"
+                    >
+                      {showPassword ? (
+                        <>
+                          <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </>
+                      ) : (
+                        <>
+                          <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.77 21.77 0 0 1 5.06-5.94" />
+                          <path d="M1 1l22 22" />
+                        </>
+                      )}
+                    </svg>
+                  </button>
+                </div>
+
                 <ErrorMessage
                   name="password"
                   component="p"
@@ -151,9 +193,8 @@ const RegisterPage = () => {
                   className="mt-1 h-4 w-4 rounded border-zinc-300 text-black focus:ring-black"
                 />
                 <span className="text-xs leading-relaxed text-zinc-700">
-                  Chcę otrzymywać e-maile z nowościami, promocjami i
-                  wcześniejszym dostępem do wyprzedaży. Możesz wypisać się w
-                  każdej chwili.
+                  I want to receive emails about new products, promotions, and
+                  early access to sales. You can unsubscribe at any time.
                 </span>
               </label>
 
@@ -166,7 +207,7 @@ const RegisterPage = () => {
               </button>
 
               <p className="pt-2 text-center text-xs text-zinc-600">
-                Masz już konto?{" "}
+                Already have an account?{" "}
                 <button
                   type="button"
                   onClick={() => router.push("/signin")}
@@ -182,4 +223,5 @@ const RegisterPage = () => {
     </section>
   );
 };
+
 export default RegisterPage;

@@ -1,26 +1,9 @@
+import {AdminProductListItem} from "../../../types/admin/products";
 import {Pagination} from "../../products/Pagination";
 import {ProductRow} from "./ProductRow";
 
-type ProductRowModel = {
-  _id: string;
-  title: string;
-  styleCode: string;
-  price: number;
-  currency: string;
-  status: "ACTIVE" | "HIDDEN";
-  category?: "TSHIRT" | "HOODIE";
-  collectionSlug?: string | null;
-  variants: Array<{
-    sku?: string;
-    size?: string;
-    color?: string;
-    stock?: number;
-  }>;
-};
-
 type Props = {
-  products: ProductRowModel[];
-  total: number;
+  products: AdminProductListItem[];
   page: number;
   pages: number;
 };

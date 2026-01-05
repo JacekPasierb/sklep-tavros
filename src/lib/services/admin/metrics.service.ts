@@ -3,13 +3,7 @@ import Product from "../../../models/Product";
 import User from "../../../models/User";
 import {AdminMetrics} from "../../../types/admin/metrics";
 import {connectToDatabase} from "../../mongodb";
-
-function startOfThisMonthUTC() {
-  const now = new Date();
-  return new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0)
-  );
-}
+import {startOfThisMonthUTC} from "../../utils/dates/startOfThisMonthUTC";
 
 export async function getAdminMetrics(): Promise<AdminMetrics> {
   await connectToDatabase();
@@ -50,14 +44,12 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
       paymentStatus: "paid",
       fulfillmentStatus: {$in: ["created", "processing"]},
     }),
-    Order.countDocuments({
-      paymentStatus: "paid",
-      fulfillmentStatus: "shipped",
-    }),
+    Order.countDocuments({paymentStatus: "paid", fulfillmentStatus: "shipped"}),
     Order.countDocuments({
       paymentStatus: "paid",
       fulfillmentStatus: "delivered",
     }),
+
     Order.aggregate([
       {$match: {paymentStatus: "paid"}},
       {$group: {_id: "$currency", sum: {$sum: {$ifNull: ["$amountTotal", 0]}}}},
@@ -69,8 +61,6 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
     ]),
   ]);
 
-  // Jeśli kiedyś będziesz miał multi-currency, to tu można zrobić mapę.
-  // Na razie bierzemy pierwszy wynik albo fallback.
   const allTimeRow = revenueAllTimeAgg?.[0];
   const thisMonthRow = revenueThisMonthAgg?.[0];
 
@@ -92,7 +82,6 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
       pending: ordersPending,
       paid: ordersPaid,
       canceled: ordersCanceled,
-
       toShip: ordersToShip,
       shipped: ordersShipped,
       delivered: ordersDelivered,

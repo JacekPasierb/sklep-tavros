@@ -1,5 +1,5 @@
 import Link from "next/link";
-import {FulfillmentStatus, PaymentStatus} from "../../../types/order";
+import type {FulfillmentStatus, PaymentStatus} from "../../../types/order";
 
 type Props = {
   q: string;
@@ -7,53 +7,84 @@ type Props = {
   fulfillmentStatus: FulfillmentStatus | "";
 };
 
+const INPUT_CLASS =
+  "mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-sm outline-none focus:border-black";
+
+const LABEL_CLASS = "text-[11px] uppercase tracking-[0.18em] text-zinc-500";
+
+const paymentOptions: Array<{label: string; value: PaymentStatus | ""}> = [
+  {label: "All", value: ""},
+  {label: "Pending", value: "pending"},
+  {label: "Paid", value: "paid"},
+  {label: "Canceled", value: "canceled"},
+];
+
+const fulfillmentOptions: Array<{
+  label: string;
+  value: FulfillmentStatus | "";
+}> = [
+  {label: "All", value: ""},
+  {label: "Created", value: "created"},
+  {label: "Processing", value: "processing"},
+  {label: "Shipped", value: "shipped"},
+  {label: "Delivered", value: "delivered"},
+  {label: "Canceled", value: "canceled"},
+];
+
 const OrdersFilters = ({q, paymentStatus, fulfillmentStatus}: Props) => {
   return (
     <div className="rounded-3xl border border-zinc-200 bg-white p-4 sm:p-5">
-      <form className="grid grid-cols-1 gap-3 sm:grid-cols-12 sm:items-end">
+      {/* GET sprawia, że filtry lądują w URL jako query string */}
+      <form
+        method="get"
+        className="grid grid-cols-1 gap-3 sm:grid-cols-12 sm:items-end"
+      >
         <div className="sm:col-span-5">
-          <label className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+          <label className={LABEL_CLASS} htmlFor="q">
             Search
           </label>
           <input
+            id="q"
             name="q"
             defaultValue={q}
             placeholder="Order number, email, customer…"
-            className="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-sm outline-none focus:border-black"
+            className={INPUT_CLASS}
           />
         </div>
 
         <div className="sm:col-span-3">
-          <label className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+          <label className={LABEL_CLASS} htmlFor="paymentStatus">
             Payment
           </label>
           <select
+            id="paymentStatus"
             name="paymentStatus"
             defaultValue={paymentStatus}
-            className="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-sm outline-none focus:border-black"
+            className={INPUT_CLASS}
           >
-            <option value="">All</option>
-            <option value="pending">Pending</option>
-            <option value="paid">Paid</option>
-            <option value="canceled">Canceled</option>
+            {paymentOptions.map((opt) => (
+              <option key={opt.value || "all"} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
         </div>
 
         <div className="sm:col-span-3">
-          <label className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+          <label className={LABEL_CLASS} htmlFor="fulfillmentStatus">
             Fulfillment
           </label>
           <select
+            id="fulfillmentStatus"
             name="fulfillmentStatus"
             defaultValue={fulfillmentStatus}
-            className="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-sm outline-none focus:border-black"
+            className={INPUT_CLASS}
           >
-            <option value="">All</option>
-            <option value="created">Created</option>
-            <option value="processing">Processing</option>
-            <option value="shipped">Shipped</option>
-            <option value="delivered">Delivered</option>
-            <option value="canceled">Canceled</option>
+            {fulfillmentOptions.map((opt) => (
+              <option key={opt.value || "all"} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -78,4 +109,5 @@ const OrdersFilters = ({q, paymentStatus, fulfillmentStatus}: Props) => {
     </div>
   );
 };
+
 export default OrdersFilters;
