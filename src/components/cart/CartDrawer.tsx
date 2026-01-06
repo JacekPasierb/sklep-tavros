@@ -15,6 +15,7 @@ import type { CartItem } from "../../types/cart";
 import { useUserCart } from "../../lib/hooks/useUserCart";
 import { getImageSrc } from "../../lib/utils/getImageSrc";
 import { isCustomerSession } from "../../lib/utils/isCustomer";
+import formatMoney from "../../lib/utils/shop/formatMoney";
 
 type UiCartItem = CartItem & { key?: string };
 
@@ -141,11 +142,7 @@ const isCustomer = isCustomerSession(session, status);
     }
   };
 
-  const formatPrice = (value: number) =>
-    Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency: "GBP",
-    }).format(value);
+ 
 
   const handleCheckout = () => {
     if (!items.length) return; // safety
@@ -188,7 +185,7 @@ const isCustomer = isCustomerSession(session, status);
                 ? "Loading your bag..."
                 : count === 0
                 ? "Start building your look."
-                : `${count} ${count === 1 ? "item" : "items"} · ${formatPrice(
+                : `${count} ${count === 1 ? "item" : "items"} · ${formatMoney(
                     subtotal ?? 0
                   )}`}
             </p>
@@ -214,7 +211,7 @@ const isCustomer = isCustomerSession(session, status);
                     <>
                       You&apos;re{" "}
                       <span className="font-semibold">
-                        {formatPrice(freeShippingLeft)}
+                        {formatMoney(freeShippingLeft)}
                       </span>{" "}
                       away from{" "}
                       <span className="font-semibold">
@@ -362,14 +359,14 @@ const isCustomer = isCustomerSession(session, status);
                         {/* price */}
                         <div className="text-right">
                           <span className="block text-sm font-semibold text-zinc-900">
-                            {formatPrice(
+                            {formatMoney(
                               (Number(item.price) || 0) *
                                 (Number(item.qty) || 0)
                             )}
                           </span>
                           {item.price && (
                             <span className="text-[11px] text-zinc-400">
-                              {formatPrice(Number(item.price))} each
+                              {formatMoney(Number(item.price))} each
                             </span>
                           )}
                         </div>
@@ -387,7 +384,7 @@ const isCustomer = isCustomerSession(session, status);
           <div className="mb-3 flex items-center justify-between text-sm">
             <span className="text-zinc-600">Subtotal</span>
             <span className="text-base font-semibold text-zinc-900">
-              {formatPrice(subtotal ?? 0)}
+              {formatMoney(subtotal ?? 0)}
             </span>
           </div>
 

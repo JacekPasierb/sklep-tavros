@@ -108,14 +108,14 @@ const OrdersList = ({orders, total, page, pages}: Props) => {
                 {/* TOTAL */}
                 <div className="sm:col-span-2 sm:text-right">
                   <div className="text-sm text-black">
-                    {formatMoney(o.total, o.currency)}
+                    {formatMoney(o.total)}
                   </div>
 
                   <div className="mt-0.5 text-[11px] text-zinc-500">
                     Shipping:{" "}
                     {o.shippingMethod === "express" ? "Express" : "Standard"}
                     {typeof o.shippingCost === "number"
-                      ? ` • ${formatMoney(o.shippingCost, o.currency)}`
+                      ? ` • ${formatMoney(o.shippingCost)}`
                       : ""}
                   </div>
                 </div>

@@ -11,6 +11,7 @@ import {useUserCart} from "../../lib/hooks/useUserCart";
 import {useCartStore} from "../../store/cartStore";
 import {useFavoritesStore} from "../../store/favoritesStore";
 import { isCustomerSession } from "../../lib/utils/isCustomer";
+import formatMoney from "../../lib/utils/shop/formatMoney";
 
 interface ProductInfoProps {
   product: TypeProduct;
@@ -148,11 +149,7 @@ const ProductDetails = ({product}: ProductInfoProps) => {
     typeof product.oldPrice === "number" &&
     product.oldPrice > product.price;
 
-  const formatPrice = (value: number) =>
-    Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency: product.currency ?? "GBP",
-    }).format(value);
+
 
   const needsColor = hasColorVariants;
 
@@ -225,12 +222,12 @@ const ProductDetails = ({product}: ProductInfoProps) => {
 
           <div className="mt-3 mb-6 flex flex-wrap items-center gap-3">
             <p className="text-2xl font-semibold text-gray-900">
-              {formatPrice(product.price ?? 0)}
+              {formatMoney(product.price ?? 0)}
             </p>
 
             {hasSale && typeof product.oldPrice === "number" && (
               <p className="text-sm text-gray-400 line-through">
-                {formatPrice(product.oldPrice)}
+                {formatMoney(product.oldPrice)}
               </p>
             )}
           </div>

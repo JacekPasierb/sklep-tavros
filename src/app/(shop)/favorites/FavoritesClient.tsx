@@ -12,6 +12,7 @@ import {TypeProduct} from "../../../types/product";
 import ProductCard from "../../../components/products/ProductCard";
 import {Pagination} from "../../../components/products/Pagination";
 import {isCustomerSession} from "../../../lib/utils/isCustomer";
+import {parsePositiveInt} from "../../../lib/utils/shared/number";
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -27,11 +28,10 @@ export default function FavoritesClient() {
   const searchParams = useSearchParams();
 
   const pageSize = 8;
-  const pageParam = searchParams.get("page");
-  const currentPage =
-    typeof pageParam === "string" && !Number.isNaN(Number(pageParam))
-      ? Math.max(1, Number(pageParam))
-      : 1;
+
+  const currentPage = useMemo(() => {
+    return parsePositiveInt(searchParams.get("page"), 1);
+  }, [searchParams]);
 
   const {
     products: userProducts,

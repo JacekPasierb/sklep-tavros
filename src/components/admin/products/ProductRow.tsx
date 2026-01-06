@@ -104,7 +104,7 @@ export const ProductRow = ({product}: Props) => {
 
         {/* Price */}
         <div className="sm:col-span-2 sm:text-right text-sm text-black">
-          {formatMoney(product.price, product.currency ?? "GBP")}
+          {formatMoney(product.price)}
         </div>
 
         {/* Status */}

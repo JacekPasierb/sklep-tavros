@@ -127,7 +127,7 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
       setBusy(false);
     }
   }
-  const currency = product.currency ?? "GBP";
+ 
 
   return (
     <article className="flex flex-col">
@@ -203,12 +203,12 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
           <div className="mt-1 flex items-baseline gap-2">
             {hasSale && product.oldPrice && (
               <span className="text-xs text-gray-400 line-through">
-                {formatMoney(product.oldPrice, currency)}
+                {formatMoney(product.oldPrice)}
               </span>
             )}
 
             <span className="text-sm font-semibold text-gray-900">
-              {formatMoney(product.price, currency)}
+              {formatMoney(product.price)}
             </span>
           </div>
         </div>

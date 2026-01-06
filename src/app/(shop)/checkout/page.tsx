@@ -1,15 +1,16 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { CartItem } from "../../../types/cart";
-import { useCartStore } from "../../../store/cartStore";
-import { useUserCart } from "../../../lib/hooks/useUserCart";
-import { getImageSrc } from "../../../lib/utils/getImageSrc";
-import { isCustomerSession } from "../../../lib/utils/isCustomer";
+import {FormEvent, useMemo, useState} from "react";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/navigation";
+import {CartItem} from "../../../types/cart";
+import {useCartStore} from "../../../store/cartStore";
+import {useUserCart} from "../../../lib/hooks/useUserCart";
+import {getImageSrc} from "../../../lib/utils/getImageSrc";
+import {isCustomerSession} from "../../../lib/utils/isCustomer";
+import formatMoney from "../../../lib/utils/shop/formatMoney";
 
-type UiCartItem = CartItem & { key?: string };
+type UiCartItem = CartItem & {key?: string};
 type ShippingMethod = "standard" | "express";
 
 const FREE_SHIPPING_THRESHOLD = 125;
@@ -18,17 +19,17 @@ const EXPRESS_SHIPPING_COST = 9.99;
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const {data: session, status} = useSession();
 
   const isAuthLoading = status === "loading";
   // const isLoggedIn = status === "authenticated";
   const isCustomer = isCustomerSession(session, status);
   // ---- KOSZYK USERA (API) ----
-  const { cart, isLoading: userLoading } = useUserCart(isCustomer);
+  const {cart, isLoading: userLoading} = useUserCart(isCustomer);
 
   // ---- KOSZYK GOŚCIA (ZUSTAND) ----
   const guestRawItems = useCartStore((s) => s.items);
-  const guestItems: (CartItem & { key: string })[] = useMemo(
+  const guestItems: (CartItem & {key: string})[] = useMemo(
     () =>
       Object.entries(guestRawItems)
         .sort(([, a], [, b]) => b.addedAt - a.addedAt)
@@ -59,12 +60,6 @@ export default function CheckoutPage() {
     100,
     (subtotal / FREE_SHIPPING_THRESHOLD) * 100
   );
-
-  const formatPrice = (value: number) =>
-    Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency: "GBP",
-    }).format(value);
 
   const isCartLoading = isCustomer && userLoading;
   const isPageLoading = isAuthLoading || isCartLoading;
@@ -120,7 +115,7 @@ export default function CheckoutPage() {
 
       const res = await fetch("/api/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
           items,
           customer: {
@@ -371,7 +366,7 @@ export default function CheckoutPage() {
                       2–4 business days
                     </span>
                     <span className="mt-2 text-xs font-semibold">
-                      {formatPrice(STANDARD_SHIPPING_COST)}
+                      {formatMoney(STANDARD_SHIPPING_COST)}
                     </span>
                   </button>
 
@@ -401,7 +396,7 @@ export default function CheckoutPage() {
                     <span className="mt-2 text-xs font-semibold">
                       {freeShippingLeft <= 0
                         ? "Free"
-                        : formatPrice(EXPRESS_SHIPPING_COST)}
+                        : formatMoney(EXPRESS_SHIPPING_COST)}
                     </span>
                   </button>
                 </div>
@@ -443,7 +438,9 @@ export default function CheckoutPage() {
 
               <div className="mt-4 space-y-3 max-h-64 overflow-y-auto pr-1">
                 {items.map((item) => {
-                  const img = getImageSrc(item.image ?? item.images?.[0] ?? item.heroImage);
+                  const img = getImageSrc(
+                    item.image ?? item.images?.[0] ?? item.heroImage
+                  );
 
                   return (
                     <div
@@ -477,7 +474,7 @@ export default function CheckoutPage() {
                         </p>
                       </div>
                       <span className="text-xs font-semibold text-zinc-900">
-                        {formatPrice(
+                        {formatMoney(
                           (Number(item.price) || 0) * (Number(item.qty) || 0)
                         )}
                       </span>
@@ -490,7 +487,7 @@ export default function CheckoutPage() {
                 <div className="flex items-center justify-between text-xs text-zinc-600">
                   <span>Subtotal</span>
                   <span className="font-medium text-zinc-900">
-                    {formatPrice(subtotal)}
+                    {formatMoney(subtotal)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs text-zinc-600">
@@ -500,7 +497,7 @@ export default function CheckoutPage() {
                       ? "—"
                       : shippingCost === 0
                       ? "Free"
-                      : formatPrice(shippingCost)}
+                      : formatMoney(shippingCost)}
                   </span>
                 </div>
               </div>
@@ -508,7 +505,7 @@ export default function CheckoutPage() {
               <div className="mt-3 flex items-center justify-between border-t border-dashed border-zinc-200 pt-3 text-sm">
                 <span className="text-zinc-800">Total</span>
                 <span className="text-base font-semibold text-zinc-900">
-                  {formatPrice(total)}
+                  {formatMoney(total)}
                 </span>
               </div>
             </div>
@@ -526,7 +523,7 @@ export default function CheckoutPage() {
                     <>
                       Add{" "}
                       <span className="font-semibold">
-                        {formatPrice(freeShippingLeft)}
+                        {formatMoney(freeShippingLeft)}
                       </span>{" "}
                       more to unlock{" "}
                       <span className="font-semibold">
@@ -543,7 +540,7 @@ export default function CheckoutPage() {
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-200">
                   <div
                     className="h-full rounded-full bg-zinc-900 transition-[width] duration-300"
-                    style={{ width: `${freeShippingProgress}%` }}
+                    style={{width: `${freeShippingProgress}%`}}
                   />
                 </div>
               </div>

@@ -1,17 +1,8 @@
 import {OrdersQuery, OrdersSearchParams} from "../../../../types/admin/orders";
 import {FulfillmentStatus, PaymentStatus} from "../../../../types/order";
+import { parsePositiveInt } from "../../shared/number";
 
-/**
- * Parsuje dodatnią liczbę całkowitą z wartości tekstowej.
- * Jeśli parsing się nie powiedzie, zwraca wartość domyślną.
- *
- * @param value - Wartość z URL (string | undefined)
- * @param fallback - Wartość domyślna
- */
-const parsePositiveInt = (value: string | undefined, fallback: number) => {
-  const n = Number(value);
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
-};
+
 
 /**
  * Normalizuje tekst:

@@ -3,7 +3,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {AccountOrder} from "../../../types/order";
-import {formatPrice} from "../../../lib/utils/orders";
+import formatMoney from "../../../lib/utils/shop/formatMoney";
 
 type OrderItemsListProps = {
   order: AccountOrder;
@@ -77,7 +77,7 @@ export const OrderItemsList: React.FC<OrderItemsListProps> = ({order}) => {
 
             <div className="shrink-0 text-right">
               <p className="text-sm font-semibold text-zinc-900">
-                {formatPrice(lineTotal, order.currency)}
+                {formatMoney(lineTotal)}
               </p>
             </div>
           </Link>

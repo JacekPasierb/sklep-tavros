@@ -1,21 +1,18 @@
 // src/lib/orders/utils.ts
 
-import { AccountOrder } from "../../types/order";
+import {AccountOrder, OrdersResponse} from "../../types/order";
 
-
-export const ordersFetcher = async (url: string) => {
+export const ordersFetcher = async (url: string): Promise<OrdersResponse> => {
   const res = await fetch(url);
+
   if (!res.ok) {
-    throw new Error("Failed to fetch orders");
+    throw new Error(`Failed to fetch orders (${res.status})`);
   }
-  return (await res.json()) as { orders: AccountOrder[] };
+
+  return res.json();
 };
 
-export const formatPrice = (amount: number, currency?: string) =>
-  new Intl.NumberFormat("en-GB", {
-    style: "currency",
-    currency: (currency || "GBP").toUpperCase(),
-  }).format(amount || 0);
+
 
 export const computeOrderTotals = (order: AccountOrder) => {
   const subtotal =
@@ -28,10 +25,12 @@ export const computeOrderTotals = (order: AccountOrder) => {
       ? order.shippingCost
       : Math.max(order.amountTotal - subtotal, 0);
 
-  return { subtotal, shipping };
+  return {subtotal, shipping};
 };
 
-export const getPaymentMeta = (paymentStatus: AccountOrder["paymentStatus"]) => {
+export const getPaymentMeta = (
+  paymentStatus: AccountOrder["paymentStatus"]
+) => {
   const normalized = paymentStatus ?? "pending";
 
   const badgeClass =
@@ -71,8 +70,7 @@ export const getPaymentMeta = (paymentStatus: AccountOrder["paymentStatus"]) => 
   };
 };
 
-
-export const handlePayNow = async (orderId: string) =>{
+export const handlePayNow = async (orderId: string) => {
   try {
     const res = await fetch(`/api/account/orders/${orderId}/pay`, {
       method: "POST",
@@ -95,4 +93,4 @@ export const handlePayNow = async (orderId: string) =>{
     console.error(err);
     alert("Something went wrong. Please try again.");
   }
-}
+};

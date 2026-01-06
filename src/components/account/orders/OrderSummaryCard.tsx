@@ -1,7 +1,8 @@
 // src/components/account/orders/OrderSummaryCard.tsx
 import React from "react";
 import { AccountOrder } from "../../../types/order";
-import { computeOrderTotals, formatPrice } from "../../../lib/utils/orders";
+import { computeOrderTotals} from "../../../lib/utils/orders";
+import formatMoney from "../../../lib/utils/shop/formatMoney";
 
 
 type OrderSummaryCardProps = {
@@ -22,14 +23,14 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
       <div className="flex justify-between py-1">
         <span className="text-zinc-500">Items subtotal</span>
         <span className="text-zinc-900 font-medium">
-          {formatPrice(subtotal, order.currency)}
+          {formatMoney(subtotal)}
         </span>
       </div>
 
       <div className="flex justify-between py-1">
         <span className="text-zinc-500">Delivery</span>
         <span className="text-zinc-900 font-medium">
-          {shipping > 0 ? formatPrice(shipping, order.currency) : "Free"}
+          {shipping > 0 ? formatMoney(shipping) : "Free"}
         </span>
       </div>
 
@@ -40,7 +41,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
           Total paid
         </span>
         <span className="text-base font-semibold text-zinc-900">
-          {formatPrice(order.amountTotal, order.currency)}
+          {formatMoney(order.amountTotal)}
         </span>
       </div>
 

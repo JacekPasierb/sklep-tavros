@@ -1,29 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import {useSession, signOut} from "next-auth/react";
 import Link from "next/link";
-
+import {useAuthRedirect} from "../../../lib/hooks/useAuthRedirect";
 
 export default function AccountPage() {
-  const router = useRouter();
-  const { data: session, status } = useSession();
+  const {data: session, status} = useSession();
 
-
-  // jeśli nie zalogowany → przekieruj
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.replace("/signin?callbackUrl=/account");
-    }
-  }, [status, router]);
+  useAuthRedirect(status, "/signin?callbackUrl=/account");
 
   if (status === "loading") {
     return (
       <section className="container mx-auto px-4 py-10">
         <div className="mx-auto w-full max-w-md rounded-2xl bg-white px-6 py-8 shadow-sm">
           <p className="text-center text-sm text-zinc-600">
-             Checking your session…
+            Checking your session…
           </p>
         </div>
       </section>
@@ -41,11 +32,12 @@ export default function AccountPage() {
   return (
     <section className="container mx-auto px-4 py-10">
       <div className="mx-auto w-full max-w-2xl rounded-2xl bg-white px-6 py-8 shadow-sm">
-        
         {/* Nagłówek */}
-        <h1 className="text-3xl font-semibold mb-2 tracking-tight">My Account</h1>
+        <h1 className="text-3xl font-semibold mb-2 tracking-tight">
+          My Account
+        </h1>
         <p className="text-sm text-zinc-600 mb-8">
-        Manage your orders, personal details, and saved items.
+          Manage your orders, personal details, and saved items.
         </p>
 
         {/* Dane użytkownika */}
@@ -101,7 +93,7 @@ export default function AccountPage() {
           <p className="text-xs text-zinc-500">Want to end your session?</p>
 
           <button
-            onClick={() => signOut({ callbackUrl: "/" })}
+            onClick={() => signOut({callbackUrl: "/"})}
             className="rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-black/90"
           >
             Log out

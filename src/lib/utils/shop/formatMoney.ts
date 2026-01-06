@@ -19,11 +19,10 @@
  */
 const formatMoney = (
   amount: number,
-  currency: string,
+
   opts?: {
     locale?: string;
     maximumFractionDigits?: number;
-    // jeśli amount jest np. w pensach/groszach:
     fromMinorUnit?: boolean;
   }
 ) => {
@@ -35,11 +34,11 @@ const formatMoney = (
   try {
     return new Intl.NumberFormat(locale, {
       style: "currency",
-      currency: currency.toUpperCase(),
+      currency: "GBP",
       maximumFractionDigits,
     }).format(value);
   } catch {
-    return `${value} ${currency.toUpperCase()}`;
+    return `${value} GBP`;
   }
 };
 export default formatMoney;

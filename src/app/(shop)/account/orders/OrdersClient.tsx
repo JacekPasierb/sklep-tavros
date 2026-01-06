@@ -1,72 +1,44 @@
 "use client";
 
-import {useEffect, useMemo} from "react";
-import useSWR from "swr";
+import {useMemo} from "react";
+
 import Link from "next/link";
 import {useSession} from "next-auth/react";
-import {useRouter, useSearchParams} from "next/navigation";
+import {useRouter} from "next/navigation";
 
-import {OrdersResponse} from "../../../../types/order";
-import {ordersFetcher} from "../../../../lib/utils/orders";
 import {OrderHistoryHeader} from "../../../../components/account/orders/OrderHistoryHeader";
 import {OrderCard} from "../../../../components/account/orders/OrderCard";
 import {Pagination} from "../../../../components/products/Pagination";
 
+import {useAuthRedirect} from "../../../../lib/hooks/useAuthRedirect";
+import {useOrders} from "../../../../lib/hooks/useOrders";
+import {useClientPageSlice} from "../../../../lib/hooks/useClientPageSlice";
+
 export default function OrdersClient() {
   const {status} = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  // ---- auth guard ----
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.replace("/signin?callbackUrl=/account/orders");
-    }
-  }, [status, router]);
+  useAuthRedirect(status, "/signin?callbackUrl=/account/orders");
 
   const shouldFetch = status === "authenticated";
+  const {data, error, isLoading} = useOrders(shouldFetch);
 
-  const {data, error, isLoading} = useSWR<OrdersResponse>(
-    shouldFetch ? "/api/account/orders" : null,
-    ordersFetcher,
-    {revalidateOnFocus: false}
-  );
+  const orders = useMemo(() => {
+    return data?.orders ?? [];
+  }, [data]);
 
-  // ---- pagination ----
-  const pageSize = 6; // możesz zmienić (np. 5/8/10)
-  const pageParam = searchParams.get("page");
-  const currentPage =
-    typeof pageParam === "string" && !Number.isNaN(Number(pageParam))
-      ? Math.max(1, Number(pageParam))
-      : 1;
-
-      const orders = useMemo(() => {
-        return data?.orders ?? [];
-      }, [data]);
-      
-  const totalItems = orders.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-
-  const paginatedOrders = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return orders.slice(start, start + pageSize);
-  }, [orders, currentPage, pageSize]);
-
-  // jeśli user jest na stronie, która już nie istnieje (np. po zmianie listy)
-  useEffect(() => {
-    if (totalItems === 0) return;
-    if (currentPage <= totalPages) return;
-
-    const params = new URLSearchParams(searchParams.toString());
-    if (totalPages <= 1) params.delete("page");
-    else params.set("page", String(totalPages));
-
-    const url = params.toString()
-      ? `/account/orders?${params.toString()}`
-      : "/account/orders";
-
-    router.replace(url);
-  }, [currentPage, totalPages, totalItems, router, searchParams]);
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    pageItems: paginatedOrders,
+    showingFrom,
+    showingTo,
+  } = useClientPageSlice({
+    items: orders,
+    pageSize: 6,
+    basePath: "/account/orders",
+  });
 
   // ---- loading ----
   if (status === "loading" || (shouldFetch && isLoading && !data)) {
@@ -140,9 +112,7 @@ export default function OrdersClient() {
         {totalPages > 1 && (
           <div className="mt-8 flex flex-col items-center gap-2">
             <p className="text-sm text-zinc-500">
-              Showing {(currentPage - 1) * pageSize + 1}–
-              {Math.min(currentPage * pageSize, totalItems)} of {totalItems}{" "}
-              orders
+              Showing {showingFrom}–{showingTo} of {totalItems} orders
             </p>
             <Pagination currentPage={currentPage} totalPages={totalPages} />
           </div>
