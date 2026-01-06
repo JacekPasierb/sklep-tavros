@@ -1,5 +1,6 @@
 // lib/orders/checkoutKey.ts
 import crypto from "crypto";
+import { ShippingMethod } from "../cost/shipping";
 
 export type CheckoutItem = {
   productId?: string;
@@ -11,7 +12,7 @@ export type CheckoutItem = {
   color?: string | null;
 };
 
-export type ShippingMethod = "standard" | "express";
+
 
 export type CheckoutCustomer = {
   firstName?: string;

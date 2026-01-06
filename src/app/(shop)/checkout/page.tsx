@@ -3,6 +3,7 @@
 import {FormEvent, useMemo, useState} from "react";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/navigation";
+
 import {CartItem} from "../../../types/cart";
 import {useCartStore} from "../../../store/cartStore";
 import {useUserCart} from "../../../lib/hooks/useUserCart";
@@ -10,87 +11,89 @@ import {getImageSrc} from "../../../lib/utils/getImageSrc";
 import {isCustomerSession} from "../../../lib/utils/isCustomer";
 import formatMoney from "../../../lib/utils/shop/formatMoney";
 
-type UiCartItem = CartItem & {key?: string};
-type ShippingMethod = "standard" | "express";
+import {
+  calculateShippingCost,
+  EXPRESS_SHIPPING_COST,
+  STANDARD_SHIPPING_COST,
+  getFreeExpressProgress,
+  ShippingMethod,
+} from "../../../lib/cost/shipping";
 
-const FREE_SHIPPING_THRESHOLD = 125;
-const STANDARD_SHIPPING_COST = 4.99;
-const EXPRESS_SHIPPING_COST = 9.99;
+type UiCartItem = CartItem & {key?: string};
 
 export default function CheckoutPage() {
   const router = useRouter();
   const {data: session, status} = useSession();
 
   const isAuthLoading = status === "loading";
-  // const isLoggedIn = status === "authenticated";
+
+  // ---- CUSTOMER? ----
   const isCustomer = isCustomerSession(session, status);
-  // ---- KOSZYK USERA (API) ----
+
+  // ---- CART (API) ----
   const {cart, isLoading: userLoading} = useUserCart(isCustomer);
 
-  // ---- KOSZYK GOŚCIA (ZUSTAND) ----
+  // ---- CART (GUEST / ZUSTAND) ----
   const guestRawItems = useCartStore((s) => s.items);
-  const guestItems: (CartItem & {key: string})[] = useMemo(
-    () =>
-      Object.entries(guestRawItems)
-        .sort(([, a], [, b]) => b.addedAt - a.addedAt)
-        .map(([k, it]) => ({
-          ...it,
-          key: it.key ?? k,
-          image:
-            it.image ||
-            (Array.isArray(it.images) ? it.images[0] : undefined) ||
-            it.heroImage ||
-            "",
-        })),
-    [guestRawItems]
-  );
 
-  const items: UiCartItem[] = isCustomer ? cart ?? [] : guestItems;
+  const guestItems = useMemo(() => {
+    return Object.entries(guestRawItems)
+      .sort(([, a], [, b]) => b.addedAt - a.addedAt)
+      .map(([k, it]) => ({
+        ...it,
+        key: it.key ?? k,
+        image:
+          it.image ||
+          (Array.isArray(it.images) ? it.images[0] : undefined) ||
+          it.heroImage ||
+          "",
+      }));
+  }, [guestRawItems]);
 
-  const subtotal = items.reduce((sum, item) => {
-    const price = Number(item.price) || 0;
-    const qty = Number(item.qty) || 0;
-    return sum + price * qty;
-  }, 0);
+  // ---- CART FINAL ----
+  const items: UiCartItem[] = useMemo(() => {
+    return isCustomer ? cart ?? [] : guestItems;
+  }, [isCustomer, cart, guestItems]);
 
-  const itemCount = items.reduce((sum, item) => sum + item.qty, 0);
+  const subtotal = useMemo(() => {
+    return items.reduce((sum, item) => {
+      const price = Number(item.price) || 0;
+      const qty = Number(item.qty) || 0;
+      return sum + price * qty;
+    }, 0);
+  }, [items]);
 
-  const freeShippingLeft = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
-  const freeShippingProgress = Math.min(
-    100,
-    (subtotal / FREE_SHIPPING_THRESHOLD) * 100
-  );
+  const itemCount = useMemo(() => {
+    return items.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
+  }, [items]);
 
+  // ---- FREE EXPRESS PROGRESS ----
+  const freeExpress = useMemo(() => {
+    return getFreeExpressProgress(subtotal);
+  }, [subtotal]);
+
+  // ---- PAGE LOADING ----
   const isCartLoading = isCustomer && userLoading;
   const isPageLoading = isAuthLoading || isCartLoading;
 
   // -----------------------------
-  // FORMULARZ DANYCH KLIENTA
+  // CUSTOMER FORM
   // -----------------------------
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [emailOverride, setEmailOverride] = useState<string | null>(null);
-  const [phone, setPhone] = useState<string>("");
-  const [street, setStreet] = useState<string>("");
-  const [city, setCity] = useState<string>("");
-  const [postalCode, setPostalCode] = useState<string>("");
-  const [country, setCountry] = useState<string>("United Kingdom");
+  const [phone, setPhone] = useState("");
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [country, setCountry] = useState("United Kingdom");
 
   const email = emailOverride ?? session?.user?.email ?? "";
 
   const [shippingMethod, setShippingMethod] =
     useState<ShippingMethod>("standard");
 
-  const baseShippingCost =
-    shippingMethod === "standard"
-      ? STANDARD_SHIPPING_COST
-      : EXPRESS_SHIPPING_COST;
-
-  const shippingCost =
-    shippingMethod === "express" && freeShippingLeft <= 0
-      ? 0
-      : baseShippingCost;
-
+  const shippingCost = calculateShippingCost(subtotal, shippingMethod);
   const total = itemCount > 0 ? subtotal + shippingCost : 0;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -140,14 +143,12 @@ export default function CheckoutPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        console.error("Checkout error:", data);
         setFormError(data.error || "Something went wrong. Please try again.");
         setIsSubmitting(false);
         return;
       }
 
       if (!data.url) {
-        console.error("No Stripe checkout URL:", data);
         setFormError("Could not start payment session. Please try again.");
         setIsSubmitting(false);
         return;
@@ -161,7 +162,7 @@ export default function CheckoutPage() {
     }
   };
 
-  // 🔹 WIDOK ŁADOWANIA – zanim auth + koszyk będą gotowe
+  // ---- LOADING SKELETON ----
   if (isPageLoading) {
     return (
       <main className="min-h-screen bg-zinc-50/60">
@@ -169,10 +170,8 @@ export default function CheckoutPage() {
           <section className="w-full lg:w-2/3">
             <div className="h-6 w-32 rounded bg-zinc-200 animate-pulse" />
             <div className="mt-3 h-4 w-64 rounded bg-zinc-200 animate-pulse" />
-
             <div className="mt-6 h-80 rounded-2xl border border-zinc-200 bg-white/80 animate-pulse" />
           </section>
-
           <aside className="w-full lg:w-1/3">
             <div className="h-64 rounded-2xl border border-zinc-200 bg-white/80 animate-pulse" />
           </aside>
@@ -181,10 +180,11 @@ export default function CheckoutPage() {
     );
   }
 
+  // ---- PAGE ----
   return (
     <main className="min-h-screen bg-zinc-50/60">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 pb-16 pt-10 lg:flex-row lg:px-6">
-        {/* LEFT: FORMULARZ */}
+        {/* LEFT */}
         <section className="w-full lg:w-2/3">
           <h1 className="text-xl font-semibold tracking-tight text-zinc-900 sm:text-2xl">
             Checkout
@@ -199,9 +199,7 @@ export default function CheckoutPage() {
               <button
                 type="button"
                 onClick={() => router.push("/")}
-                className="mt-4 inline-flex items-center justify-center rounded-full
-                  bg-zinc-900 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.14em]
-                  text-white hover:bg-black"
+                className="mt-4 inline-flex items-center justify-center rounded-full bg-zinc-900 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-white hover:bg-black"
               >
                 Continue shopping
               </button>
@@ -231,7 +229,7 @@ export default function CheckoutPage() {
                       type="text"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none ring-0 transition focus:border-zinc-900 focus:bg-white"
+                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none transition focus:border-zinc-900 focus:bg-white"
                       autoComplete="given-name"
                       required
                     />
@@ -244,7 +242,7 @@ export default function CheckoutPage() {
                       type="text"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none ring-0 transition focus:border-zinc-900 focus:bg-white"
+                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none transition focus:border-zinc-900 focus:bg-white"
                       autoComplete="family-name"
                       required
                     />
@@ -257,7 +255,7 @@ export default function CheckoutPage() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmailOverride(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none ring-0 transition focus:border-zinc-900 focus:bg-white"
+                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none transition focus:border-zinc-900 focus:bg-white"
                       autoComplete="email"
                       required
                     />
@@ -270,7 +268,7 @@ export default function CheckoutPage() {
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none ring-0 transition focus:border-zinc-900 focus:bg-white"
+                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none transition focus:border-zinc-900 focus:bg-white"
                       autoComplete="tel"
                     />
                   </div>
@@ -292,7 +290,7 @@ export default function CheckoutPage() {
                       type="text"
                       value={street}
                       onChange={(e) => setStreet(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none ring-0 transition focus:border-zinc-900 focus:bg-white"
+                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none transition focus:border-zinc-900 focus:bg-white"
                       autoComplete="street-address"
                       required
                     />
@@ -305,7 +303,7 @@ export default function CheckoutPage() {
                       type="text"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none ring-0 transition focus:border-zinc-900 focus:bg-white"
+                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none transition focus:border-zinc-900 focus:bg-white"
                       autoComplete="address-level2"
                       required
                     />
@@ -318,7 +316,7 @@ export default function CheckoutPage() {
                       type="text"
                       value={postalCode}
                       onChange={(e) => setPostalCode(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none ring-0 transition focus:border-zinc-900 focus:bg-white"
+                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none transition focus:border-zinc-900 focus:bg-white"
                       autoComplete="postal-code"
                       required
                     />
@@ -331,7 +329,7 @@ export default function CheckoutPage() {
                       type="text"
                       value={country}
                       onChange={(e) => setCountry(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none ring-0 transition focus:border-zinc-900 focus:bg-white"
+                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none transition focus:border-zinc-900 focus:bg-white"
                       autoComplete="country-name"
                       required
                     />
@@ -339,7 +337,7 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Delivery method */}
+              {/* Delivery */}
               <div>
                 <h2 className="text-sm font-semibold text-zinc-900">
                   Delivery method
@@ -352,12 +350,11 @@ export default function CheckoutPage() {
                   <button
                     type="button"
                     onClick={() => setShippingMethod("standard")}
-                    className={`flex flex-col items-start rounded-xl border px-3 py-3 text-left text-xs transition
-                      ${
-                        shippingMethod === "standard"
-                          ? "border-zinc-900 bg-zinc-900 text-white"
-                          : "border-zinc-200 bg-zinc-50 text-zinc-900 hover:border-zinc-900/60"
-                      }`}
+                    className={`flex flex-col items-start rounded-xl border px-3 py-3 text-left text-xs transition ${
+                      shippingMethod === "standard"
+                        ? "border-zinc-900 bg-zinc-900 text-white"
+                        : "border-zinc-200 bg-zinc-50 text-zinc-900 hover:border-zinc-900/60"
+                    }`}
                   >
                     <span className="font-semibold tracking-wide uppercase">
                       Standard
@@ -373,18 +370,17 @@ export default function CheckoutPage() {
                   <button
                     type="button"
                     onClick={() => setShippingMethod("express")}
-                    className={`flex flex-col items-start rounded-xl border px-3 py-3 text-left text-xs transition
-                      ${
-                        shippingMethod === "express"
-                          ? "border-zinc-900 bg-zinc-900 text-white"
-                          : "border-zinc-200 bg-zinc-50 text-zinc-900 hover:border-zinc-900/60"
-                      }`}
+                    className={`flex flex-col items-start rounded-xl border px-3 py-3 text-left text-xs transition ${
+                      shippingMethod === "express"
+                        ? "border-zinc-900 bg-zinc-900 text-white"
+                        : "border-zinc-200 bg-zinc-50 text-zinc-900 hover:border-zinc-900/60"
+                    }`}
                   >
                     <div className="flex w-full items-center justify-between gap-2">
                       <span className="font-semibold tracking-wide uppercase">
                         Express
                       </span>
-                      {freeShippingLeft <= 0 && (
+                      {shippingMethod === "express" && shippingCost === 0 && (
                         <span className="rounded-full bg-emerald-500 px-2 py-[2px] text-[10px] font-semibold uppercase text-white">
                           Free
                         </span>
@@ -394,7 +390,7 @@ export default function CheckoutPage() {
                       Next-day delivery (working days)
                     </span>
                     <span className="mt-2 text-xs font-semibold">
-                      {freeShippingLeft <= 0
+                      {shippingMethod === "express" && shippingCost === 0
                         ? "Free"
                         : formatMoney(EXPRESS_SHIPPING_COST)}
                     </span>
@@ -409,13 +405,7 @@ export default function CheckoutPage() {
               <button
                 type="submit"
                 disabled={isSubmitting || !items.length}
-                className="
-                  inline-flex w-full items-center justify-center rounded-full
-                  bg-zinc-900 px-6 py-3 text-sm font-semibold tracking-[0.14em]
-                  uppercase text-white shadow-lg shadow-zinc-900/30 transition
-                  hover:bg-black hover:shadow-zinc-900/40
-                  disabled:cursor-not-allowed disabled:bg-zinc-900/60 disabled:text-zinc-300 disabled:shadow-none
-                "
+                className="inline-flex w-full items-center justify-center rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold tracking-[0.14em] uppercase text-white shadow-lg shadow-zinc-900/30 transition hover:bg-black hover:shadow-zinc-900/40 disabled:cursor-not-allowed disabled:bg-zinc-900/60 disabled:text-zinc-300 disabled:shadow-none"
               >
                 {isSubmitting
                   ? "Redirecting to payment..."
@@ -425,7 +415,7 @@ export default function CheckoutPage() {
           )}
         </section>
 
-        {/* RIGHT: PODSUMOWANIE KOSZYKA */}
+        {/* RIGHT */}
         <aside className="w-full lg:w-1/3">
           <div className="sticky top-6 space-y-4">
             <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-4 shadow-sm sm:px-5 sm:py-5">
@@ -454,7 +444,7 @@ export default function CheckoutPage() {
                           alt={item.title}
                           className="h-full w-full object-cover"
                         />
-                        {item.qty > 1 && (
+                        {Number(item.qty) > 1 && (
                           <span className="absolute right-1 top-1 rounded-full bg-black/80 px-1.5 text-[10px] font-semibold text-white">
                             ×{item.qty}
                           </span>
@@ -518,12 +508,13 @@ export default function CheckoutPage() {
                     Free express
                   </span>
                 </div>
+
                 <p>
-                  {freeShippingLeft > 0 ? (
+                  {freeExpress.left > 0 ? (
                     <>
                       Add{" "}
                       <span className="font-semibold">
-                        {formatMoney(freeShippingLeft)}
+                        {formatMoney(freeExpress.left)}
                       </span>{" "}
                       more to unlock{" "}
                       <span className="font-semibold">
@@ -537,10 +528,11 @@ export default function CheckoutPage() {
                     </span>
                   )}
                 </p>
+
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-200">
                   <div
                     className="h-full rounded-full bg-zinc-900 transition-[width] duration-300"
-                    style={{width: `${freeShippingProgress}%`}}
+                    style={{width: `${freeExpress.progress}%`}}
                   />
                 </div>
               </div>

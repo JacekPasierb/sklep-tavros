@@ -5,7 +5,7 @@ import Order from "../../../models/Order";
 import {getServerSession} from "next-auth";
 import {connectToDatabase} from "../../../lib/mongodb";
 
-import {calculateShippingCost, ShippingMethod} from "../../../lib/shipping";
+import {calculateShippingCost, ShippingMethod} from "../../../lib/cost/shipping";
 import {getNextOrderNumber} from "../../../lib/utils/generateOrderNumber";
 import {getCheckoutKey} from "../../../lib/utils/checkoutKey";
 import { authOptions } from "../../../lib/authOptions";

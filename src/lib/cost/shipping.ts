@@ -20,3 +20,14 @@ export function calculateShippingCost(
   // Fallback (gdyby coś poszło nie tak) – standard
   return STANDARD_SHIPPING_COST;
 }
+
+export function getFreeExpressProgress(subtotal: number) {
+  const left = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+  const progress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
+
+  return {
+    left,          // ile brakuje do darmowego express
+    progress,      // 0-100 do paska
+    unlocked: left <= 0,
+  };
+}
