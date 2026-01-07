@@ -1,9 +1,9 @@
 "use client";
 
-import {useCallback, useEffect, useMemo} from "react";
+import {useCallback, useMemo} from "react";
 import {useSession} from "next-auth/react";
 import useSWR from "swr";
-import {useRouter, useSearchParams} from "next/navigation";
+import {useRouter} from "next/navigation";
 
 import {useUserFavorites} from "../../../lib/hooks/useUserFavorites";
 import {useFavoritesStore} from "../../../store/favoritesStore";
@@ -12,7 +12,7 @@ import {TypeProduct} from "../../../types/product";
 import ProductCard from "../../../components/products/ProductCard";
 import {Pagination} from "../../../components/products/Pagination";
 import {isCustomerSession} from "../../../lib/utils/isCustomer";
-import {parsePositiveInt} from "../../../lib/utils/shared/number";
+import {useClientPageSlice} from "../../../lib/hooks/useClientPageSlice";
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -21,24 +21,22 @@ const fetcher = async (url: string) => {
 };
 
 export default function FavoritesClient() {
+  const router = useRouter();
+
   const {data: session, status} = useSession();
   const isCustomer = isCustomerSession(session, status);
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
   const pageSize = 8;
+  const basePath = "/favourites";
 
-  const currentPage = useMemo(() => {
-    return parsePositiveInt(searchParams.get("page"), 1);
-  }, [searchParams]);
-
+  // ---- USER favourites (API) ----
   const {
     products: userProducts,
     remove: removeServer,
     isLoading: userLoading,
   } = useUserFavorites(isCustomer);
 
+  // ---- GUEST favourites (Zustand) ----
   const favoritesMap = useFavoritesStore((s) => s.favorites);
   const guestIds = useMemo(() => Object.keys(favoritesMap), [favoritesMap]);
 
@@ -57,35 +55,31 @@ export default function FavoritesClient() {
   const loading =
     status === "loading" || (isCustomer ? userLoading : guestLoading);
 
+  // ---- FINAL products ----
   const products: TypeProduct[] = useMemo(() => {
     if (isCustomer) return (userProducts as TypeProduct[]) ?? [];
     return (guestData?.data as TypeProduct[]) ?? [];
   }, [isCustomer, userProducts, guestData?.data]);
 
-  const totalItems = products.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-
-  const paginatedProducts = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return products.slice(start, start + pageSize);
-  }, [products, currentPage, pageSize]);
-
-  useEffect(() => {
-    if (totalItems === 0) return;
-    if (currentPage <= totalPages) return;
-
-    const params = new URLSearchParams(searchParams.toString());
-    if (totalPages <= 1) params.delete("page");
-    else params.set("page", String(totalPages));
-
-    const url = params.toString() ? `/favourites?${params}` : "/favourites";
-    router.replace(url);
-  }, [currentPage, totalPages, totalItems, router, searchParams]);
+  // ---- Pagination (hook) ----
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    pageItems: paginatedProducts,
+    showingFrom,
+    showingTo,
+  } = useClientPageSlice<TypeProduct>({
+    items: products,
+    pageSize,
+    basePath,
+  });
 
   const handleRemove = useCallback(
     async (id: string) => {
       if (isCustomer) await removeServer(id);
       else removeGuest(id);
+
       router.refresh();
     },
     [isCustomer, removeServer, removeGuest, router]
@@ -99,11 +93,9 @@ export default function FavoritesClient() {
     );
   }
 
-  const basePath = "/favourites";
-
   return (
     <section className="container mx-auto px-4 py-8">
-      <div className="text-center py-4">
+      <div className="py-4 text-center">
         <h1 className="mb-6 text-2xl font-semibold">MY WISHLIST</h1>
         <p className="text-sm text-zinc-600">
           Saved products:{" "}
@@ -153,7 +145,7 @@ export default function FavoritesClient() {
         </section>
       ) : (
         <>
-          <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 mt-6">
+          <section className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {paginatedProducts.map((product) => (
               <ProductCard
                 key={product._id}
@@ -167,9 +159,7 @@ export default function FavoritesClient() {
           {totalPages > 1 && (
             <div className="mt-8 flex flex-col items-center gap-2">
               <p className="text-sm text-gray-500">
-                Wyświetlane {(currentPage - 1) * pageSize + 1}–{" "}
-                {Math.min(currentPage * pageSize, totalItems)} z {totalItems}{" "}
-                produktów
+                Showing {showingFrom}–{showingTo} of {totalItems} products
               </p>
               <Pagination currentPage={currentPage} totalPages={totalPages} />
             </div>

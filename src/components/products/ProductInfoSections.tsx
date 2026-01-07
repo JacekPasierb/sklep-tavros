@@ -1,3 +1,5 @@
+
+import { normalizeMultiline, splitParagraphs } from "../../lib/utils/text/normalizeMultiLine";
 import type {TypeProduct} from "../../types/product";
 
 type Props = {
@@ -5,26 +7,14 @@ type Props = {
 };
 
 export default function ProductInfoSections({product}: Props) {
-  const summaryRaw = (product.summary ?? "").trim();
+  const paragraphs = splitParagraphs(product.summary);
 
-  // ✅ zamień literalne "\n" na realne nowe linie (gdy zapisane jako "\\n")
-  const summaryNormalized = summaryRaw.replace(/\\n/g, "\n");
+  const sections = product.sections ?? [];
+  const careSection = sections.find((s) => /care|material/i.test(s.title));
+  const featureSections = sections.filter((s) => s !== careSection);
 
-  const paragraphs = summaryNormalized
-    ? summaryNormalized.split(/\n\s*\n/g)
-    : [];
-
-  const sections = product.sections ?? []; // ✅
-  const careSection =
-    sections.find((s) => /care|material/i.test(s.title)) ?? null;
-
-  const featureSections = careSection
-    ? sections.filter((s) => s !== careSection)
-    : sections;
-
-  const deliveryRaw = (product.deliveryReturns?.content ?? "").trim();
-
-  const delivery = deliveryRaw.replace(/\\n/g, "\n");
+  const delivery = normalizeMultiline(product.deliveryReturns?.content);
+  const deliveryTitle = product.deliveryReturns?.title ?? "Delivery & Returns";
 
   return (
     <section className="mt-10 border-t border-zinc-200 pt-8">
@@ -109,7 +99,7 @@ export default function ProductInfoSections({product}: Props) {
             <details className="group">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
                 <span className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-800">
-                  {product.deliveryReturns?.title ?? "Delivery & Returns"}
+                  {deliveryTitle}
                 </span>
 
                 <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 text-zinc-700 transition group-open:rotate-45">

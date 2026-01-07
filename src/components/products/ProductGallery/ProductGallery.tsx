@@ -3,6 +3,7 @@
 import Image from "next/image";
 import {useMemo, useRef, useState, type ReactNode} from "react";
 import {X} from "lucide-react";
+
 import {getSafeSrc} from "./getSafeSrc";
 import {useGallery} from "./useGallery";
 import {useLightbox} from "./useLightBox";
@@ -10,28 +11,19 @@ import NavButton from "./NavButton";
 import SliderDots from "./SliderDots";
 import Thumb from "./Thumb";
 import ImageDisplay from "./ImageDisplay";
-import type {ProductImage} from "../../../types/product"; // <-- dopasuj ścieżkę jeśli inna
 
 type Props = {
-  // ✅ akceptujemy oba formaty: stare stringi i nowe obiekty
-  images?: Array<string | ProductImage>;
+  images?: string[];
   title?: string;
   overlay?: ReactNode;
 };
 
-// helper: wyciąga src niezależnie od formatu
-function toSrc(img: string | ProductImage) {
-  return typeof img === "string" ? img : img.src;
-}
-
 const ProductGallery = ({images = [], title = "Product", overlay}: Props) => {
   const safe = useMemo(() => {
-    const srcs = images.map(toSrc).filter(Boolean);
+    const srcs = images.filter(Boolean);
     return srcs.length ? srcs.map(getSafeSrc) : ["/placeholder.png"];
   }, [images]);
-
-  const gallery = useGallery(safe.length);
-  const {index, next, prev, setIndex} = gallery;
+  const {index, next, prev, setIndex} = useGallery(safe.length);
 
   const [open, setOpen] = useState(false);
   const openLightbox = () => setOpen(true);

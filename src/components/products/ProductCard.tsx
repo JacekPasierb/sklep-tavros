@@ -10,22 +10,25 @@ import {useEffect, useMemo, useState} from "react";
 import {TypeProduct} from "../../types/product";
 
 import {useUserFavorites} from "../../lib/hooks/useUserFavorites";
-import {TrashX} from "../icons/TrashX";
 import {useFavoritesStore} from "../../store/favoritesStore";
 import {isCustomerSession} from "../../lib/utils/isCustomer";
 import formatMoney from "../../lib/utils/shop/formatMoney";
 
+import {TrashX} from "../icons/TrashX";
+import {
+  getProductImageUrls,
+  getSaleState,
+} from "../../lib/utils/shop/products/view";
+
 type Props = {
   product: TypeProduct;
-  showHeart?: boolean; 
+  showHeart?: boolean;
   onRemoved?: (id: string) => void;
 };
 
 const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
   const {data: session, status} = useSession();
   const isCustomer = isCustomerSession(session, status);
-
- 
 
   // 👇 prosty, standardowy guard na hydrację (żeby SSR == 1. render klienta)
   const [hydrated, setHydrated] = useState(false);
@@ -56,30 +59,6 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
   // dopóki nie zhydratujemy, traktujemy jak nie-ulubiony,
   // żeby nie rozjechać się z HTML-em z SSR
   const fav = hydrated ? (isCustomer ? isFavUser : isFavGuest) : false;
-
-  const mainImage =
-    product.images?.find((i) => i.primary)?.src ??
-    product.images?.[0]?.src ??
-    "/placeholder.png";
-
-  const mainAlt =
-    product.images?.find((i) => i.primary)?.alt ??
-    product.images?.[0]?.alt ??
-    product.title;
-
-  // ------- SALE / NEW --------
-  const hasSale =
-    product.tags?.includes("sale") &&
-    typeof product.oldPrice === "number" &&
-    product.oldPrice > product.price;
-
-  const discountPercent = hasSale
-    ? Math.round(
-        ((product.oldPrice! - product.price) / product.oldPrice!) * 100
-      )
-    : 0;
-
-  const isNew = product.tags?.includes("new");
 
   const disabled = busy || (isCustomer && favsLoading);
 
@@ -127,14 +106,25 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
       setBusy(false);
     }
   }
- 
 
+  // ----------------------------
+  // Image + Sale state (utils)
+  // ----------------------------
+  const imageUrls = useMemo(() => getProductImageUrls(product), [product]);
+  const mainImage = imageUrls[0] ?? "/placeholder.png";
+
+  const mainAlt =
+    product.images?.find((i) => i.primary)?.alt ??
+    product.images?.[0]?.alt ??
+    product.title;
+
+  const sale = useMemo(() => getSaleState(product), [product]);
   return (
     <article className="flex flex-col">
       {/* IMAGE + BADGES */}
       <Link href={`/product/${product.slug}`} className="block group">
         <div className="relative aspect-[3/4] w-full overflow-hidden  bg-gray-100">
-          {hasSale && (
+          {sale.hasSale && (
             <span
               className="
             absolute left-3 top-3 z-[5]
@@ -147,7 +137,7 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
             shadow-sm
           "
             >
-              Sale - {discountPercent}%
+              Sale - {sale.discountPercent}%
             </span>
           )}
 
@@ -159,7 +149,7 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
 
-          {isNew && (
+          {sale.isNew && (
             <span className="absolute bottom-2 left-2 z-[5] inline-flex items-center rounded-full border border-[#F5D96B] bg-black/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-[#F5D96B] shadow-sm">
               NEW MODEL
             </span>
@@ -201,7 +191,7 @@ const ProductCard = ({product, showHeart = true, onRemoved}: Props) => {
           </Link>
 
           <div className="mt-1 flex items-baseline gap-2">
-            {hasSale && product.oldPrice && (
+            {sale.hasSale && product.oldPrice && (
               <span className="text-xs text-gray-400 line-through">
                 {formatMoney(product.oldPrice)}
               </span>

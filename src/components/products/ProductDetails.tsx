@@ -10,26 +10,19 @@ import {useUserFavorites} from "../../lib/hooks/useUserFavorites";
 import {useUserCart} from "../../lib/hooks/useUserCart";
 import {useCartStore} from "../../store/cartStore";
 import {useFavoritesStore} from "../../store/favoritesStore";
-import { isCustomerSession } from "../../lib/utils/isCustomer";
+import {isCustomerSession} from "../../lib/utils/isCustomer";
 import formatMoney from "../../lib/utils/shop/formatMoney";
+import {getSaleState} from "../../lib/utils/shop/products/view";
 
 interface ProductInfoProps {
   product: TypeProduct;
 }
 
-/**
- * ProductDetails
- *
- * - Obsługuje:
- *   • ulubione (guest: Zustand, user: API + SWR)
- *   • dodawanie do koszyka (guest: localStorage/Zustand, user: MongoDB + SWR)
- *   • wybór wariantu (kolor + rozmiar)
- */
 const ProductDetails = ({product}: ProductInfoProps) => {
   // ─────────────────────────────────────────────────────────────
   //  AUTH / SESSION
   // ─────────────────────────────────────────────────────────────
-  const { data: session, status } = useSession();
+  const {data: session, status} = useSession();
   const isCustomer = isCustomerSession(session, status);
 
   // HYDRATION GUARD
@@ -70,7 +63,7 @@ const ProductDetails = ({product}: ProductInfoProps) => {
   const [favoritePending, setFavoritePending] = useState(false);
 
   // finalny stan ulubionych widoczny w UI
-  const isFavorite = hydrated ? (isCustomer? isFavUser : isFavGuest) : false;
+  const isFavorite = hydrated ? (isCustomer ? isFavUser : isFavGuest) : false;
   const favoriteDisabled = favoritePending || (isCustomer && favoritesLoading);
 
   const handleToggleFavorite = async () => {
@@ -144,13 +137,6 @@ const ProductDetails = ({product}: ProductInfoProps) => {
     return variants.filter((v) => v.color === selectedColor);
   }, [variants, hasColorVariants, selectedColor]);
 
-  const hasSale =
-    product.tags?.includes("sale") &&
-    typeof product.oldPrice === "number" &&
-    product.oldPrice > product.price;
-
-
-
   const needsColor = hasColorVariants;
 
   const disableAddToCart =
@@ -209,6 +195,9 @@ const ProductDetails = ({product}: ProductInfoProps) => {
   // ─────────────────────────────────────────────────────────────
   //  RENDER
   // ─────────────────────────────────────────────────────────────
+  const sale = useMemo(() => {
+    return getSaleState({...product, price: product.price ?? 0});
+  }, [product]);
 
   return (
     <div
@@ -225,7 +214,7 @@ const ProductDetails = ({product}: ProductInfoProps) => {
               {formatMoney(product.price ?? 0)}
             </p>
 
-            {hasSale && typeof product.oldPrice === "number" && (
+            {sale.hasSale && typeof product.oldPrice === "number" && (
               <p className="text-sm text-gray-400 line-through">
                 {formatMoney(product.oldPrice)}
               </p>
@@ -314,7 +303,7 @@ const ProductDetails = ({product}: ProductInfoProps) => {
                     type="button"
                     onClick={() => {
                       if (!disabled) {
-                        setSelectedSize(v.size?? null);
+                        setSelectedSize(v.size ?? null);
                         setSizeError(false);
                       }
                     }}

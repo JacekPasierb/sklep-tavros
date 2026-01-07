@@ -28,19 +28,3 @@ export type CartItem = {
   sku?: string;
 };
 
-
-
-
-
-// export type CartItem = {
-//   slug: string;
-//   title: string;
-//   price: number;
-//   image?: string;
-//   images?: string[]; 
-//   heroImage?: string; 
-//   qty: number;
-//   size?: string;
-//   sku?: string;
-//     _id: string;
-//   };
