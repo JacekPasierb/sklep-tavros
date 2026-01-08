@@ -1,9 +1,9 @@
 import {NextRequest, NextResponse} from "next/server";
 import { getCollections } from "../../../lib/collections";
-import { Gender } from "../../../types/collection";
-           // "mens" | "womens" | "kids" | "unisex"
+import { ShopGender } from "../../../types/shop/productsList";
 
-const ALLOWED_GENDERS: Gender[] = ["mens", "womens", "kids"];
+
+const ALLOWED_GENDERS: ShopGender[] = ["mens", "womens", "kids"];
 
 export async function GET(req: NextRequest) {
   try {
@@ -13,8 +13,8 @@ export async function GET(req: NextRequest) {
     const limitParam = searchParams.get("limit");
 
     const gender =
-      genderParam && ALLOWED_GENDERS.includes(genderParam as Gender)
-        ? (genderParam as Gender)
+      genderParam && ALLOWED_GENDERS.includes(genderParam as ShopGender)
+        ? (genderParam as ShopGender)
         : undefined;
 
     const limit = limitParam ? Number(limitParam) || undefined : undefined;
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     const items = collections.map((col) => {
       // bierzemy "główny" gender kolekcji – jeśli nie ma, fallback do paramu,
       // a jak dalej brak, to "mens"
-      const mainGender: Gender =
+      const mainGender: ShopGender =
         gender ?? col.gender[0] ?? "mens";
 
       return {

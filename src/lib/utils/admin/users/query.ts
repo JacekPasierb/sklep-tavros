@@ -1,10 +1,6 @@
 import { AdminUsersQuery, AdminUsersSearchParams } from "../../../../types/admin/users";
+import { parsePositiveInt } from "../../shared/number";
 
-
-function parsePositiveInt(value: string | undefined, fallback: number) {
-  const n = Number(value);
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
-}
 
 function normalizeText(value: string | undefined) {
   return (value ?? "").trim();

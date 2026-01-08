@@ -3,11 +3,8 @@ import {
   ProductsListSearchParams,
   ProductsSort,
 } from "../../../types/shop/productsList";
+import { parsePositiveInt } from "../shared/number";
 
-function parsePositiveInt(value: unknown, fallback: number) {
-  const n = typeof value === "string" ? Number(value) : NaN;
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
-}
 
 function toStringArray(value: unknown): string[] | undefined {
   if (Array.isArray(value)) {
@@ -41,8 +38,14 @@ function normalizeSizes(
 export function normalizeProductsListQuery(
   sp: ProductsListSearchParams
 ): ProductsListQuery {
+  const pageValue = typeof sp.page === 'string' 
+    ? sp.page 
+    : Array.isArray(sp.page) 
+    ? sp.page[0] 
+    : undefined;
+  
   return {
-    page: parsePositiveInt(sp.page, 1),
+    page: parsePositiveInt(pageValue, 1),
     sizes: normalizeSizes(sp.size),
     colors: toStringArray(sp.color),
     sort: parseSort(sp.sort),

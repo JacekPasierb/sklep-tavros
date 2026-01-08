@@ -4,14 +4,10 @@ import {
   StockFilter,
 } from "../../../../types/admin/products";
 import { ProductCategory, ProductGender, ProductStatus } from "../../../../types/product";
+import { parsePositiveInt } from "../../shared/number";
 
 const asString = (v: string | string[] | undefined) => {
   return typeof v === "string" ? v : "";
-};
-
-const parsePositiveInt = (value: string, fallback: number) => {
-  const n = Number(value);
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
 };
 
 const normalizeText = (v: string) => {
