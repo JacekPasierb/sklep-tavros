@@ -1,13 +1,14 @@
 // components/home/CollectionCard.tsx
 import Image from "next/image";
 import Link from "next/link";
-import type {Gender} from "../../types/collection";
+import { ShopGender } from "../../types/shop/productsList";
+
 
 export type CollectionCardProps = {
   slug: string;
   name: string;
   heroImage?: string;
-  gender: Gender; // pojedynczy gender do href
+  gender: ShopGender; 
 };
 
 const CollectionCard = ({
