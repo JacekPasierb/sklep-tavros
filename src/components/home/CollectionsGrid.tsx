@@ -1,11 +1,12 @@
 // components/home/CollectionsGrid.tsx
-import { Gender, TypeCollection } from "../../types/collection";
+import { TypeCollection } from "../../types/collection";
+import { ShopGender } from "../../types/shop/productsList";
 import TitleSection from "../products/TitleSection";
 import CollectionCard, { CollectionCardProps } from "./CollectionCard";
 
 type Props = {
   items: TypeCollection[];
-  activeGender: Extract<Gender, "mens" | "womens" | "kids">;
+  activeGender: Extract<ShopGender, "mens" | "womens" | "kids">;
 };
 
 const CollectionsGrid = ({ items, activeGender }: Props) => {
