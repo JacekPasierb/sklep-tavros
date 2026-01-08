@@ -1,8 +1,10 @@
 // components/home/GenderTabs.tsx
 "use client";
-import type {Gender} from "../../types/collection";
 
-type GenderTab = Extract<Gender, "mens" | "womens" | "kids">;
+import { ShopGender } from "../../types/shop/productsList";
+
+
+type GenderTab = Extract<ShopGender, "mens" | "womens" | "kids">;
 
 type Props = {
   active: GenderTab;

@@ -2,9 +2,10 @@
 "use client";
 
 import { useState } from "react";
-import type { TypeCollection, Gender } from "../../types/collection";
+import type { TypeCollection} from "../../types/collection";
 import CollectionsGrid from "./CollectionsGrid";
 import GenderTabs from "./GendersTab";
+import { ShopGender } from "../../types/shop/productsList";
 
 type GenderTab = "mens" | "womens" | "kids";
 
@@ -26,7 +27,7 @@ const HomeCollectionsSection = ({ initialCollections }: Props) => {
       <GenderTabs active={activeGender} onChange={setActiveGender} />
       <CollectionsGrid
         items={collections}
-        activeGender={activeGender as Extract<Gender, "mens" | "womens" | "kids">}
+        activeGender={activeGender as Extract<ShopGender, "mens" | "womens" | "kids">}
       />
     </section>
   );
