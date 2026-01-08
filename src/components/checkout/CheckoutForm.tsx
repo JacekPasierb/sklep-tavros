@@ -1,14 +1,10 @@
 "use client";
 
-import { FormEvent } from "react";
-import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import {FormEvent} from "react";
+import type {AppRouterInstance} from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 import formatMoney from "../../lib/utils/shop/formatMoney";
-import {
-  EXPRESS_SHIPPING_COST,
-  STANDARD_SHIPPING_COST,
-  ShippingMethod,
-} from "../../lib/config/shipping";
+import {SHIPPING_CONFIG, ShippingMethod} from "../../lib/config/shipping";
 
 type Props = {
   router: AppRouterInstance;
@@ -185,7 +181,9 @@ export default function CheckoutForm(props: Props) {
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-zinc-700">City</label>
+                <label className="text-xs font-medium text-zinc-700">
+                  City
+                </label>
                 <input
                   type="text"
                   value={city}
@@ -250,7 +248,7 @@ export default function CheckoutForm(props: Props) {
                   2–4 business days
                 </span>
                 <span className="mt-2 text-xs font-semibold">
-                  {formatMoney(STANDARD_SHIPPING_COST)}
+                  {formatMoney(SHIPPING_CONFIG.STANDARD_COST)}
                 </span>
               </button>
 
@@ -282,7 +280,7 @@ export default function CheckoutForm(props: Props) {
                 <span className="mt-2 text-xs font-semibold">
                   {shippingMethod === "express" && shippingCost === 0
                     ? "Free"
-                    : formatMoney(EXPRESS_SHIPPING_COST)}
+                    : formatMoney(SHIPPING_CONFIG.EXPRESS_COST)}
                 </span>
               </button>
             </div>
