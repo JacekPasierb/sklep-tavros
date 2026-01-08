@@ -5,10 +5,11 @@ import Order from "../../../models/Order";
 import {getServerSession} from "next-auth";
 import {connectToDatabase} from "../../../lib/mongodb";
 
-import {calculateShippingCost, ShippingMethod} from "../../../lib/config/shipping";
+import { ShippingMethod} from "../../../lib/config/shipping";
 import {getNextOrderNumber} from "../../../lib/utils/generateOrderNumber";
 import {getCheckoutKey} from "../../../lib/utils/checkoutKey";
 import { authOptions } from "../../../lib/authOptions";
+import { calculateShippingCost } from "../../../lib/utils/shop/shipping";
 
 type AuthSession = {
   user?: {
