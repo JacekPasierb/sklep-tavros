@@ -9,13 +9,13 @@ import {useUserCart} from "../../../lib/hooks/useUserCart";
 import {isCustomerSession} from "../../../lib/utils/isCustomer";
 
 import {
-  calculateShippingCost,
-  getFreeExpressProgress,
+
   ShippingMethod,
 } from "../../../lib/config/shipping";
 import CheckoutForm from "../../../components/checkout/CheckoutForm";
 import OrderSummary from "../../../components/checkout/OrderSummary";
 import {UiCartItem} from "../../../types/checkout";
+import { calculateShippingCost, getFreeExpressProgress } from "../../../lib/utils/shop/shipping";
 
 export default function CheckoutPage() {
   const router = useRouter();
