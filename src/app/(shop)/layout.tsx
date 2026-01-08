@@ -9,17 +9,13 @@ export default function ShopLayout({children}: {children: React.ReactNode}) {
   return (
     <>
       <Header />
-
       <main>
         <PromotionSection />
-
         {children}
-
         <section className="grid grid-cols md:grid-cols-2 py-10">
           <SocialSection />
           <PoliciesSection />
         </section>
-
         <PaymentsSection />
         <Footer />
       </main>

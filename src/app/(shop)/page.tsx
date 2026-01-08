@@ -7,7 +7,6 @@ import { getProducts } from "../../lib/services/shop/products.service";
 
 
 export default async function HomePage() {
-  // 1. Kolekcje dla wszystkich płci
   const [mensCollections, womensCollections, kidsCollections] =
     await Promise.all([
       getCollections({gender: "mens"}),
@@ -15,7 +14,7 @@ export default async function HomePage() {
       getCollections({gender: "kids"}),
     ]);
 
-  // 2. Bestsellery dla wszystkich płci
+
   const [mensBest, womensBest, kidsBest] = await Promise.all([
     getProducts({gender: "mens", mode: "bestseller", limit: 8}),
     getProducts({gender: "womens", mode: "bestseller", limit: 8}),

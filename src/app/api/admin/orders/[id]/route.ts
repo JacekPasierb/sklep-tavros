@@ -1,12 +1,11 @@
+// api/admin/orders/[id]/route.ts
 import {NextResponse} from "next/server";
 import mongoose from "mongoose";
-import { requireAdmin } from "../../../../../lib/utils/requireAdmin";
-import { connectToDatabase } from "../../../../../lib/mongodb";
+
+import {requireAdmin} from "../../../../../lib/utils/requireAdmin";
+import {connectToDatabase} from "../../../../../lib/mongodb";
 import Order from "../../../../../models/Order";
-
-
-type PaymentStatus = "unpaid" | "pending" | "paid" | "refunded" | "failed";
-type FulfillmentStatus = "unfulfilled" | "processing" | "shipped" | "delivered" | "cancelled";
+import {FulfillmentStatus, PaymentStatus} from "../../../../../types/order";
 
 type PatchBody = Partial<{
   paymentStatus: PaymentStatus;
@@ -30,7 +29,8 @@ export async function PATCH(req: Request, ctx: {params: Promise<Params>}) {
   const update: PatchBody = {};
   if (body.paymentStatus) update.paymentStatus = body.paymentStatus;
   if (body.fulfillmentStatus) update.fulfillmentStatus = body.fulfillmentStatus;
-  if ("trackingNumber" in body) update.trackingNumber = body.trackingNumber ?? null;
+  if ("trackingNumber" in body)
+    update.trackingNumber = body.trackingNumber ?? null;
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json({error: "Nothing to update"}, {status: 400});

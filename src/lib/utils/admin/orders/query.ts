@@ -35,9 +35,12 @@ const normalizeText = (value: string | undefined) => {
  */
 export const normalizeOrdersQuery = (
   sp: OrdersSearchParams,
-  options?: {limit?: number}
+  options?: {limit?: number, maxLimit?:number}
 ): OrdersQuery => {
-  const limit = options?.limit ?? 20;
+  const maxLimit = options?.maxLimit ?? 100;
+
+  const limitFromUrl = sp.limit ? parsePositiveInt(sp.limit, 20) : 20;
+  const limit = Math.min(options?.limit ?? limitFromUrl, maxLimit);
 
   return {
     page: parsePositiveInt(sp.page, 1),

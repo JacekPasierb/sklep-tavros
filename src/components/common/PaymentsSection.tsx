@@ -1,15 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { PAYMENT_METHODS } from "../../lib/config/payments";
 
-const paymentMethods = [
-  {src: "/icons/payments/visa.svg", alt: "Visa"},
-  {src: "/icons/payments/mastercard.svg", alt: "MasterCard"},
-  {src: "/icons/payments/paypal.svg", alt: "PayPal"},
-  {src: "/icons/payments/klarna.svg", alt: "Klarna"},
-  {src: "/icons/payments/googlepay.svg", alt: "Google Pay"},
-  {src: "/icons/payments/apple.svg", alt: "Apple Pay"},
-];
 
 const PaymentsSection = () =>{
   return (
@@ -19,7 +12,7 @@ const PaymentsSection = () =>{
       </h2>
 
       <div className="flex flex-wrap items-center justify-center  justify-evenly">
-        {paymentMethods.map((m) => (
+        {PAYMENT_METHODS.map((m) => (
           <div key={m.alt} className="flex items-center justify-center">
             <Image
               src={m.src}

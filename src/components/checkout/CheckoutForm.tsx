@@ -8,7 +8,7 @@ import {
   EXPRESS_SHIPPING_COST,
   STANDARD_SHIPPING_COST,
   ShippingMethod,
-} from "../../lib/cost/shipping";
+} from "../../lib/config/shipping";
 
 type Props = {
   router: AppRouterInstance;

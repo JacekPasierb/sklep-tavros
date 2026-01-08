@@ -1,4 +1,3 @@
-import type {FulfillmentStatus, PaymentStatus} from "../../../../types/order";
 
 import {normalizeOrdersQuery} from "../../../../lib/utils/admin/orders/query";
 import getAdminOrders from "../../../../lib/services/admin/orders.service";
@@ -6,16 +5,12 @@ import getAdminOrders from "../../../../lib/services/admin/orders.service";
 import OrdersFilters from "../../../../components/admin/orders/OrdersFilters";
 import OrdersList from "../../../../components/admin/orders/OrdersList";
 import SectionHeader from "../../../../components/admin/SectionHeader";
+import type { OrdersSearchParams } from "../../../../types/admin/orders";
 
 const AdminOrdersPage = async ({
   searchParams,
 }: {
-  searchParams: Promise<{
-    page?: string;
-    q?: string;
-    paymentStatus?: PaymentStatus | "";
-    fulfillmentStatus?: FulfillmentStatus | "";
-  }>;
+  searchParams: Promise<OrdersSearchParams>;
 }) => {
   const sp = await searchParams;
 

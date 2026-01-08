@@ -1,6 +1,6 @@
 "use client";
 
-type FooterProps = {
+type Props = {
   company?: string;
   tagline?: string;
   companyHref?: string;
@@ -10,7 +10,7 @@ export default function Footer({
   company = "Tavros Limited",
   tagline = "We Do Style.",
   companyHref = "/",
-}: FooterProps) {
+}: Props) {
   const year = new Date().getFullYear();
 
   return (

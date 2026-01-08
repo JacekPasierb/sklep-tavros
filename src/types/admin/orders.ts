@@ -14,6 +14,7 @@ import { FulfillmentStatus, PaymentStatus } from "../order";
  */
 export type OrdersSearchParams = {
   page?: string;
+  limit?:string;
   q?: string;
   paymentStatus?: PaymentStatus | "";
   fulfillmentStatus?: FulfillmentStatus | "";
