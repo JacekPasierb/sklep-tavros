@@ -1,9 +1,10 @@
 import { connectToDatabase } from "./mongodb";
 import Collection from "../models/Collection";
-import type { Gender, TypeCollection } from "../types/collection";
+import type {  TypeCollection } from "../types/collection";
+import { ShopGender } from "../types/shop/productsList";
 
 type GetCollectionsOptions = {
-  gender?: Gender;
+  gender?: ShopGender;
   limit?: number;
 };
 
@@ -11,7 +12,7 @@ type CollectionMongoDoc = {
   _id: { toString(): string };
   slug: string;
   name: string;
-  gender: Gender[]; // ✅ już małe litery w DB
+  gender: ShopGender[]; // ✅ już małe litery w DB
   heroImage?: string;
   sortOrder?: number;
   isFeatured?: boolean;
