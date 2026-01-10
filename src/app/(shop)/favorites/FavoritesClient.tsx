@@ -13,6 +13,7 @@ import ProductCard from "../../../components/products/ProductCard";
 import {Pagination} from "../../../components/products/Pagination";
 import {isCustomerSession} from "../../../lib/utils/isCustomer";
 import {useClientPageSlice} from "../../../lib/hooks/useClientPageSlice";
+import { FAVORITES_PAGE_SIZE } from "../../../lib/config/pagination";
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -26,17 +27,18 @@ export default function FavoritesClient() {
   const {data: session, status} = useSession();
   const isCustomer = isCustomerSession(session, status);
 
-  const pageSize = 8;
+  const pageSize = FAVORITES_PAGE_SIZE;
   const basePath = "/favourites";
 
-  // ---- USER favourites (API) ----
+  // ---- POBIERAMY PRODUKTY FAVORITES Z DB ----
   const {
     products: userProducts,
     remove: removeServer,
     isLoading: userLoading,
   } = useUserFavorites(isCustomer);
+ 
 
-  // ---- GUEST favourites (Zustand) ----
+  // ---- GUEST favourites (Zustand) OBSŁUGA FAVORITES Z ZUSTAND----
   const favoritesMap = useFavoritesStore((s) => s.favorites);
   const guestIds = useMemo(() => Object.keys(favoritesMap), [favoritesMap]);
 
@@ -51,11 +53,11 @@ export default function FavoritesClient() {
   const {data: guestData, isLoading: guestLoading} = useSWR(guestKey, fetcher, {
     revalidateOnFocus: false,
   });
+  
 
-  const loading =
-    status === "loading" || (isCustomer ? userLoading : guestLoading);
+  const loading = status === "loading" || (isCustomer ? userLoading : guestLoading);
 
-  // ---- FINAL products ----
+  // ---- FINALNIE ZWRACAMY PRODUKTY ZUSTAND/DB ----
   const products: TypeProduct[] = useMemo(() => {
     if (isCustomer) return (userProducts as TypeProduct[]) ?? [];
     return (guestData?.data as TypeProduct[]) ?? [];

@@ -5,20 +5,16 @@ import {Types} from "mongoose";
 import {generateStyleCode} from "../../../lib/utils/generateStyleCode";
 import {getServerSession} from "next-auth";
 import {authOptions} from "../../../lib/authOptions";
-
-type ProductGender = "MENS" | "WOMENS" | "KIDS" | "UNISEX";
-
-function parseGender(value: unknown): ProductGender | undefined {
-  if (typeof value !== "string") return undefined;
-  const v = value.trim().toUpperCase();
-  if (v === "MENS" || v === "WOMENS" || v === "KIDS" || v === "UNISEX")
-    return v;
-  return undefined;
-}
+import {ProductGender, ProductStatus} from "../../../types/product";
+import {
+  parseCategory,
+  parseGender,
+  parseStatus,
+} from "../../../lib/utils/shared/parsers/product";
 
 type Where = {
-  status?: "ACTIVE" | "HIDDEN";
-  gender?: string;
+  status?: ProductStatus;
+  gender?: ProductGender;
   collectionSlug?: string;
   isBestseller?: boolean;
   tags?: {$in: string[]};
@@ -76,22 +72,6 @@ type CreateProductBody = {
   deliveryReturns?: unknown;
 };
 
-type ProductCategory = "TSHIRT" | "HOODIE";
-function parseCategory(value: unknown): ProductCategory | undefined {
-  if (typeof value !== "string") return undefined;
-  const v = value.trim().toUpperCase();
-  if (v === "TSHIRT" || v === "HOODIE") return v;
-  return undefined;
-}
-
-type ProductStatus = "ACTIVE" | "HIDDEN";
-function parseStatus(value: unknown): ProductStatus | undefined {
-  if (typeof value !== "string") return undefined;
-  const v = value.trim().toUpperCase();
-  if (v === "ACTIVE" || v === "HIDDEN") return v;
-  return undefined;
-}
-
 type SortKey = "newest" | "price_asc" | "price_desc" | "popular" | "title_asc";
 
 function csvParam(sp: URLSearchParams, key: string) {
@@ -106,10 +86,10 @@ function csvParam(sp: URLSearchParams, key: string) {
 export async function GET(req: NextRequest) {
   try {
     await connectToDatabase();
-
+    // WYCIĄGAMY ZAPISANE IDS - CZYLI ID ZAPISANYCH PRODUKTOW Z ZUSTAND (LOCALSTORE)
     const sp = req.nextUrl.searchParams;
+    console.log("sp", sp);
 
-    // ✅ 1) tryb „po ID” – wishlist gościa
     const idsParam = sp.get("ids");
     if (idsParam) {
       const ids = idsParam
@@ -119,7 +99,7 @@ export async function GET(req: NextRequest) {
         .filter((id) => Types.ObjectId.isValid(id));
 
       if (!ids.length) return NextResponse.json({ok: true, data: []});
-
+      // POBIERAMY WSZYSTKIE PRODUKTY Z ZAPISANYMI IDS CZYLI  ID
       const products = await Product.find(
         {_id: {$in: ids}, status: "ACTIVE"},
         {
@@ -139,7 +119,9 @@ export async function GET(req: NextRequest) {
 
     // ✅ 2) standardowy listing z filtrami
 
-    const gender = sp.get("gender") || undefined;
+    const gender = parseGender(sp.get("gender"));
+    console.log("gender", gender);
+
     const collection = sp.get("collection") || undefined;
 
     const page = Math.max(1, parseInt(sp.get("page") || "1", 10));

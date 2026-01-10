@@ -3,26 +3,10 @@ import {getServerSession} from "next-auth";
 import {authOptions} from "../../../../../lib/authOptions"; // <- dopasuj ścieżkę
 import {connectToDatabase} from "../../../../../lib/mongodb";
 import Product from "../../../../../models/Product";
-
-type Gender = "MENS" | "WOMENS" | "KIDS" | "UNISEX";
-type Category = "TSHIRT" | "HOODIE";
+import { parseCategory, parseGender } from "../../../../../lib/utils/shared/parsers/product";
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === "string" && v.trim().length > 0;
-}
-function toUpper(v: unknown) {
-  return typeof v === "string" ? v.trim().toUpperCase() : "";
-}
-
-function parseGender(v: unknown): Gender | undefined {
-  const g = toUpper(v);
-  if (g === "MENS" || g === "WOMENS" || g === "KIDS" || g === "UNISEX") return g;
-  return undefined;
-}
-function parseCategory(v: unknown): Category | undefined {
-  const c = toUpper(v);
-  if (c === "TSHIRT" || c === "HOODIE") return c;
-  return undefined;
 }
 
 function toNumber(v: unknown): number | undefined {
@@ -50,7 +34,9 @@ function normalizeVariants(v: unknown) {
       sku: typeof x?.sku === "string" ? x.sku.trim() : "",
       size: typeof x?.size === "string" ? x.size.trim().toUpperCase() : "",
       color: typeof x?.color === "string" ? x.color.trim().toLowerCase() : "",
-      stock: Number.isFinite(Number(x?.stock)) ? Math.max(0, Math.floor(Number(x.stock))) : 0,
+      stock: Number.isFinite(Number(x?.stock))
+        ? Math.max(0, Math.floor(Number(x.stock)))
+        : 0,
     }))
     .filter((x) => x.size && x.color);
 }
@@ -61,7 +47,9 @@ function normalizeSections(v: unknown) {
     .map((s) => ({
       title: typeof s?.title === "string" ? s.title.trim() : "",
       items: Array.isArray(s?.items)
-        ? s.items.map((it: unknown) => (typeof it === "string" ? it.trim() : "")).filter(Boolean)
+        ? s.items
+            .map((it: unknown) => (typeof it === "string" ? it.trim() : ""))
+            .filter(Boolean)
         : [],
     }))
     .filter((s) => s.title && s.items.length > 0);
@@ -98,18 +86,27 @@ export async function PATCH(
 
   const gender = parseGender(body.gender);
   if (!gender) {
-    return NextResponse.json({ok: false, error: "Invalid gender"}, {status: 400});
+    return NextResponse.json(
+      {ok: false, error: "Invalid gender"},
+      {status: 400}
+    );
   }
 
   const category = parseCategory(body.category);
   if (!category) {
-    return NextResponse.json({ok: false, error: "Invalid category"}, {status: 400});
+    return NextResponse.json(
+      {ok: false, error: "Invalid category"},
+      {status: 400}
+    );
   }
 
   // oldPrice optional (ale jeśli jest, to >= 0)
   const oldPrice = body.oldPrice == null ? undefined : toNumber(body.oldPrice);
   if (oldPrice != null && oldPrice < 0) {
-    return NextResponse.json({ok: false, error: "Invalid oldPrice"}, {status: 400});
+    return NextResponse.json(
+      {ok: false, error: "Invalid oldPrice"},
+      {status: 400}
+    );
   }
 
   const collectionSlug =
@@ -118,7 +115,9 @@ export async function PATCH(
       : undefined;
 
   const tags = Array.isArray(body.tags)
-    ? body.tags.filter((t: unknown) => typeof t === "string").map((t: string) => t.trim())
+    ? body.tags
+        .filter((t: unknown) => typeof t === "string")
+        .map((t: string) => t.trim())
     : [];
 
   const images = normalizeImages(body.images);
@@ -138,7 +137,8 @@ export async function PATCH(
   }
 
   const summary = typeof body.summary === "string" ? body.summary : "";
-  const styleCode = typeof body.styleCode === "string" ? body.styleCode.trim() : "";
+  const styleCode =
+    typeof body.styleCode === "string" ? body.styleCode.trim() : "";
 
   const sections = normalizeSections(body.sections);
 
@@ -159,9 +159,14 @@ export async function PATCH(
   await connectToDatabase();
 
   // dodatkowa ochrona: slug unikalny (jeśli zmieniasz slug na taki co już istnieje)
-  const existing = await Product.findOne({slug, _id: {$ne: id}}).select({_id: 1}).lean();
+  const existing = await Product.findOne({slug, _id: {$ne: id}})
+    .select({_id: 1})
+    .lean();
   if (existing) {
-    return NextResponse.json({ok: false, error: "Slug already exists"}, {status: 409});
+    return NextResponse.json(
+      {ok: false, error: "Slug already exists"},
+      {status: 409}
+    );
   }
 
   await Product.updateOne(

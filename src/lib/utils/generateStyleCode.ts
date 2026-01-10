@@ -1,10 +1,11 @@
 // lib/products/generateStyleCode.ts
 import crypto from "crypto";
+import { ProductGender } from "../../types/product";
 
 type ProductForStyleCode = {
   title: string;
   slug: string;
-  gender?: "MENS" | "WOMENS" | "KIDS" | "UNISEX";
+  gender?:ProductGender;
   collectionSlug?: string;
   tags?: string[];
 };
@@ -32,14 +33,12 @@ function inferCategoryCode(p: ProductForStyleCode): string {
 
 function inferGenderCode(g?: ProductForStyleCode["gender"]): string {
   switch (g) {
-    case "MENS":
+    case "mens":
       return "M";
-    case "WOMENS":
+    case "womens":
       return "W";
-    case "KIDS":
+    case "kids":
       return "K";
-    case "UNISEX":
-      return "U";
     default:
       return "U";
   }
