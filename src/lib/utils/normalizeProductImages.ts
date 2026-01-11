@@ -1,5 +1,6 @@
 // lib/utils/normalizeProductImages.ts
-import type { ProductImage } from "../../types/product";
+
+import { ProductImage } from "../../types/(shop)/product";
 
 export function normalizeProductImages(images: ProductImage[] | undefined, max = 5) {
   const safe = (images ?? [])

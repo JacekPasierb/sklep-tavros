@@ -1,11 +1,12 @@
 // lib/products/generateStyleCode.ts
 import crypto from "crypto";
-import { ProductGender } from "../../types/product";
+import { ShopGender } from "../../types/(shop)/product";
+
 
 type ProductForStyleCode = {
   title: string;
   slug: string;
-  gender?:ProductGender;
+  gender?:ShopGender;
   collectionSlug?: string;
   tags?: string[];
 };
