@@ -6,13 +6,11 @@ import {
   getAvailableProductFilters,
   getProducts,
 } from "@/lib/services/shop/products.service";
-import { normalizeQuery } from "@/lib/utils/(shop)/productsList/normalizeQuery";
+import { normalizeQuery, ProductsListSearchParams } from "@/lib/utils/(shop)/productsList/normalizeQuery";
+import { ShopGender } from "../../../../../types/(shop)/product";
 
 
-import {
-  ProductsListSearchParams,
-  ShopGender,
-} from "@/types/shop/productsList";
+
 
 type PageProps = {
   params: {
