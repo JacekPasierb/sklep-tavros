@@ -1,4 +1,6 @@
-import {ProductsListMode, ProductsSort, ShopGender} from "./productsList";
+import { ShopGender } from "../(shop)/product";
+import { ProductsListMode, ProductsSort } from "../(shop)/productsList";
+
 
 export type GetProductsOptions = {
   gender?: ShopGender;
