@@ -1,9 +1,10 @@
+import { ProductCategory, ShopGender } from "../../../types/(shop)/product";
 import {
   ColorRow,
   ImgInput,
   SectionInput,
 } from "../../../types/admin/productForm";
-import {ProductCategory, ProductGender} from "../../../types/product";
+
 import {
   buildAutoAlt,
   toSlugFromTitle,
@@ -25,7 +26,7 @@ export async function saveAdminProduct(input: {
     title: string;
     price: string;
     oldPrice: string;
-    gender: ProductGender;
+    gender: ShopGender;
     category: ProductCategory;
     collectionSlug: string;
     tagNew: boolean;
