@@ -1,5 +1,6 @@
 import type { Types } from "mongoose";
-import type { TypeProduct } from "../../../../types/product";
+import { TypeProduct } from "../../../../types/(shop)/product";
+
 
 export type MongoId = Types.ObjectId | string;
 export type LeanProduct = Omit<TypeProduct, "_id"> & { _id: MongoId };
