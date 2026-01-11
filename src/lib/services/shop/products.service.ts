@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 
-import type { ProductGender, TypeProduct } from "../../../types/product";
+
 
 import type { GetProductsOptions, ProductsResult } from "../../../types/shop/products";
 
@@ -13,6 +13,7 @@ import { parsePaging } from "../../utils/shop/products/paging";
 import { buildSort } from "../../utils/shop/products/sort";
 import { buildProductsWhere } from "../../utils/shop/products/where";
 import { normalizeSizes, normalizeColors } from "../../utils/shop/products/filters";
+import { ShopGender, TypeProduct } from "../../../types/(shop)/product";
 
 export async function getProducts(
   options: GetProductsOptions = {}
@@ -69,7 +70,7 @@ export async function getProductBySlug(slug: string): Promise<TypeProduct | null
 }
 
 export async function getRelatedProducts(opts: {
-  gender: ProductGender;
+  gender: ShopGender;
   collectionSlug?: string;
   excludeId?: string;
   limit?: number;

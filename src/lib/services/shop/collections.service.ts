@@ -1,6 +1,7 @@
 import Collection from "../../../models/Collection";
+import { ShopGender } from "../../../types/(shop)/product";
 import {TypeCollection} from "../../../types/shop/collection";
-import {ShopGender} from "../../../types/shop/productsList";
+
 import {
   CollectionMongoDoc,
   mapCollectionDocToCollection,
