@@ -5,19 +5,21 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/navigation";
 
 import {useCartStore} from "../../../store/cartStore";
-import {useUserCart} from "../../../lib/hooks/useUserCart";
-import {isCustomerSession} from "../../../lib/utils/isCustomer";
 
+import {ShippingMethod} from "../../../lib/config/shop/shipping";
+import {UiCartItem} from "../../../types/checkout";
 import {
+  calculateShippingCost,
+  getFreeExpressProgress,
+} from "../../../lib/utils/shop/shipping";
+import {useUserCart} from "../../../lib/hooks/shop/useUserCart";
 
-  ShippingMethod,
-} from "../../../lib/config/shipping";
 import CheckoutForm from "../../../components/checkout/CheckoutForm";
 import OrderSummary from "../../../components/checkout/OrderSummary";
-import {UiCartItem} from "../../../types/checkout";
-import { calculateShippingCost, getFreeExpressProgress } from "../../../lib/utils/shop/shipping";
+import {createCheckoutSession} from "../../../lib/services/shop/checkout.service";
+import {isCustomerSession} from "../../../lib/utils/shared/auth/sessionGuards";
 
-export default function CheckoutPage() {
+const CheckoutPage = () => {
   const router = useRouter();
   const {data: session, status} = useSession();
 
@@ -111,41 +113,31 @@ export default function CheckoutPage() {
 
     try {
       setIsSubmitting(true);
-
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          items,
-          customer: {
-            firstName,
-            lastName,
-            email,
-            phone,
-            address: {street, city, postalCode, country},
-          },
-          shipping: {
-            method: shippingMethod,
-            cost: shippingCost,
-          },
-        }),
+      const res = await createCheckoutSession({
+        items,
+        customer: {
+          firstName,
+          lastName,
+          email,
+          phone,
+          address: {street, city, postalCode, country},
+        },
+        shipping: {method: shippingMethod, cost: shippingCost},
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        setFormError(data.error || "Something went wrong. Please try again.");
+        setFormError(res.error || "Something went wrong. Please try again.");
         setIsSubmitting(false);
         return;
       }
 
-      if (!data.url) {
+      if (!res.url) {
         setFormError("Could not start payment session. Please try again.");
         setIsSubmitting(false);
         return;
       }
 
-      router.push(data.url as string);
+      router.push(res.url);
     } catch (error) {
       console.error(error);
       setFormError("Unexpected error. Please try again.");
@@ -213,4 +205,5 @@ export default function CheckoutPage() {
       </div>
     </main>
   );
-}
+};
+export default CheckoutPage;

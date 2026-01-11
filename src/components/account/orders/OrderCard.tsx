@@ -1,30 +1,20 @@
 // src/components/account/orders/OrderCard.tsx
 import React from "react";
 
-import { PaymentStatusCard } from "./PaymentStatusCard";
-import { OrderTimeline } from "./OrderTimeline";
-import { OrderItemsList } from "./OrderItemsList";
-import { OrderSummaryCard } from "./OrderSummaryCard";
-import { AccountOrder } from "../../../types/order";
+import {PaymentStatusCard} from "./PaymentStatusCard";
+import {OrderTimeline} from "./OrderTimeline";
+import {OrderItemsList} from "./OrderItemsList";
+import {OrderSummaryCard} from "./OrderSummaryCard";
 
-type OrderCardProps = {
+import {AccountOrder} from "@/types/(shop)/account/orders";
+import {formatDate} from "@/lib/utils/shared/formatDate";
+import {formatTime} from "@/lib/utils/shared/formatTime";
+
+type Props = {
   order: AccountOrder;
 };
 
-export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
-  const createdAt = new Date(order.createdAt);
-
-  const formattedDate = createdAt.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-
-  const formattedTime = createdAt.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
+export const OrderCard = ({order}: Props) => {
   return (
     <article className="block rounded-3xl border border-zinc-200 bg-white/90 p-4 sm:p-5 shadow-sm">
       {/* META + PAYMENT + TIMELINE */}
@@ -45,12 +35,15 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
               Placed on
             </p>
             <p className="mt-1 text-sm font-medium text-zinc-900 whitespace-nowrap">
-              {formattedDate} {formattedTime}
+              {formatDate(order.createdAt)} {formatTime(order.createdAt)}
             </p>
           </div>
         </div>
 
-        <PaymentStatusCard paymentStatus={order.paymentStatus} orderId={order._id} />
+        <PaymentStatusCard
+          paymentStatus={order.paymentStatus}
+          orderId={order._id}
+        />
         <OrderTimeline fulfillmentStatus={order.fulfillmentStatus} />
       </div>
 

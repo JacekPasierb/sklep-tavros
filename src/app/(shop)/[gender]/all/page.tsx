@@ -1,14 +1,15 @@
-import ProductsListPage from "../../../../components/products/ProductsListPage";
+
+import {normalizeQuery, ProductsListSearchParams} from "@/lib/utils/(shop)/productsList/normalizeQuery";
+
+import ProductsListPage from "@/components/products/ProductsListPage";
 import {
   getProducts,
   getAvailableProductFilters,
-} from "../../../../lib/services/shop/products.service";
+} from "@/lib/services/shop/products.service";
 
-import {normalizeProductsListQuery} from "../../../../lib/utils/shop/normalizeProductsListQuery";
-import {
-  ProductsListSearchParams,
-  ShopGender,
-} from "../../../../types/shop/productsList";
+import {SHOP_PRODUCTS_PAGE_SIZE} from "@/lib/config/shop/pagination";
+
+import {  ShopGender } from "@/types/(shop)/product";
 
 type PageProps = {
   params: {gender: ShopGender};
@@ -18,8 +19,8 @@ type PageProps = {
 const GenderAllPage = async (props: PageProps) => {
   const {gender} = await props.params;
   const searchParams = await props.searchParams;
-  const query = normalizeProductsListQuery(searchParams);
-
+  const query = normalizeQuery(searchParams);
+ 
   const [productsRes, filtersRes] = await Promise.all([
     getProducts({
       gender,
@@ -27,7 +28,7 @@ const GenderAllPage = async (props: PageProps) => {
       sizes: query.sizes,
       colors: query.colors,
       page: query.page,
-      limit: 24,
+      limit: SHOP_PRODUCTS_PAGE_SIZE,
       sort: query.sort,
     }),
 

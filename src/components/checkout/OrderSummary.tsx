@@ -2,7 +2,7 @@
 
 
 import { getImageSrc } from "../../lib/utils/getImageSrc";
-import formatMoney from "../../lib/utils/shop/formatMoney";
+import formatMoney from "../../lib/utils/shared/formatMoney";
 import { FreeExpressProgress, UiCartItem } from "../../types/checkout";
 
 

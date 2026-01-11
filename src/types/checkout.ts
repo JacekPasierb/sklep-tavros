@@ -1,4 +1,4 @@
-import { CartItem } from "./cart";
+import { CartItem } from "./shop/cart";
 
 export type UiCartItem = CartItem & { key?: string };
 

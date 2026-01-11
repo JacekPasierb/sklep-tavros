@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
-import { connectToDatabase } from "../../../../lib/mongodb";
+import { connectToDatabase } from "../../../../lib/services/db/mongodb";
 import Order from "../../../../models/Order";
-import { authOptions } from "../../../../lib/authOptions";
+import { authOptions } from "../../../../lib/services/auth/authOptions";
+
 
 export async function GET() {
   const session = await getServerSession(authOptions);

@@ -1,19 +1,14 @@
-import { SortOption } from "../filters";
-
-import { ShopGender } from "./productsList";
-
-
-export type ProductsMode = "all" | "bestseller" | "collection" | "sale" | "new";
+import {ProductsListMode, ProductsSort, ShopGender} from "./productsList";
 
 export type GetProductsOptions = {
-  gender?: ShopGender;         
-  mode?: ProductsMode;
+  gender?: ShopGender;
+  mode?: ProductsListMode;
   collectionSlug?: string;
   sizes?: string[];
   colors?: string[];
   page?: number;
   limit?: number;
-  sort?: SortOption;
+  sort?: ProductsSort;
 };
 
 export type ProductsResult<T> = {

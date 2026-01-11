@@ -5,14 +5,14 @@ import {useState} from "react";
 import {
   formatAddress,
   formatCustomerName,
-  formatDate,
-  formatTime,
 } from "../../../lib/utils/admin/orders/formatters";
 import {PublicOrder} from "../../../types/admin/orders";
 import {Pagination} from "../../products/Pagination";
 import OrderStatusControls from "./OrderStatusContrlos";
 import OrderItemsPreview from "./OrderItemsPreview";
-import formatMoney from "../../../lib/utils/shop/formatMoney";
+import formatMoney from "../../../lib/utils/shared/formatMoney";
+import {formatDate} from "../../../lib/utils/shared/formatDate";
+import {formatTime} from "../../../lib/utils/shared/formatTime";
 
 type Props = {
   orders: PublicOrder[];

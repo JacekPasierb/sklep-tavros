@@ -1,13 +1,10 @@
 // src/components/account/orders/OrderHistoryHeader.tsx
-import React from "react";
 
-type OrderHistoryHeaderProps = {
+type Props = {
   totalOrders: number;
 };
 
-export const OrderHistoryHeader: React.FC<OrderHistoryHeaderProps> = ({
-  totalOrders,
-}) => {
+export const OrderHistoryHeader = ({totalOrders}: Props) => {
   const label = totalOrders === 1 ? "order" : "orders";
 
   return (

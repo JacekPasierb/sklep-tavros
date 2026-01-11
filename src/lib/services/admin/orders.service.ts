@@ -2,7 +2,7 @@ import Order from "../../../models/Order";
 import {OrderRow, OrdersQuery, OrdersResult} from "../../../types/admin/orders";
 import {toPublicOrder} from "../../mappers/admin/orders.mapper";
 
-import {connectToDatabase} from "../../mongodb";
+import {connectToDatabase} from "../db/mongodb";
 
 const buildOrdersFilter = (query: OrdersQuery): Record<string, unknown> => {
   const filter: Record<string, unknown> = {};

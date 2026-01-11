@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SOCIALS } from "../../lib/config/socials";
+import { SOCIALS } from "../../lib/config/shop/socials";
 
 const SocialSection=()=> {
   return (

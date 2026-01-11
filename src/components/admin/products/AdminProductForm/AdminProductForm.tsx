@@ -9,23 +9,23 @@ import {
   ImgInput,
   SectionInput,
   Size,
-} from "../../../../types/admin/productForm";
+} from "@/types/admin/productForm";
 import {
  
   toSlugFromTitle,
-} from "../../../../lib/utils/admin/products/formText";
-import {ProductCategory, ProductGender} from "../../../../types/product";
+} from "@/lib/utils/admin/products/formText";
+
 import {
   emptyColorRow,
   emptyImg,
   emptySection,
-} from "../../../../lib/utils/admin/products/formDefaults";
+} from "@/lib/utils/admin/products/formDefaults";
 import {
   sectionsToInputs,
   variantsToColorRows,
-} from "../../../../lib/utils/admin/products/formTransform";
-import {uploadProductImage} from "../../../../lib/services/admin/image.service";
-import {saveAdminProduct} from "../../../../lib/services/admin/productsForm.service";
+} from "@/lib/utils/admin/products/formTransform";
+import {uploadProductImage} from "@/lib/services/admin/image.service";
+import {saveAdminProduct} from "@/lib/services/admin/productsForm.service";
 
 import {BadgesSection} from "./sections/BadgesSection";
 import {ImagesSection} from "./sections/ImagesSection";
@@ -33,6 +33,7 @@ import {VariantsSection} from "./sections/VariantsSection";
 import {SectionsEditor} from "./sections/SectionsEditor";
 import {DeliveryReturnsEditor} from "./sections/DeliveryReturnsEditor";
 import { ProductBasicSection } from "./sections/ProductBasicSection";
+import { ProductCategory, ShopGender } from "@/types/(shop)/product";
 
 export function AdminProductForm({
   mode,
@@ -64,7 +65,7 @@ export function AdminProductForm({
     initialProduct.oldPrice != null ? String(initialProduct.oldPrice) : ""
   );
 
-  const [gender, setGender] = useState<ProductGender>(initialProduct.gender);
+  const [gender, setGender] = useState<ShopGender>(initialProduct.gender);
   const [category, setCategory] = useState<ProductCategory>(
     initialProduct.category
   );

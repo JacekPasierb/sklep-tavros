@@ -1,6 +1,6 @@
 import User from "../../../models/User";
 import { AdminUsersQuery, AdminUsersResult, PublicUser } from "../../../types/admin/users";
-import { connectToDatabase } from "../../mongodb";
+import { connectToDatabase } from "../db/mongodb";
 import { buildUsersFilter } from "../../utils/admin/users/filter";
 
 

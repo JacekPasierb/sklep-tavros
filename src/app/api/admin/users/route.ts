@@ -1,6 +1,6 @@
 import {NextResponse} from "next/server";
 import {requireAdmin} from "../../../../lib/utils/requireAdmin";
-import {connectToDatabase} from "../../../../lib/mongodb";
+import {connectToDatabase} from "../../../../lib/services/db/mongodb";
 import User from "../../../../models/User";
 
 type PublicUser = {

@@ -1,18 +1,15 @@
 // src/components/account/orders/OrderSummaryCard.tsx
-import React from "react";
-import { AccountOrder } from "../../../types/order";
-import { computeOrderTotals} from "../../../lib/utils/orders";
-import formatMoney from "../../../lib/utils/shop/formatMoney";
 
+import {computeOrderTotals} from "@/lib/utils/(shop)/account/computeOrderTotals";
+import formatMoney from "@/lib/utils/shared/formatMoney";
+import {AccountOrder} from "@/types/(shop)/account/orders";
 
-type OrderSummaryCardProps = {
+type Props = {
   order: AccountOrder;
 };
 
-export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
-  order,
-}) => {
-  const { subtotal, shipping } = computeOrderTotals(order);
+export const OrderSummaryCard = ({order}: Props) => {
+  const {subtotal, shipping} = computeOrderTotals(order);
 
   return (
     <aside className="w-full lg:w-64 rounded-2xl border bg-zinc-50 px-4 py-3 text-sm">

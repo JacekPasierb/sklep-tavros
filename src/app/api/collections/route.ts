@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
-import { getCollections } from "../../../lib/collections";
+import { getCollections } from "../../../lib/services/shop/collections.service";
 import { ShopGender } from "../../../types/shop/productsList";
 
 

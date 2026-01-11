@@ -1,6 +1,6 @@
 // app/api/checkout/confirm/route.ts
 import {NextResponse} from "next/server";
-import {connectToDatabase} from "../../../../lib/mongodb";
+import {connectToDatabase} from "../../../../lib/services/db/mongodb";
 import {stripe} from "../../../../lib/stripe";
 import Order from "../../../../models/Order";
 import User from "../../../../models/User";

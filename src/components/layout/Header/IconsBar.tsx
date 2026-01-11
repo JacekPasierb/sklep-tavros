@@ -9,9 +9,11 @@ import {useCartUiStore} from "../../../store/cartUiStore";
 import {useCartStore} from "../../../store/cartStore";
 import {CartDrawer} from "../../cart/CartDrawer";
 
-import {CartItem} from "../../../types/cart";
-import {useUserCart} from "../../../lib/hooks/useUserCart";
-import {isAdminSession, isCustomerSession} from "../../../lib/utils/isCustomer";
+import {CartItem} from "../../../types/shop/cart";
+
+
+import { useUserCart } from "../../../lib/hooks/shop/useUserCart";
+import { isAdminSession, isCustomerSession } from "../../../lib/utils/shared/auth/sessionGuards";
 
 const IconsBar = () => {
   const {data: session, status} = useSession();

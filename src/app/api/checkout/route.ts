@@ -3,13 +3,14 @@ import {stripe} from "../../../lib/stripe";
 
 import Order from "../../../models/Order";
 import {getServerSession} from "next-auth";
-import {connectToDatabase} from "../../../lib/mongodb";
+import {connectToDatabase} from "../../../lib/services/db/mongodb";
 
-import { ShippingMethod} from "../../../lib/config/shipping";
+import { ShippingMethod} from "../../../lib/config/shop/shipping";
 import {getNextOrderNumber} from "../../../lib/utils/generateOrderNumber";
 import {getCheckoutKey} from "../../../lib/utils/checkoutKey";
-import { authOptions } from "../../../lib/authOptions";
+
 import { calculateShippingCost } from "../../../lib/utils/shop/shipping";
+import { authOptions } from "../../../lib/services/auth/authOptions";
 
 type AuthSession = {
   user?: {

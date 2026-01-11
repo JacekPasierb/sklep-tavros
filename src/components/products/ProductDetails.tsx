@@ -4,15 +4,18 @@ import {useEffect, useMemo, useState} from "react";
 import {useSession} from "next-auth/react";
 import {Heart, ShoppingBag} from "lucide-react";
 
-import type {TypeProduct} from "../../types/product";
-import {useUserFavorites} from "../../lib/hooks/useUserFavorites";
 
-import {useUserCart} from "../../lib/hooks/useUserCart";
+import {useUserFavorites} from "../../lib/hooks/shop/useUserFavorites";
+
+
 import {useCartStore} from "../../store/cartStore";
 import {useFavoritesStore} from "../../store/favoritesStore";
-import {isCustomerSession} from "../../lib/utils/isCustomer";
-import formatMoney from "../../lib/utils/shop/formatMoney";
-import {getSaleState} from "../../lib/utils/shop/products/view";
+
+import formatMoney from "../../lib/utils/shared/formatMoney";
+import {getSaleState} from "../../lib/utils/(shop)/products/view";
+import { useUserCart } from "../../lib/hooks/shop/useUserCart";
+import { TypeProduct } from "../../types/(shop)/product";
+import { isCustomerSession } from "../../lib/utils/shared/auth/sessionGuards";
 
 interface ProductInfoProps {
   product: TypeProduct;

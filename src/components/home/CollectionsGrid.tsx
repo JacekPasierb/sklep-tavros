@@ -1,5 +1,5 @@
 // components/home/CollectionsGrid.tsx
-import { TypeCollection } from "../../types/collection";
+import { TypeCollection } from "../../types/shop/collection";
 import { ShopGender } from "../../types/shop/productsList";
 import TitleSection from "../products/TitleSection";
 import CollectionCard, { CollectionCardProps } from "./CollectionCard";

@@ -1,20 +1,22 @@
 import {NextRequest, NextResponse} from "next/server";
-import {connectToDatabase} from "../../../lib/mongodb";
+import {connectToDatabase} from "../../../lib/services/db/mongodb";
 import Product from "../../../models/Product";
 import {Types} from "mongoose";
 import {generateStyleCode} from "../../../lib/utils/generateStyleCode";
 import {getServerSession} from "next-auth";
-import {authOptions} from "../../../lib/authOptions";
-import {ProductGender, ProductStatus} from "../../../types/product";
+
+
 import {
   parseCategory,
   parseGender,
   parseStatus,
-} from "../../../lib/utils/shared/parsers/product";
+} from "@/lib/utils/shared/parsers/product";
+import { authOptions } from "@/lib/services/auth/authOptions";
+import { ProductStatus, ShopGender } from "@/types/(shop)/product";
 
 type Where = {
   status?: ProductStatus;
-  gender?: ProductGender;
+  gender?: ShopGender;
   collectionSlug?: string;
   isBestseller?: boolean;
   tags?: {$in: string[]};

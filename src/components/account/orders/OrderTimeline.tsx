@@ -1,15 +1,16 @@
 // src/components/account/orders/OrderTimeline.tsx
-import React from "react";
-import { FULFILLMENT_STEP_INDEX, FulfillmentStatus, ORDER_STEPS } from "../../../types/order";
 
+import {
+  FULFILLMENT_STEP_INDEX,
+  FulfillmentStatus,
+  ORDER_STEPS,
+} from "@/types/(shop)/account/orders";
 
-type OrderTimelineProps = {
+type Props = {
   fulfillmentStatus?: FulfillmentStatus;
 };
 
-export const OrderTimeline: React.FC<OrderTimelineProps> = ({
-  fulfillmentStatus = "created",
-}) => {
+export const OrderTimeline = ({fulfillmentStatus = "created"}: Props) => {
   const currentStep = FULFILLMENT_STEP_INDEX[fulfillmentStatus];
   const isCanceled = fulfillmentStatus === "canceled";
 

@@ -2,11 +2,11 @@
 import {NextResponse} from "next/server";
 import {getServerSession} from "next-auth/next";
 import {Types} from "mongoose";
-import { connectToDatabase } from "../../../lib/mongodb";
+import {connectToDatabase} from "../../../lib/services/db/mongodb";
 
 import User from "../../../models/User";
 import Product from "../../../models/Product";
-import { authOptions } from "../../../lib/authOptions";
+import { authOptions } from "../../../lib/services/auth/authOptions";
 
 // 👈 ważne: 2x ".."
 
@@ -74,10 +74,7 @@ export async function POST(req: Request) {
   const {productId} = await req.json();
 
   if (!Types.ObjectId.isValid(productId)) {
-    return NextResponse.json(
-      {ok: false, error: "Invalid id"},
-      {status: 400}
-    );
+    return NextResponse.json({ok: false, error: "Invalid id"}, {status: 400});
   }
 
   await User.updateOne(
@@ -98,10 +95,7 @@ export async function DELETE(req: Request) {
   const {productId} = await req.json();
 
   if (!Types.ObjectId.isValid(productId)) {
-    return NextResponse.json(
-      {ok: false, error: "Invalid id"},
-      {status: 400}
-    );
+    return NextResponse.json({ok: false, error: "Invalid id"}, {status: 400});
   }
 
   await User.updateOne(

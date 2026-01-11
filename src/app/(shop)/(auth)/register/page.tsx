@@ -3,9 +3,10 @@
 import {Formik, Form, Field, ErrorMessage} from "formik";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
-import {RegisterFormValues} from "../../../../types/auth/register";
-import {registerUser} from "../../../../lib/services/auth/register.service";
-import {RegisterSchema} from "../../../../lib/validations/auth/register.schema";
+
+import {RegisterFormValues} from "@/types/(shop)/(auth)/register";
+import {RegisterSchema} from "@/lib/validations/(shop)/(auth)/register.schema";
+import { registerUser } from "@/lib/services/(shop)/(auth)/register.service";
 
 const initialValues: RegisterFormValues = {
   firstName: "",

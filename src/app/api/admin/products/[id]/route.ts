@@ -1,9 +1,9 @@
 import {NextResponse} from "next/server";
 import {getServerSession} from "next-auth";
-import {authOptions} from "../../../../../lib/authOptions"; // <- dopasuj ścieżkę
-import {connectToDatabase} from "../../../../../lib/mongodb";
+import {connectToDatabase} from "../../../../../lib/services/db/mongodb";
 import Product from "../../../../../models/Product";
 import { parseCategory, parseGender } from "../../../../../lib/utils/shared/parsers/product";
+import { authOptions } from "../../../../../lib/services/auth/authOptions";
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === "string" && v.trim().length > 0;

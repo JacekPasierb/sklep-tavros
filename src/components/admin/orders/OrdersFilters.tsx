@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type {FulfillmentStatus, PaymentStatus} from "../../../types/order";
+import type {FulfillmentStatus, PaymentStatus} from "../../../types/shop/order";
 
 type Props = {
   q: string;

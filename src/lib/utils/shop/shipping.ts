@@ -1,4 +1,4 @@
-import { SHIPPING_CONFIG, ShippingMethod } from "../../config/shipping";
+import { SHIPPING_CONFIG, ShippingMethod } from "../../config/shop/shipping";
 
 
 export function calculateShippingCost(subtotal: number, method: ShippingMethod) {

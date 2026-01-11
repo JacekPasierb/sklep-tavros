@@ -5,16 +5,16 @@ import {useMemo} from "react";
 import Link from "next/link";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/navigation";
+import {useAuthRedirect} from "@/lib/hooks/shop/auth/useAuthRedirect";
+import {useOrders} from "@/lib/hooks/account/useOrders";
+import {useClientPageSlice} from "@/lib/hooks/shared/useClientPageSlice";
+import {ACCOUNT_ORDERS_PAGE_SIZE} from "@/lib/config/shop/pagination";
+import OrdersLoading from "@/components/account/orders/OrdersLoading";
+import {OrderHistoryHeader} from "@/components/account/orders/OrderHistoryHeader";
+import {OrderCard} from "@/components/account/orders/OrderCard";
+import {Pagination} from "@/components/products/Pagination";
 
-import {OrderHistoryHeader} from "../../../../components/account/orders/OrderHistoryHeader";
-import {OrderCard} from "../../../../components/account/orders/OrderCard";
-import {Pagination} from "../../../../components/products/Pagination";
-
-import {useAuthRedirect} from "../../../../lib/hooks/useAuthRedirect";
-import {useOrders} from "../../../../lib/hooks/useOrders";
-import {useClientPageSlice} from "../../../../lib/hooks/useClientPageSlice";
-
-export default function OrdersClient() {
+const OrdersClient = () => {
   const {status} = useSession();
   const router = useRouter();
 
@@ -36,19 +36,13 @@ export default function OrdersClient() {
     showingTo,
   } = useClientPageSlice({
     items: orders,
-    pageSize: 6,
+    pageSize: ACCOUNT_ORDERS_PAGE_SIZE,
     basePath: "/account/orders",
   });
 
   // ---- loading ----
   if (status === "loading" || (shouldFetch && isLoading && !data)) {
-    return (
-      <section className="container mx-auto px-4 py-10">
-        <div className="mx-auto w-full max-w-md rounded-2xl bg-white px-6 py-8 shadow-sm text-center">
-          <p className="text-sm text-zinc-600">Loading your orders…</p>
-        </div>
-      </section>
-    );
+    return <OrdersLoading items={3} />;
   }
 
   if (status !== "authenticated") return null;
@@ -120,4 +114,5 @@ export default function OrdersClient() {
       </div>
     </section>
   );
-}
+};
+export default OrdersClient;

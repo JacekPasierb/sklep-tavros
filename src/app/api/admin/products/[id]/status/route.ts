@@ -1,8 +1,9 @@
 import {NextResponse} from "next/server";
 import {getServerSession} from "next-auth";
-import {authOptions} from "../../../../../../lib/authOptions";
-import {connectToDatabase} from "../../../../../../lib/mongodb";
+
+import {connectToDatabase} from "../../../../../../lib/services/db/mongodb";
 import Product from "../../../../../../models/Product";
+import { authOptions } from "../../../../../../lib/services/auth/authOptions";
 
 export async function PATCH(
   req: Request,

@@ -1,6 +1,6 @@
 // components/admin/dashboard/AdminStatsGrid.tsx
 
-import formatMoney from "../../../lib/utils/shop/formatMoney";
+import formatMoney from "../../../lib/utils/shared/formatMoney";
 import {StatCard} from "../StatCard";
 
 type Props = {

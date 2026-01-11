@@ -7,7 +7,7 @@ import {
   AdminProductListItem,
   AdminProductVariantRow,
 } from "../../../types/admin/products";
-import formatMoney from "../../../lib/utils/shop/formatMoney";
+import formatMoney from "../../../lib/utils/shared/formatMoney";
 import {
   getStockBadgeClass,
   getStockStatus,

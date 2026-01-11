@@ -1,7 +1,8 @@
 "use client";
 
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
-import {SortOption} from "../../types/filters";
+import {ProductsSort} from "@/types/(shop)/productsList";
+import {parseSort} from "@/lib/utils/(shop)/productsList/parseSort";
 
 type Props = {
   availableSizes: string[];
@@ -20,8 +21,8 @@ export function FiltersBar({
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const sortParam = searchParams.get("sort") as SortOption;
-  const selectedSort: SortOption = sortParam || "newest";
+  const selectedSort: ProductsSort =
+    parseSort(searchParams.get("sort")) ?? "newest";
 
   const pushParams = (params: URLSearchParams) => {
     params.delete("page");
@@ -49,7 +50,7 @@ export function FiltersBar({
     pushParams(params);
   };
 
-  const updateSort = (value: SortOption) => {
+  const updateSort = (value: ProductsSort) => {
     const params = new URLSearchParams(searchParams.toString());
 
     if (!value || value === "newest") params.delete("sort");
@@ -160,7 +161,7 @@ export function FiltersBar({
         <div className="relative">
           <select
             value={selectedSort ?? "newest"}
-            onChange={(e) => updateSort(e.target.value as SortOption)}
+            onChange={(e) => updateSort(e.target.value as ProductsSort)}
             className="
               h-8 rounded-full border border-zinc-300 bg-white
               px-3 pr-7 text-[12px] font-medium text-zinc-900
@@ -187,7 +188,7 @@ export function FiltersBar({
         <div className="relative">
           <select
             value={selectedSort ?? "newest"}
-            onChange={(e) => updateSort(e.target.value as SortOption)}
+            onChange={(e) => updateSort(e.target.value as ProductsSort)}
             className="
               h-9 rounded-full border border-zinc-300 bg-white
               px-4 pr-8 text-xs font-medium text-zinc-900

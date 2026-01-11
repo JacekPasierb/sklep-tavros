@@ -1,5 +1,5 @@
 import { Customer } from "../customer";
-import { FulfillmentStatus, PaymentStatus } from "../order";
+import { FulfillmentStatus, PaymentStatus } from "../shop/order";
 
 /**
  * OrdersSearchParams

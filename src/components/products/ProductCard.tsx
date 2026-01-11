@@ -7,18 +7,20 @@ import {Heart} from "lucide-react";
 import {useSession} from "next-auth/react";
 import {useEffect, useMemo, useState} from "react";
 
-import {TypeProduct} from "../../types/product";
 
-import {useUserFavorites} from "../../lib/hooks/useUserFavorites";
-import {useFavoritesStore} from "../../store/favoritesStore";
-import {isCustomerSession} from "../../lib/utils/isCustomer";
-import formatMoney from "../../lib/utils/shop/formatMoney";
+
+import {useUserFavorites} from "@/lib/hooks/shop/useUserFavorites";
+import {useFavoritesStore} from "@/store/favoritesStore";
+
+import formatMoney from "@/lib/utils/shared/formatMoney";
 
 import {TrashX} from "../icons/TrashX";
 import {
   getProductImageUrls,
   getSaleState,
-} from "../../lib/utils/shop/products/view";
+} from "@/lib/utils/(shop)/products/view";
+import { TypeProduct } from "@/types/(shop)/product";
+import { isCustomerSession } from "@/lib/utils/shared/auth/sessionGuards";
 
 type Props = {
   product: TypeProduct;

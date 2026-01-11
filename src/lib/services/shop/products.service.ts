@@ -4,7 +4,7 @@ import type { ProductGender, TypeProduct } from "../../../types/product";
 
 import type { GetProductsOptions, ProductsResult } from "../../../types/shop/products";
 
-import { connectToDatabase } from "../../mongodb";
+import { connectToDatabase } from "../db/mongodb";
 import Product from "../../../models/Product";
 
 // ✅ helpery z utils

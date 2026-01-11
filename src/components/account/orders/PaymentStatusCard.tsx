@@ -1,22 +1,32 @@
 // src/components/account/orders/PaymentStatusCard.tsx
-import React from "react";
-import {getPaymentMeta, handlePayNow} from "../../../lib/utils/orders";
-import {AccountOrder} from "../../../types/order";
 
-type PaymentStatusCardProps = {
+import {AccountOrder} from "@/types/(shop)/account/orders";
+import {getPaymentMeta} from "@/lib/utils/(shop)/account/orders/getPaymentMeta";
+import {payNow} from "@/lib/services/(shop)/orders/payNow.service";
+
+type Props = {
   paymentStatus: AccountOrder["paymentStatus"];
   orderId: string;
 };
 
-export const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
-  paymentStatus,
-  orderId,
-}) => {
+export const PaymentStatusCard = ({paymentStatus, orderId}: Props) => {
   const {badgeClass, panelClass, label, description, displayStatus} =
     getPaymentMeta(paymentStatus);
 
-    const isPending = paymentStatus === "pending";
-    
+  const isPending = paymentStatus === "pending";
+
+  const onPayNow = async (orderId: string) => {
+    try {
+      const {url} = await payNow(orderId);
+      window.location.href = url;
+    } catch (e) {
+      if (e instanceof Error) {
+        alert(e.message);
+      } else {
+        alert("Something went wrong.");
+      }
+    }
+  };
   return (
     <div
       className={`mt-4 rounded-2xl border px-4 py-3 sm:px-5 sm:py-3.5 ${panelClass}`}
@@ -32,7 +42,7 @@ export const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
           {isPending && (
             <button
               type="button"
-              onClick={() => handlePayNow(orderId)}
+              onClick={() => onPayNow(orderId)}
               className="mt-2 inline-flex items-center justify-center rounded-full bg-zinc-900 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-50 hover:bg-zinc-800"
             >
               Complete payment

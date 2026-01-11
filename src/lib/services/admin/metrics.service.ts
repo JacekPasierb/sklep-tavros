@@ -2,7 +2,7 @@ import Order from "../../../models/Order";
 import Product from "../../../models/Product";
 import User from "../../../models/User";
 import {AdminMetrics} from "../../../types/admin/metrics";
-import {connectToDatabase} from "../../mongodb";
+import {connectToDatabase} from "../db/mongodb";
 import {startOfThisMonthUTC} from "../../utils/dates/startOfThisMonthUTC";
 
 export async function getAdminMetrics(): Promise<AdminMetrics> {

@@ -6,7 +6,7 @@ import {
   ProductDocForQuery,
   ProductRow,
 } from "../../../types/admin/products";
-import {connectToDatabase} from "../../mongodb";
+import {connectToDatabase} from "../db/mongodb";
 import Product from "../../../models/Product";
 import {toAdminListItem} from "../../mappers/admin/products.mapper";
 

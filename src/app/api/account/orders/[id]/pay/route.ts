@@ -2,10 +2,11 @@
 import {NextResponse, type NextRequest} from "next/server";
 import {getServerSession} from "next-auth";
 
-import {connectToDatabase} from "../../../../../../lib/mongodb";
+import {connectToDatabase} from "../../../../../../lib/services/db/mongodb";
 import Order from "../../../../../../models/Order";
 import {stripe} from "../../../../../../lib/stripe";
-import {authOptions} from "../../../../../../lib/authOptions";
+import { authOptions } from "../../../../../../lib/services/auth/authOptions";
+
 
 export async function POST(
   _req: NextRequest,

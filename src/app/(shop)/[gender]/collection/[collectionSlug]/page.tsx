@@ -1,16 +1,18 @@
 // app/(shop)/[gender]/collection/[collectionSlug]/page.tsx
 
-import ProductsListPage from "../../../../../components/products/ProductsListPage";
+import ProductsListPage from "@/components/products/ProductsListPage";
+import { SHOP_PRODUCTS_PAGE_SIZE } from "@/lib/config/shop/pagination";
 import {
   getAvailableProductFilters,
   getProducts,
-} from "../../../../../lib/services/shop/products.service";
-import {normalizeProductsListQuery} from "../../../../../lib/utils/shop/normalizeProductsListQuery";
+} from "@/lib/services/shop/products.service";
+import { normalizeQuery } from "@/lib/utils/(shop)/productsList/normalizeQuery";
+
 
 import {
   ProductsListSearchParams,
   ShopGender,
-} from "../../../../../types/shop/productsList";
+} from "@/types/shop/productsList";
 
 type PageProps = {
   params: {
@@ -24,7 +26,7 @@ const GenderCollectionPage = async (props: PageProps) => {
   const {gender, collectionSlug} = await props.params;
   const searchParams = await props.searchParams;
 
-  const query = normalizeProductsListQuery(searchParams);
+  const query = normalizeQuery(searchParams);
 
   const [productsRes, filtersRes] = await Promise.all([
     getProducts({
@@ -34,7 +36,7 @@ const GenderCollectionPage = async (props: PageProps) => {
       sizes: query.sizes,
       colors: query.colors,
       page: query.page,
-      limit: 24,
+      limit: SHOP_PRODUCTS_PAGE_SIZE,
       sort: query.sort,
     }),
 

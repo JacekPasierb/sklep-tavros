@@ -1,15 +1,16 @@
 // src/components/account/orders/OrderItemsList.tsx
-import React from "react";
+
 import Link from "next/link";
 import Image from "next/image";
-import {AccountOrder} from "../../../types/order";
-import formatMoney from "../../../lib/utils/shop/formatMoney";
 
-type OrderItemsListProps = {
+import formatMoney from "@/lib/utils/shared/formatMoney";
+import {AccountOrder} from "@/types/(shop)/account/orders";
+
+type Props = {
   order: AccountOrder;
 };
 
-export const OrderItemsList: React.FC<OrderItemsListProps> = ({order}) => {
+export const OrderItemsList = ({order}: Props) => {
   return (
     <div className="flex-1 space-y-3">
       {order.items.map((item, idx) => {

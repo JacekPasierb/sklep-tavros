@@ -11,11 +11,13 @@ import { useRouter } from "next/navigation";
 import { useCartUiStore } from "../../store/cartUiStore";
 import { useCartStore } from "../../store/cartStore";
 
-import type { CartItem } from "../../types/cart";
-import { useUserCart } from "../../lib/hooks/useUserCart";
+import type { CartItem } from "../../types/shop/cart";
+
 import { getImageSrc } from "../../lib/utils/getImageSrc";
-import { isCustomerSession } from "../../lib/utils/isCustomer";
-import formatMoney from "../../lib/utils/shop/formatMoney";
+
+import formatMoney from "../../lib/utils/shared/formatMoney";
+import { useUserCart } from "../../lib/hooks/shop/useUserCart";
+import { isCustomerSession } from "../../lib/utils/shared/auth/sessionGuards";
 
 type UiCartItem = CartItem & { key?: string };
 

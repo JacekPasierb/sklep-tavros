@@ -1,7 +1,8 @@
 import {getServerSession} from "next-auth";
 import {NextResponse} from "next/server";
 import type {Session} from "next-auth";
-import { authOptions } from "../authOptions";
+import { authOptions } from "../services/auth/authOptions";
+
 
 
 export async function requireAdmin(): Promise<

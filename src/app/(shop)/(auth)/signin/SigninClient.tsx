@@ -3,10 +3,13 @@
 import {Formik, Form, Field, ErrorMessage} from "formik";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useState} from "react";
-import {SignInFormValues, SignInReason} from "../../../../types/auth/signin";
-import {getSignInReasonMessage} from "../../../../lib/utils/auth/signinReasonMessages";
-import {signInUser} from "../../../../lib/services/auth/signin.service";
-import {SignInSchema} from "../../../../lib/validations/auth/signin.schema";
+
+import {SignInFormValues, SignInReason} from "@/types/(shop)/(auth)/signin";
+
+import {getSignInReasonMessage} from "@/lib/utils/(shop)/(auth)/normalizeSignInReason";
+
+import {SignInSchema} from "@/lib/validations/(shop)/(auth)/signin.schema";
+import { signInUser } from "@/lib/services/(shop)/(auth)/signin.service";
 
 const toneClasses = (tone: "success" | "warning") => {
   if (tone === "success") {

@@ -2,7 +2,7 @@
 
 import BannerSection from "../../components/home/BannerSection";
 import HomeGenderSection from "../../components/home/HomeGenderSection";
-import {getCollections} from "../../lib/collections";
+import {getCollections} from "../../lib/services/shop/collections.service";
 import { getProducts } from "../../lib/services/shop/products.service";
 
 

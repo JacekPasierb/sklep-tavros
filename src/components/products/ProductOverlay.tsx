@@ -1,5 +1,5 @@
 // src/components/products/ProductOverlay.tsx
-import { SaleState } from "../../lib/utils/shop/products/view";
+import { SaleState } from "../../lib/utils/(shop)/products/view";
 
 type Props = {
   sale: SaleState;

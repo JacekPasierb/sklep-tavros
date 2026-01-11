@@ -2,9 +2,9 @@
 
 import {useSession, signOut} from "next-auth/react";
 import Link from "next/link";
-import {useAuthRedirect} from "../../../lib/hooks/useAuthRedirect";
+import {useAuthRedirect} from "@/lib/hooks/shop/auth/useAuthRedirect";
 
-export default function AccountPage() {
+ const AccountPage = () => {
   const {data: session, status} = useSession();
 
   useAuthRedirect(status, "/signin?callbackUrl=/account");
@@ -102,4 +102,5 @@ export default function AccountPage() {
       </div>
     </section>
   );
-}
+};
+export default AccountPage;

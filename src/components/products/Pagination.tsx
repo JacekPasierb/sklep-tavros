@@ -3,12 +3,12 @@
 
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 
-type PaginationProps = {
+type Props = {
   currentPage: number;
   totalPages: number;
 };
 
-export function Pagination({currentPage, totalPages}: PaginationProps) {
+export const Pagination = ({currentPage, totalPages}: Props) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -74,9 +74,9 @@ export function Pagination({currentPage, totalPages}: PaginationProps) {
       </button>
     </div>
   );
-}
+};
 
-function getPagesToShow(current: number, total: number): (number | "...")[] {
+const getPagesToShow = (current: number, total: number): (number | "...")[] => {
   const pages: (number | "...")[] = [];
 
   if (total <= 7) {
@@ -104,4 +104,4 @@ function getPagesToShow(current: number, total: number): (number | "...")[] {
   pages.push(total);
 
   return pages;
-}
+};

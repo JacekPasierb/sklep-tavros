@@ -2,7 +2,7 @@
 
 import {useState} from "react";
 
-import type {TypeCollection} from "../../types/collection";
+import type {TypeCollection} from "../../types/shop/collection";
 import type {TypeProduct} from "../../types/product";
 
 import CollectionsGrid from "./CollectionsGrid";

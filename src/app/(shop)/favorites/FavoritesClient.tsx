@@ -5,15 +5,17 @@ import {useSession} from "next-auth/react";
 import useSWR from "swr";
 import {useRouter} from "next/navigation";
 
-import {useUserFavorites} from "../../../lib/hooks/useUserFavorites";
-import {useFavoritesStore} from "../../../store/favoritesStore";
+import {useUserFavorites} from "@/lib/hooks/shop/useUserFavorites";
+import {useFavoritesStore} from "@/store/favoritesStore";
 
-import {TypeProduct} from "../../../types/product";
-import ProductCard from "../../../components/products/ProductCard";
-import {Pagination} from "../../../components/products/Pagination";
-import {isCustomerSession} from "../../../lib/utils/isCustomer";
-import {useClientPageSlice} from "../../../lib/hooks/useClientPageSlice";
-import { FAVORITES_PAGE_SIZE } from "../../../lib/config/pagination";
+import ProductCard from "@/components/products/ProductCard";
+import {Pagination} from "@/components/products/Pagination";
+
+import {FAVORITES_PAGE_SIZE} from "@/lib/config/shop/pagination";
+import {useClientPageSlice} from "@/lib/hooks/shared/useClientPageSlice";
+import {TypeProduct} from "@/types/(shop)/product";
+import {isCustomerSession} from "@/lib/utils/shared/auth/sessionGuards";
+import FavoritesLoading from "@/components/shop/favorites/favoritesLoading";
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -21,7 +23,7 @@ const fetcher = async (url: string) => {
   return res.json();
 };
 
-export default function FavoritesClient() {
+const FavoritesClient = () => {
   const router = useRouter();
 
   const {data: session, status} = useSession();
@@ -36,7 +38,6 @@ export default function FavoritesClient() {
     remove: removeServer,
     isLoading: userLoading,
   } = useUserFavorites(isCustomer);
- 
 
   // ---- GUEST favourites (Zustand) OBSŁUGA FAVORITES Z ZUSTAND----
   const favoritesMap = useFavoritesStore((s) => s.favorites);
@@ -53,9 +54,9 @@ export default function FavoritesClient() {
   const {data: guestData, isLoading: guestLoading} = useSWR(guestKey, fetcher, {
     revalidateOnFocus: false,
   });
-  
 
-  const loading = status === "loading" || (isCustomer ? userLoading : guestLoading);
+  const loading =
+    status === "loading" || (isCustomer ? userLoading : guestLoading);
 
   // ---- FINALNIE ZWRACAMY PRODUKTY ZUSTAND/DB ----
   const products: TypeProduct[] = useMemo(() => {
@@ -87,13 +88,7 @@ export default function FavoritesClient() {
     [isCustomer, removeServer, removeGuest, router]
   );
 
-  if (loading) {
-    return (
-      <section className="container mx-auto px-4 py-8">
-        <p className="text-center text-sm text-zinc-500">Loading…</p>
-      </section>
-    );
-  }
+  if (loading) return <FavoritesLoading items={pageSize} />;
 
   return (
     <section className="container mx-auto px-4 py-8">
@@ -170,4 +165,5 @@ export default function FavoritesClient() {
       )}
     </section>
   );
-}
+};
+export default FavoritesClient;

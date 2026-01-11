@@ -3,8 +3,8 @@
 import {FormEvent} from "react";
 import type {AppRouterInstance} from "next/dist/shared/lib/app-router-context.shared-runtime";
 
-import formatMoney from "../../lib/utils/shop/formatMoney";
-import {SHIPPING_CONFIG, ShippingMethod} from "../../lib/config/shipping";
+import formatMoney from "../../lib/utils/shared/formatMoney";
+import {SHIPPING_CONFIG, ShippingMethod} from "../../lib/config/shop/shipping";
 
 type Props = {
   router: AppRouterInstance;

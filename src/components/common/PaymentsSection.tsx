@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { PAYMENT_METHODS } from "../../lib/config/payments";
+import { PAYMENT_METHODS } from "../../lib/config/shop/payments";
 
 
 const PaymentsSection = () =>{

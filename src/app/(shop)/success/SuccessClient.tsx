@@ -6,7 +6,8 @@ import { useSession } from "next-auth/react";
 import { useSWRConfig } from "swr";
 
 import { useCartStore } from "../../../store/cartStore";
-import { useSuccessCleanupCart } from "../../../lib/hooks/useSuccessCleanupCart";
+import { useSuccessCleanupCart } from "../../../lib/hooks/shop/useSuccessCleanupCart";
+
 
 export default function SuccessPage() {
   const searchParams = useSearchParams();

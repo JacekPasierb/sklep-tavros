@@ -14,7 +14,7 @@ import {
 import {
   getProductImageUrls,
   getSaleState,
-} from "../../../../lib/utils/shop/products/view";
+} from "../../../../lib/utils/(shop)/products/view";
 
 type PageProps = {
   params: {slug: string};
