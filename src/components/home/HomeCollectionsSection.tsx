@@ -5,7 +5,8 @@ import { useState } from "react";
 import type { TypeCollection} from "../../types/shop/collection";
 import CollectionsGrid from "./CollectionsGrid";
 import GenderTabs from "./GendersTab";
-import { ShopGender } from "../../types/shop/productsList";
+import { ShopGender } from "../../types/(shop)/product";
+
 
 type GenderTab = "mens" | "womens" | "kids";
 

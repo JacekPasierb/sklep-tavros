@@ -1,7 +1,9 @@
 // components/home/GenderTabs.tsx
 "use client";
 
-import { ShopGender } from "../../types/shop/productsList";
+import { ShopGender } from "../../types/(shop)/product";
+
+
 
 
 type GenderTab = Extract<ShopGender, "mens" | "womens" | "kids">;

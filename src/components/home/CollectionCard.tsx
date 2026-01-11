@@ -1,7 +1,8 @@
 // components/home/CollectionCard.tsx
 import Image from "next/image";
 import Link from "next/link";
-import { ShopGender } from "../../types/shop/productsList";
+import { ShopGender } from "../../types/(shop)/product";
+
 
 
 export type CollectionCardProps = {
