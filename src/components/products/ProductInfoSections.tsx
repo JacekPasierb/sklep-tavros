@@ -1,6 +1,7 @@
 
 import { normalizeMultiline, splitParagraphs } from "../../lib/utils/text/normalizeMultiLine";
-import type {TypeProduct} from "../../types/product";
+import { TypeProduct } from "../../types/(shop)/product";
+
 
 type Props = {
   product: TypeProduct;

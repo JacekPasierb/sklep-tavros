@@ -7,7 +7,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import ProductCard from "./ProductCard";
 import TitleSection from "./TitleSection";
-import type { TypeProduct } from "../../types/product";
+import { TypeProduct } from "../../types/(shop)/product";
+
 
 type Props = {
   products: TypeProduct[];
