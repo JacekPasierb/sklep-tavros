@@ -1,5 +1,6 @@
 // src/lib/utils/shared/parsers/product.ts
-import type { ProductCategory, ProductGender, ProductStatus } from "../../../../types/product";
+
+import { ProductCategory, ProductStatus, ShopGender } from "../../../../types/(shop)/product";
 
 export const toUpper = (v: unknown) =>
   typeof v === "string" ? v.trim().toUpperCase() : "";
@@ -16,7 +17,7 @@ export const toNumber = (v: unknown): number | undefined => {
 };
 
 // ✅ mapowanie requestów typu "MENS" -> "mens"
-export function parseGender(v: unknown): ProductGender | undefined {
+export function parseGender(v: unknown): ShopGender | undefined {
   const g = toUpper(v);
   if (g === "MENS") return "mens";
   if (g === "WOMENS") return "womens";
