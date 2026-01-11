@@ -1,5 +1,6 @@
+import { ShopGender } from "../../../types/(shop)/product";
 import {TypeCollection} from "../../../types/shop/collection";
-import {ShopGender} from "../../../types/shop/productsList";
+
 
 export type CollectionMongoDoc = {
   _id: {toString(): string};
