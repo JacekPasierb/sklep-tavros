@@ -2,7 +2,8 @@
 
 import {useRouter} from "next/navigation";
 import {useState} from "react";
-import {ProductStatus} from "../../../types/product";
+import { ProductStatus } from "../../../types/(shop)/product";
+
 
 type Props = {
   productId: string;

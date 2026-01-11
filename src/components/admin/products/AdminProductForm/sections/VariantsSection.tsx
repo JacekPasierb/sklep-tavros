@@ -1,5 +1,6 @@
+import { ProductCategory } from "../../../../../types/(shop)/product";
 import { ColorRow, Size, SIZES } from "../../../../../types/admin/productForm";
-import { ProductCategory } from "../../../../../types/product";
+
 
 
 

@@ -1,5 +1,6 @@
+import { ProductCategory, ShopGender } from "../../../../../types/(shop)/product";
 import { CollectionDTO } from "../../../../../types/admin/productForm";
-import { ProductCategory, ProductGender } from "../../../../../types/product";
+
 
 
 
@@ -14,8 +15,8 @@ type Props = {
   category: ProductCategory;
   setCategory: (v: ProductCategory) => void;
 
-  gender: ProductGender;
-  setGender: (v: ProductGender) => void;
+  gender: ShopGender;
+  setGender: (v: ShopGender) => void;
 
   collectionSlug: string;
   setCollectionSlug: (v: string) => void;
@@ -90,7 +91,7 @@ export function ProductBasicSection({
         <select
           value={gender}
           onChange={(e) => {
-            setGender(e.target.value as ProductGender);
+            setGender(e.target.value as ShopGender);
             setCollectionSlug("");
           }}
           className="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-sm outline-none focus:border-black"
