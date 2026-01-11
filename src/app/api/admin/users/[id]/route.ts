@@ -3,7 +3,8 @@ import {getServerSession} from "next-auth";
 import mongoose from "mongoose";
 import { connectToDatabase } from "../../../../../lib/services/db/mongodb";
 import User from "../../../../../models/User";
-import { authOptions } from "../../../../../lib/authOptions";
+import { authOptions } from "../../../../../lib/services/auth/authOptions";
+
 
 
 
