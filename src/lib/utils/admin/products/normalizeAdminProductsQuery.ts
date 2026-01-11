@@ -1,9 +1,10 @@
+import { ProductCategory, ProductStatus, ShopGender } from "../../../../types/(shop)/product";
 import {
   AdminProductsQuery,
   AdminProductsSearchParams,
   StockFilter,
 } from "../../../../types/admin/products";
-import { ProductCategory, ProductGender, ProductStatus } from "../../../../types/product";
+
 import { parsePositiveInt } from "../../shared/number";
 
 const asString = (v: string | string[] | undefined) => {
@@ -22,7 +23,7 @@ const isCategory = (v: string): v is ProductCategory => {
   return v === "TSHIRT" || v === "HOODIE";
 };
 
-const isGender = (v: string): v is ProductGender => {
+const isGender = (v: string): v is ShopGender => {
   return v === "mens" || v === "womens" || v === "kids" ;
 };
 

@@ -1,7 +1,8 @@
 
 
+import { ProductCategory } from "../../../../types/(shop)/product";
 import { ColorRow, SectionInput, Size, SIZES } from "../../../../types/admin/productForm";
-import { ProductCategory } from "../../../../types/product";
+
 import { emptyColorRow } from "./formDefaults";
 import { normalizeColor, safeIntStock } from "./formText";
 
