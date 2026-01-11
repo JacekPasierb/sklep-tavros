@@ -1,4 +1,5 @@
-import { ShopGender } from "./productsList";
+import { ShopGender } from "../(shop)/product";
+
 
 
 export type TypeCollection = {
