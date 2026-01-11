@@ -1,4 +1,5 @@
-import {ProductCategory, ProductGender} from "../product";
+import { ProductCategory, ShopGender } from "../(shop)/product";
+
 
 export type CollectionGender = "mens" | "womens" | "kids";
 
@@ -33,7 +34,7 @@ export type AdminProductFormInitial = {
   slug: string;
   price: number;
   oldPrice: number | null;
-  gender: ProductGender;
+  gender: ShopGender;
   category: ProductCategory;
   collectionSlug: string;
   tags: string[];

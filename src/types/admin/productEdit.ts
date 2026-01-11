@@ -1,4 +1,5 @@
-import { ProductCategory, ProductGender } from "../product";
+import { ProductCategory, ShopGender } from "../(shop)/product";
+
 
 export type ProductLean = {
   _id: unknown;
@@ -6,7 +7,7 @@ export type ProductLean = {
   slug?: string;
   price?: number;
   oldPrice?: number | null;
-  gender?: ProductGender;
+  gender?: ShopGender;
   category?: ProductCategory;
   collectionSlug?: string | null;
   tags?: string[];

@@ -1,4 +1,5 @@
-import {ProductCategory, ProductGender, ProductStatus} from "../product";
+import { ProductCategory, ProductStatus, ShopGender } from "../(shop)/product";
+
 
 export type StockFilter = "" | "OUT" | "LOW" | "GOOD";
 
@@ -16,7 +17,7 @@ export type AdminProductsQuery = {
   q: string;
   status: "" | ProductStatus;
   category: "" | ProductCategory;
-  gender: "" | ProductGender;
+  gender: "" | ShopGender;
   collection: string;
   stock: StockFilter;
   page: number;
@@ -29,7 +30,7 @@ export type ProductDocForQuery = {
   styleCode: string;
   status?: ProductStatus;
   category?: ProductCategory;
-  gender?: ProductGender;
+  gender?: ShopGender;
   collectionSlug?: string;
   variants?: Array<{stock?: number}>;
 };
@@ -41,7 +42,7 @@ export type AdminProductListItem = {
   styleCode: string;
   price: number;
   currency: string;
-  gender?: ProductGender | null;
+  gender?: ShopGender | null;
   status: ProductStatus;
   category?: ProductCategory;
   collectionSlug?: string | null;
@@ -73,7 +74,7 @@ export type ProductRow = {
   styleCode: string;
   price: number;
   currency?: string | null;
-  gender?: ProductGender| null;
+  gender?: ShopGender| null;
   status?: ProductStatus;
   category?: ProductCategory;
   variants?: AdminProductVariantRow[];
