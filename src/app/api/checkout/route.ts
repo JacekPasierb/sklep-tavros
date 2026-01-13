@@ -9,8 +9,9 @@ import { ShippingMethod} from "../../../lib/config/shop/shipping";
 import {getNextOrderNumber} from "../../../lib/utils/generateOrderNumber";
 import {getCheckoutKey} from "../../../lib/utils/checkoutKey";
 
-import { calculateShippingCost } from "../../../lib/utils/shop/shipping";
+
 import { authOptions } from "../../../lib/services/auth/authOptions";
+import { calculateShippingCost } from "@/lib/utils/(shop)/shipping/calculateShippingCost";
 
 type AuthSession = {
   user?: {

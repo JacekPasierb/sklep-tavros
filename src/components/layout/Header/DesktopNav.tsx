@@ -3,28 +3,27 @@
 
 import Link from "next/link";
 import {usePathname} from "next/navigation";
+import {ShopGender} from "../../../types/(shop)/product";
 
-type GenderTab = "mens" | "womens" | "kids";
-
-const tabs: {id: GenderTab; label: string}[] = [
+const tabs: {id: ShopGender; label: string}[] = [
   {id: "mens", label: "MENS"},
   {id: "womens", label: "WOMENS"},
   {id: "kids", label: "KIDS"},
 ];
 
-function getSubLinks(gender: GenderTab) {
+const getSubLinks = (gender: ShopGender) => {
   return [
     {label: "NEW IN", href: `/${gender}/new`},
     {label: "SHOP ALL", href: `/${gender}/all`},
     {label: "BEST SELLER", href: `/${gender}/bestseller`},
     {label: "SALE", href: `/${gender}/sale`},
   ];
-}
+};
 
-export default function DesktopNav() {
+const DesktopNav = () => {
   const pathname = usePathname();
 
-  const isActive = (gender: GenderTab) => pathname.startsWith(`/${gender}/`);
+  const isActive = (gender: ShopGender) => pathname.startsWith(`/${gender}/`);
 
   return (
     <nav className="relative hidden items-center justify-center gap-8 lg:flex">
@@ -80,4 +79,5 @@ export default function DesktopNav() {
       </ul>
     </nav>
   );
-}
+};
+export default DesktopNav;

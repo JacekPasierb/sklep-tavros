@@ -4,20 +4,19 @@ import {FormEvent, useMemo, useState} from "react";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/navigation";
 
-import {useCartStore} from "../../../store/cartStore";
+import {useCartStore} from "@/store/cartStore";
+import {useUserCart} from "@/lib/hooks/shop/useUserCart";
 
-import {ShippingMethod} from "../../../lib/config/shop/shipping";
-import {UiCartItem} from "../../../types/checkout";
-import {
-  calculateShippingCost,
-  getFreeExpressProgress,
-} from "../../../lib/utils/shop/shipping";
-import {useUserCart} from "../../../lib/hooks/shop/useUserCart";
+import {ShippingMethod} from "@/lib/config/shop/shipping";
+import {UiCartItem} from "@/types/(shop)/checkout";
 
-import CheckoutForm from "../../../components/checkout/CheckoutForm";
-import OrderSummary from "../../../components/checkout/OrderSummary";
-import {createCheckoutSession} from "../../../lib/services/shop/checkout.service";
-import {isCustomerSession} from "../../../lib/utils/shared/auth/sessionGuards";
+
+import CheckoutForm from "@/components/checkout/CheckoutForm";
+import OrderSummary from "@/components/checkout/OrderSummary";
+import {createCheckoutSession} from "@/lib/services/(shop)/checkout/checkout.service";
+import {isCustomerSession} from "@/lib/utils/shared/auth/sessionGuards";
+import { getFreeExpressProgress } from "@/lib/utils/(shop)/shipping/getFreeExpressProgress";
+import { calculateShippingCost } from "@/lib/utils/(shop)/shipping/calculateShippingCost";
 
 const CheckoutPage = () => {
   const router = useRouter();
@@ -25,7 +24,6 @@ const CheckoutPage = () => {
 
   const isAuthLoading = status === "loading";
 
-  // ---- CUSTOMER? ----
   const isCustomer = isCustomerSession(session, status);
 
   // ---- CART (API) ----
@@ -33,6 +31,7 @@ const CheckoutPage = () => {
 
   // ---- CART (GUEST / ZUSTAND) ----
   const guestRawItems = useCartStore((s) => s.items);
+
 
   const guestItems = useMemo(() => {
     return Object.entries(guestRawItems)
@@ -47,6 +46,7 @@ const CheckoutPage = () => {
           "",
       }));
   }, [guestRawItems]);
+
 
   // ---- CART FINAL ----
   const items: UiCartItem[] = useMemo(() => {

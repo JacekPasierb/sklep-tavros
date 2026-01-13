@@ -1,7 +1,7 @@
 // components/product/ProductGallery/SliderDots.tsx
 "use client";
 
-export default function SliderDots({
+const SliderDots=({
   length,
   active,
   onSelect,
@@ -9,7 +9,7 @@ export default function SliderDots({
   length: number;
   active: number;
   onSelect: (i: number) => void;
-}) {
+}) =>{
   return (
     <div className="absolute bottom-3 inset-x-0 flex justify-center gap-2">
       {Array.from({ length }).map((_, i) => (
@@ -23,3 +23,4 @@ export default function SliderDots({
     </div>
   );
 }
+export default SliderDots;

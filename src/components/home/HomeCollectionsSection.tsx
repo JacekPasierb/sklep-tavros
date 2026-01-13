@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import type { TypeCollection} from "../../types/shop/collection";
+import type { TypeCollection} from "../../types/(shop)/collections";
 import CollectionsGrid from "./CollectionsGrid";
 import GenderTabs from "./GendersTab";
 import { ShopGender } from "../../types/(shop)/product";

@@ -1,26 +1,21 @@
 // components/home/GenderTabs.tsx
 "use client";
 
-import { ShopGender } from "../../types/(shop)/product";
-
-
-
-
-type GenderTab = Extract<ShopGender, "mens" | "womens" | "kids">;
+import {ShopGender} from "@/types/(shop)/product";
 
 type Props = {
-  active: GenderTab;
-  onChange: (tab: GenderTab) => void;
+  active: ShopGender;
+  onChange: (tab: ShopGender) => void;
 };
 
-const LABELS: Record<GenderTab, string> = {
+const LABELS: Record<ShopGender, string> = {
   mens: "MENS",
   womens: "WOMENS",
   kids: "KIDS",
 };
 
 const GenderTabs = ({active, onChange}: Props) => {
-  const tabs: GenderTab[] = ["mens", "womens", "kids"];
+  const tabs: ShopGender[] = ["mens", "womens", "kids"];
 
   return (
     <div className="sticky top-14 z-30 border-b bg-white/90 backdrop-blur md:top-16">

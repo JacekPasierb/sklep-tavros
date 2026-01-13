@@ -1,31 +1,37 @@
-import { Types } from "mongoose";
+import {Types} from "mongoose";
 
+import {connectToDatabase} from "../../db/mongodb";
+import Product from "@/models/Product";
 
-
-import type { GetProductsOptions, ProductsResult } from "../../../types/shop/products";
-
-import { connectToDatabase } from "../db/mongodb";
-import Product from "../../../models/Product";
-
-// ✅ helpery z utils
-import { normalizeProduct, type LeanProduct } from "../../utils/shop/products/mongo";
-import { parsePaging } from "../../utils/shop/products/paging";
-import { buildSort } from "../../utils/shop/products/sort";
-import { buildProductsWhere } from "../../utils/shop/products/where";
-import { normalizeSizes, normalizeColors } from "../../utils/shop/products/filters";
-import { ShopGender, TypeProduct } from "../../../types/(shop)/product";
+import {
+  normalizeProduct,
+  type LeanProduct,
+} from "@/lib/utils/(shop)/products/mongo";
+import {parsePaging} from "@/lib/utils/(shop)/products/paging";
+import {buildSort} from "@/lib/utils/(shop)/products/sort";
+import {buildProductsWhere} from "@/lib/utils/(shop)/products/where";
+import {
+  normalizeSizes,
+  normalizeColors,
+} from "@/lib/utils/(shop)/products/filters";
+import {
+  GetProductsOptions,
+  ProductsResult,
+  ShopGender,
+  TypeProduct,
+} from "@/types/(shop)/product";
 
 export async function getProducts(
   options: GetProductsOptions = {}
 ): Promise<ProductsResult<TypeProduct>> {
   await connectToDatabase();
 
-  const { page, limit, sort } = options;
+  const {page, limit, sort} = options;
 
   const where = buildProductsWhere(options);
   const sortQuery = buildSort(sort);
 
-  const { safePage, safeLimit, skip } = parsePaging(page, limit);
+  const {safePage, safeLimit, skip} = parsePaging(page, limit);
 
   const total = await Product.countDocuments(where);
 
@@ -38,13 +44,15 @@ export async function getProducts(
   const items = docs.map(normalizeProduct);
   const totalPages = Math.max(1, Math.ceil(total / safeLimit));
 
-  return { items, total, page: safePage, limit: safeLimit, totalPages };
+  return {items, total, page: safePage, limit: safeLimit, totalPages};
 }
 
-export async function getProductBySlug(slug: string): Promise<TypeProduct | null> {
+export const getProductBySlug = async (
+  slug: string
+): Promise<TypeProduct | null> => {
   await connectToDatabase();
 
-  const doc = await Product.findOne({ slug, status: "ACTIVE" })
+  const doc = await Product.findOne({slug, status: "ACTIVE"})
     .select(
       [
         "title",
@@ -67,32 +75,34 @@ export async function getProductBySlug(slug: string): Promise<TypeProduct | null
 
   if (!doc) return null;
   return normalizeProduct(doc);
-}
+};
 
-export async function getRelatedProducts(opts: {
+export const getRelatedProducts = async (opts: {
   gender: ShopGender;
   collectionSlug?: string;
   excludeId?: string;
   limit?: number;
-}): Promise<TypeProduct[]> {
-  const { gender, collectionSlug, excludeId, limit = 4 } = opts;
+}): Promise<TypeProduct[]> => {
+  const {gender, collectionSlug, excludeId, limit = 4} = opts;
 
   await connectToDatabase();
 
-  const where: Record<string, unknown> = { gender, status: "ACTIVE" };
+  const where: Record<string, unknown> = {gender, status: "ACTIVE"};
   if (collectionSlug) where.collectionSlug = collectionSlug;
   if (excludeId && Types.ObjectId.isValid(excludeId)) {
-    where._id = { $ne: new Types.ObjectId(excludeId) };
+    where._id = {$ne: new Types.ObjectId(excludeId)};
   }
 
   const docs = await Product.find(where)
-    .sort({ createdAt: -1 })
+    .sort({createdAt: -1})
     .limit(limit)
-    .select("title price images slug gender collectionSlug currency tags oldPrice")
+    .select(
+      "title price images slug gender collectionSlug currency tags oldPrice"
+    )
     .lean<LeanProduct[]>();
 
   return docs.map(normalizeProduct);
-}
+};
 
 /**
  * ✅ Jeśli chcesz filtry z bazy “bez kurczenia”
@@ -103,8 +113,9 @@ export type ProductsFiltersResult = {
   colors: string[];
 };
 
-export async function getAvailableProductFilters(opts: Pick<GetProductsOptions, "gender" | "mode" | "collectionSlug">)
-: Promise<ProductsFiltersResult> {
+export async function getAvailableProductFilters(
+  opts: Pick<GetProductsOptions, "gender" | "mode" | "collectionSlug">
+): Promise<ProductsFiltersResult> {
   await connectToDatabase();
 
   // bazowe where BEZ sizes/colors
@@ -115,19 +126,19 @@ export async function getAvailableProductFilters(opts: Pick<GetProductsOptions, 
   });
 
   const rows = await Product.aggregate([
-    { $match: baseWhere },
-    { $unwind: "$variants" },
-    { $match: { "variants.stock": { $gt: 0 } } },
+    {$match: baseWhere},
+    {$unwind: "$variants"},
+    {$match: {"variants.stock": {$gt: 0}}},
     {
       $group: {
         _id: null,
-        sizes: { $addToSet: "$variants.size" },
-        colors: { $addToSet: "$variants.color" },
+        sizes: {$addToSet: "$variants.size"},
+        colors: {$addToSet: "$variants.color"},
       },
     },
   ]);
 
-  const first = rows?.[0] ?? { sizes: [], colors: [] };
+  const first = rows?.[0] ?? {sizes: [], colors: []};
 
   return {
     sizes: normalizeSizes(first.sizes),

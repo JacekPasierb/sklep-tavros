@@ -1,3 +1,5 @@
+import { ProductsListMode, ProductsSort } from "./productsList";
+
 export type ShopGender = "mens" | "womens" | "kids";
 
 export type ProductCategory = "TSHIRT" | "HOODIE";
@@ -48,4 +50,23 @@ export type TypeProduct = {
   sections?: ProductSection[];
   styleCode?: string;
   deliveryReturns?: ProductTextBlock;
+};
+
+export type GetProductsOptions = {
+  gender?: ShopGender;
+  mode?: ProductsListMode;
+  collectionSlug?: string;
+  sizes?: string[];
+  colors?: string[];
+  page?: number;
+  limit?: number;
+  sort?: ProductsSort;
+};
+
+export type ProductsResult<T> = {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 };

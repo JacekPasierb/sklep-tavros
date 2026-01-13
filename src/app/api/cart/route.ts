@@ -7,7 +7,7 @@ import {connectToDatabase} from "../../../lib/services/db/mongodb";
 
 import User from "../../../models/User";
 import Product from "../../../models/Product"; // ✅ rejestruje model "Product" dla populate
-import type {CartEntry} from "../../../types/shop/cart";
+import type {CartEntry} from "../../../types/(shop)/cart";
 import { authOptions } from "../../../lib/services/auth/authOptions";
 
 void Product; // ✅ ucisza "unused import" i gwarantuje rejestrację

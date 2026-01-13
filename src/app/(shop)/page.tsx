@@ -1,19 +1,17 @@
 // app/(shop)/page.tsx
 
-import BannerSection from "../../components/home/BannerSection";
-import HomeGenderSection from "../../components/home/HomeGenderSection";
-import {getCollections} from "../../lib/services/shop/collections.service";
-import { getProducts } from "../../lib/services/shop/products.service";
+import BannerSection from "@/components/home/BannerSection";
+import HomeGenderSection from "@/components/home/HomeGenderSection";
+import {getCollections} from "@/lib/services/(shop)/collections/collections.service";
+import {getProducts} from "@/lib/services/(shop)/products/products.service";
 
-
-export default async function HomePage() {
+const HomePage = async () => {
   const [mensCollections, womensCollections, kidsCollections] =
     await Promise.all([
       getCollections({gender: "mens"}),
       getCollections({gender: "womens"}),
       getCollections({gender: "kids"}),
     ]);
-
 
   const [mensBest, womensBest, kidsBest] = await Promise.all([
     getProducts({gender: "mens", mode: "bestseller", limit: 8}),
@@ -38,4 +36,5 @@ export default async function HomePage() {
       />
     </>
   );
-}
+};
+export default HomePage;

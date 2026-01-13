@@ -1,20 +1,20 @@
 import {notFound} from "next/navigation";
 
-import ProductDetails from "../../../../components/products/ProductDetails";
-import Slider from "../../../../components/products/Slider";
-import ProductGallery from "../../../../components/products/ProductGallery/ProductGallery";
-import ProductInfoSections from "../../../../components/products/ProductInfoSections";
-import ProductOverlay from "../../../../components/products/ProductOverlay";
+import ProductDetails from "@/components/products/ProductDetails";
+import Slider from "@/components/products/Slider";
+import ProductGallery from "@/components/products/ProductGallery/ProductGallery";
+import ProductInfoSections from "@/components/products/ProductInfoSections";
+import ProductOverlay from "@/components/products/ProductOverlay";
 
 import {
   getProductBySlug,
   getRelatedProducts,
-} from "../../../../lib/services/shop/products.service";
+} from "@/lib/services/(shop)/products/products.service";
 
 import {
   getProductImageUrls,
   getSaleState,
-} from "../../../../lib/utils/(shop)/products/view";
+} from "@/lib/utils/(shop)/products/view";
 
 type PageProps = {
   params: {slug: string};

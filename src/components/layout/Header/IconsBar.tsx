@@ -5,15 +5,17 @@ import {Heart, ShoppingBag, User} from "lucide-react";
 import Link from "next/link";
 import {useSession, signOut} from "next-auth/react";
 import {useEffect, useMemo, useRef, useState} from "react";
-import {useCartUiStore} from "../../../store/cartUiStore";
-import {useCartStore} from "../../../store/cartStore";
-import {CartDrawer} from "../../cart/CartDrawer";
+import {useCartUiStore} from "@/store/cartUiStore";
+import {useCartStore} from "@/store/cartStore";
+import {CartDrawer} from "@/components/cart/CartDrawer";
 
-import {CartItem} from "../../../types/shop/cart";
+import {CartItem} from "@/types/(shop)/cart";
 
-
-import { useUserCart } from "../../../lib/hooks/shop/useUserCart";
-import { isAdminSession, isCustomerSession } from "../../../lib/utils/shared/auth/sessionGuards";
+import {useUserCart} from "@/lib/hooks/shop/useUserCart";
+import {
+  isAdminSession,
+  isCustomerSession,
+} from "@/lib/utils/shared/auth/sessionGuards";
 
 const IconsBar = () => {
   const {data: session, status} = useSession();

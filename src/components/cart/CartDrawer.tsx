@@ -8,20 +8,18 @@ import { useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-import { useCartUiStore } from "../../store/cartUiStore";
-import { useCartStore } from "../../store/cartStore";
+import { useCartUiStore } from "@/store/cartUiStore";
+import { useCartStore } from "@/store/cartStore";
 
-import type { CartItem } from "../../types/shop/cart";
 
-import { getImageSrc } from "../../lib/utils/getImageSrc";
 
-import formatMoney from "../../lib/utils/shared/formatMoney";
-import { useUserCart } from "../../lib/hooks/shop/useUserCart";
-import { isCustomerSession } from "../../lib/utils/shared/auth/sessionGuards";
+import { getImageSrc } from "@/lib/utils/shared/getImageSrc";
 
-type UiCartItem = CartItem & { key?: string };
-
-const FREE_SHIPPING_THRESHOLD = 125; // £125 – próg darmowej dostawy
+import formatMoney from "@/lib/utils/shared/formatMoney";
+import { useUserCart } from "@/lib/hooks/shop/useUserCart";
+import { isCustomerSession } from "@/lib/utils/shared/auth/sessionGuards";
+import { SHIPPING_CONFIG } from "@/lib/config/shop/shipping";
+import { UiCartItem } from "@/types/(shop)/checkout";
 
 export const CartDrawer = () => {
   const { isOpen, close } = useCartUiStore();
@@ -31,7 +29,7 @@ export const CartDrawer = () => {
 const isCustomer = isCustomerSession(session, status);
   
   const isAuthLoading = status === "loading";
-  // const isLoggedIn = status === "authenticated";
+
 
   // ---- KOSZYK USERA (API) ----
   const {
@@ -47,8 +45,8 @@ const isCustomer = isCustomerSession(session, status);
   const guestRemove = useCartStore((s) => s.remove);
   const getGuestSubtotal = useCartStore((s) => s.getSubtotal);
   const getGuestCount = useCartStore((s) => s.getTotalItems);
-
-  const guestItems: (CartItem & { key: string })[] = useMemo(
+// BŁĄD ? zamiast UiCartItem = CartItem & { key: string } ?? bylo
+  const guestItems: (UiCartItem)[] = useMemo(
     () =>
       Object.entries(guestRawItems)
         .sort(([, a], [, b]) => b.addedAt - a.addedAt)
@@ -82,10 +80,10 @@ const isCustomer = isCustomerSession(session, status);
   // 🔹 globalny stan ładowania: auth (czy user zalogowany) + koszyk usera
   const isLoading = isAuthLoading || (isCustomer && userLoading);
 
-  const freeShippingLeft = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+  const freeShippingLeft = Math.max(0, SHIPPING_CONFIG.FREE_SHIPPING_THRESHOLD - subtotal);
   const freeShippingProgress = Math.min(
     100,
-    (subtotal / FREE_SHIPPING_THRESHOLD) * 100
+    (subtotal / SHIPPING_CONFIG.FREE_SHIPPING_THRESHOLD) * 100
   );
 
   if (!isOpen) return null;

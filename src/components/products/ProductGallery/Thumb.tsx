@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 
-export default function Thumb({
+const Thumb = ({
   src,
   index,
   title,
@@ -15,12 +15,14 @@ export default function Thumb({
   title: string;
   active: boolean;
   onClick: () => void;
-}) {
+}) => {
   return (
     <button
       onClick={onClick}
       className={`relative w-full overflow-hidden aspect-square border-2 
-      transition ${active ? "border-black" : "border-transparent hover:border-black/40"}`}
+      transition ${
+        active ? "border-black" : "border-transparent hover:border-black/40"
+      }`}
     >
       <Image
         src={src}
@@ -31,4 +33,5 @@ export default function Thumb({
       />
     </button>
   );
-}
+};
+export default Thumb;

@@ -1,14 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {motion} from "framer-motion";
+import {ChevronLeft, ChevronRight} from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 
 import ProductCard from "./ProductCard";
 import TitleSection from "./TitleSection";
-import { TypeProduct } from "../../types/(shop)/product";
-
+import {TypeProduct} from "../../types/(shop)/product";
 
 type Props = {
   products: TypeProduct[];
@@ -53,7 +52,7 @@ export default function Slider({
     const items = slider.querySelectorAll<HTMLElement>("[data-slider-item]");
     if (!items.length) return null;
 
-    return { slider, items };
+    return {slider, items};
   }, []);
 
   const scrollToIndex = useCallback(
@@ -61,7 +60,7 @@ export default function Slider({
       const data = getItems();
       if (!data) return;
 
-      const { slider, items } = data;
+      const {slider, items} = data;
 
       const normalized =
         ((nextIndex % items.length) + items.length) % items.length;
@@ -94,7 +93,7 @@ export default function Slider({
     const data = getItems();
     if (!data) return;
 
-    const { items } = data;
+    const {items} = data;
     if (items.length <= 1) return;
 
     const id = window.setInterval(() => {
@@ -150,9 +149,9 @@ export default function Slider({
               <motion.div
                 key={p._id}
                 data-slider-item
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: i * 0.05 }}
+                initial={{opacity: 0, y: 15}}
+                animate={{opacity: 1, y: 0}}
+                transition={{duration: 0.35, delay: i * 0.05}}
                 className="snap-start shrink-0 w-[260px] sm:w-[300px] lg:w-[320px]"
               >
                 <ProductCard product={p} />

@@ -2,7 +2,7 @@
 import { Types } from "mongoose";
 
 export type CartEntry = {
-  product: Types.ObjectId; // ref do Product
+  product: Types.ObjectId; 
   qty: number;
   size?: string;
   color?: string;
@@ -11,7 +11,7 @@ export type CartEntry = {
 
 export type CartItem = {
   key: string;          // np. productId__size__color__sku – do PATCH/DELETE
-  productId: string;    // id produktu z bazy
+  productId: string;   
   slug: string;
 
   title: string;

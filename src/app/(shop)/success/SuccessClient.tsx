@@ -1,22 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { useSWRConfig } from "swr";
+import {useSearchParams, useRouter} from "next/navigation";
+import {useSession} from "next-auth/react";
+import {useSWRConfig} from "swr";
 
-import { useCartStore } from "../../../store/cartStore";
-import { useSuccessCleanupCart } from "../../../lib/hooks/shop/useSuccessCleanupCart";
+import {useCartStore} from "@/store/cartStore";
+import {useSuccessCleanupCart} from "@/lib/hooks/shop/checkout/useSuccessCleanupCart";
 
-
-export default function SuccessPage() {
+const SuccessPage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const sessionId = searchParams.get("session_id");
 
-  const { status } = useSession();
+  const {status} = useSession();
   const clearCart = useCartStore((s) => s.clear);
-  const { mutate } = useSWRConfig();
+  const {mutate} = useSWRConfig();
 
   useSuccessCleanupCart({
     sessionId,
@@ -63,8 +62,8 @@ export default function SuccessPage() {
             </h1>
 
             <p className="mt-3 max-w-md text-sm text-zinc-600">
-              We&apos;ve received your payment and we&apos;re preparing your package.
-              You will receive an order confirmation email shortly.
+              We&apos;ve received your payment and we&apos;re preparing your
+              package. You will receive an order confirmation email shortly.
             </p>
           </div>
 
@@ -74,7 +73,8 @@ export default function SuccessPage() {
                 What happens next
               </p>
               <p className="mt-2 leading-relaxed">
-                Once your order is packed and ready to ship, we&apos;ll send you another email with tracking details.
+                Once your order is packed and ready to ship, we&apos;ll send you
+                another email with tracking details.
               </p>
             </div>
 
@@ -83,7 +83,8 @@ export default function SuccessPage() {
                 Need help?
               </p>
               <p className="mt-2 leading-relaxed">
-                If you have any questions about your order, reply to the confirmation email and our team will assist you.
+                If you have any questions about your order, reply to the
+                confirmation email and our team will assist you.
               </p>
             </div>
           </div>
@@ -104,4 +105,5 @@ export default function SuccessPage() {
       </div>
     </main>
   );
-}
+};
+export default SuccessPage;

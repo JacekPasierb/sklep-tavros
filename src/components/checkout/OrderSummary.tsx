@@ -1,12 +1,9 @@
 "use client";
 
 
-import { getImageSrc } from "../../lib/utils/getImageSrc";
-import formatMoney from "../../lib/utils/shared/formatMoney";
-import { FreeExpressProgress, UiCartItem } from "../../types/checkout";
-
-
-
+import { getImageSrc } from "../../lib/utils/shared/getImageSrc";
+import formatMoney from "@/lib/utils/shared/formatMoney";
+import { FreeExpressProgress, UiCartItem } from "@/types/(shop)/checkout";
 
 type Props = {
   items: UiCartItem[];
@@ -17,7 +14,7 @@ type Props = {
   freeExpress: FreeExpressProgress;
 };
 
-export default function OrderSummary(props: Props) {
+const OrderSummary=(props: Props)=> {
   const { items, itemCount, subtotal, shippingCost, total, freeExpress } = props;
 
   return (
@@ -142,3 +139,4 @@ export default function OrderSummary(props: Props) {
     </aside>
   );
 }
+export default OrderSummary;

@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 
-export default function ImageDisplay({
+const ImageDisplay=({
   src,
   alt,
   onClick,
@@ -13,7 +13,7 @@ export default function ImageDisplay({
   alt: string;
   onClick?: () => void;
   priority?: boolean;
-}) {
+}) =>{
   return (
     <Image
       src={src}
@@ -26,3 +26,4 @@ export default function ImageDisplay({
     />
   );
 }
+export default ImageDisplay;

@@ -1,6 +1,7 @@
-import type { GetProductsOptions } from "../../../../types/shop/products";
+import { GetProductsOptions } from "@/types/(shop)/product";
 
-export function buildProductsWhere(opts: GetProductsOptions): Record<string, unknown> {
+
+export const buildProductsWhere=(opts: GetProductsOptions): Record<string, unknown> =>{
   const { gender, mode = "all", collectionSlug, sizes, colors } = opts;
 
   const where: Record<string, unknown> = { status: "ACTIVE" };

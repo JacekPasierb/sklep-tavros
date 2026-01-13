@@ -1,11 +1,11 @@
-import Header from "../../components/layout/Header/Header";
-import PromotionSection from "../../components/layout/PromotionSection";
-import SocialSection from "../../components/common/SocialSection";
-import PoliciesSection from "../../components/common/PoliciesSection";
-import PaymentsSection from "../../components/common/PaymentsSection";
-import Footer from "../../components/layout/Footer/Footer";
+import Header from "@/components/layout/Header/Header";
+import PromotionSection from "@/components/layout/PromotionSection";
+import SocialSection from "@/components/common/SocialSection";
+import PoliciesSection from "@/components/common/PoliciesSection";
+import PaymentsSection from "@/components/common/PaymentsSection";
+import Footer from "@/components/layout/Footer/Footer";
 
-export default function ShopLayout({children}: {children: React.ReactNode}) {
+const ShopLayout = ({children}: {children: React.ReactNode}) => {
   return (
     <>
       <Header />
@@ -21,4 +21,5 @@ export default function ShopLayout({children}: {children: React.ReactNode}) {
       </main>
     </>
   );
-}
+};
+export default ShopLayout;

@@ -1,12 +1,12 @@
 // src/components/products/ProductOverlay.tsx
-import { SaleState } from "../../lib/utils/(shop)/products/view";
+import {SaleState} from "@/lib/utils/(shop)/products/view";
 
 type Props = {
   sale: SaleState;
 };
 
-export default function ProductOverlay({ sale }: Props) {
-  const { hasSale, isNew, discountPercent } = sale;
+const ProductOverlay = ({sale}: Props) => {
+  const {hasSale, isNew, discountPercent} = sale;
 
   if (!hasSale && !isNew) return null;
 
@@ -25,4 +25,5 @@ export default function ProductOverlay({ sale }: Props) {
       )}
     </>
   );
-}
+};
+export default ProductOverlay;

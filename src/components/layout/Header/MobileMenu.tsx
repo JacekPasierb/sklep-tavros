@@ -7,21 +7,28 @@ import {useEffect, useMemo, useState} from "react";
 import useSWR from "swr";
 import {useSession, signOut} from "next-auth/react";
 import {useRouter} from "next/navigation";
+import {ShopGender} from "@/types/(shop)/product";
+import {getProductsListBasePath} from "@/lib/utils/(shop)/productsList/getProductsListBasePath";
+import {CollectionItem} from "@/types/(shop)/collections";
+import {getUserLabel} from "@/lib/utils/shared/auth/getUserLabel";
 
-type MobileMenuProps = {open: boolean; onClose: () => void};
-type ApiCollectionItem = {label: string; href: string; img?: string};
-type AppSessionUser = {
-  firstName?: string | null;
-  name?: string | null;
-  email?: string | null;
-};
+type Props = {open: boolean; onClose: () => void};
+
+type PanelItem =
+  | {label: string; href: string; special?: boolean}
+  | {label: string; children: Array<{label: string; href: string}>};
 
 const fetcher = (url: string) =>
   fetch(url, {cache: "no-store"}).then((r) => r.json());
 const accent = "emerald-600";
 
-export default function MobileMenu({open, onClose}: MobileMenuProps) {
-  const [tab, setTab] = useState<"MENS" | "WOMENS" | "KIDS">("MENS");
+const TABS: {id: ShopGender; label: string}[] = [
+  {id: "mens", label: "MENS"},
+  {id: "womens", label: "WOMENS"},
+  {id: "kids", label: "KIDS"},
+];
+const MobileMenu = ({open, onClose}: Props) => {
+  const [tab, setTab] = useState<ShopGender>("mens");
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const {data: session, status} = useSession();
@@ -47,17 +54,30 @@ export default function MobileMenu({open, onClose}: MobileMenuProps) {
   );
 
   // ✅ Statyczne pozycje + dynamiczne „Shop By Collection"
-  const panels = useMemo(() => {
-    const collections: ApiCollectionItem[] = data?.items ?? [];
+  const panels = useMemo<PanelItem[]>(() => {
+    const collections: CollectionItem[] = data?.items ?? [];
 
-    const base = [
-      {label: "New In", href: `/${tab.toLowerCase()}/new`, special: true},
-      {label: "Shop All", href: `/${tab.toLowerCase()}/all`},
-      {label: "Best Seller", href: `/${tab.toLowerCase()}/bestseller`},
-      {label: "Sale", href: `/${tab.toLowerCase()}/sale`},
+    const base: PanelItem[] = [
+      {
+        label: "New In",
+        href: getProductsListBasePath({gender: tab, mode: "new"}),
+        special: true,
+      },
+      {
+        label: "Shop All",
+        href: getProductsListBasePath({gender: tab, mode: "all"}),
+      },
+      {
+        label: "Best Seller",
+        href: getProductsListBasePath({gender: tab, mode: "bestseller"}),
+      },
+      {
+        label: "Sale",
+        href: getProductsListBasePath({gender: tab, mode: "sale"}),
+      },
     ];
 
-    const dynamicCollections = {
+    const dynamicCollections: PanelItem = {
       label: "Shop By Collection",
       children: collections.map((c) => ({label: c.label, href: c.href})),
     };
@@ -68,14 +88,7 @@ export default function MobileMenu({open, onClose}: MobileMenuProps) {
   const toggleSection = (label: string) =>
     setExpanded((prev) => (prev === label ? null : label));
 
-  // pomocniczo do wyświetlenia nazwy
-  const appUser = session?.user as AppSessionUser | undefined;
-  
-  const userLabel =
-  appUser?.firstName ||
-  appUser?.name ||
-  appUser?.email ||
-  "My account";
+  const userLabel = getUserLabel(session);
 
   return (
     <>
@@ -99,18 +112,18 @@ export default function MobileMenu({open, onClose}: MobileMenuProps) {
           <div className="flex-none border-b px-4 pt-3 pb-2">
             <div className="mb-2 flex items-center justify-between">
               <div className="flex gap-5 text-sm font-semibold uppercase tracking-wide">
-                {(["MENS", "WOMENS", "KIDS"] as const).map((t) => (
+                {TABS.map(({id, label}) => (
                   <button
-                    key={t}
-                    onClick={() => setTab(t)}
+                    key={id}
+                    onClick={() => setTab(id)}
                     className={`pb-2 transition-colors ${
-                      tab === t
+                      tab === id
                         ? `border-b-2 border-${accent} text-black`
                         : "text-zinc-500 hover:text-black"
                     }`}
-                    aria-pressed={tab === t}
+                    aria-pressed={tab === id}
                   >
-                    {t}
+                    {label}
                   </button>
                 ))}
               </div>
@@ -155,11 +168,13 @@ export default function MobileMenu({open, onClose}: MobileMenuProps) {
                               Failed to load collections
                             </li>
                           )}
-                          {!isLoading && !error && it.children!.length === 0 && (
-                            <li className="px-3 py-2 text-sm text-zinc-500">
-                              No collections
-                            </li>
-                          )}
+                          {!isLoading &&
+                            !error &&
+                            it.children!.length === 0 && (
+                              <li className="px-3 py-2 text-sm text-zinc-500">
+                                No collections
+                              </li>
+                            )}
                           {it.children!.map((c) => (
                             <li key={c.href}>
                               <Link
@@ -179,7 +194,7 @@ export default function MobileMenu({open, onClose}: MobileMenuProps) {
                       href={it.href!}
                       onClick={onClose}
                       className={`block rounded-xl border border-zinc-200 px-4 py-3 text-[15px] font-medium shadow-sm transition hover:shadow ${
-                        (it as any).special
+                        "special" in it && it.special
                           ? "bg-gradient-to-r from-black to-zinc-800 text-white"
                           : "bg-white"
                       }`}
@@ -196,8 +211,7 @@ export default function MobileMenu({open, onClose}: MobileMenuProps) {
           <div
             className="flex-none border-t bg-zinc-50/60 px-5 py-5"
             style={{
-              paddingBottom:
-                "calc(env(safe-area-inset-bottom,0px)+0.75rem)",
+              paddingBottom: "calc(env(safe-area-inset-bottom,0px)+0.75rem)",
             }}
           >
             <div className="flex flex-col items-center gap-4 text-center">
@@ -282,4 +296,5 @@ export default function MobileMenu({open, onClose}: MobileMenuProps) {
       </aside>
     </>
   );
-}
+};
+export default MobileMenu;

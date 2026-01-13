@@ -2,14 +2,12 @@
 
 import {useState} from "react";
 
-import type {TypeCollection} from "../../types/shop/collection";
-
+import type {TypeCollection} from "@/types/(shop)/collections";
 
 import CollectionsGrid from "./CollectionsGrid";
 import Slider from "../products/Slider";
 import GenderTabs from "./GendersTab";
-import { ShopGender, TypeProduct } from "../../types/(shop)/product";
-
+import {ShopGender, TypeProduct} from "@/types/(shop)/product";
 
 type Props = {
   collectionsByGender: Record<ShopGender, TypeCollection[]>;

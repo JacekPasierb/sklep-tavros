@@ -3,8 +3,8 @@
 import {FormEvent} from "react";
 import type {AppRouterInstance} from "next/dist/shared/lib/app-router-context.shared-runtime";
 
-import formatMoney from "../../lib/utils/shared/formatMoney";
-import {SHIPPING_CONFIG, ShippingMethod} from "../../lib/config/shop/shipping";
+import formatMoney from "@/lib/utils/shared/formatMoney";
+import {SHIPPING_CONFIG, ShippingMethod} from "@/lib/config/shop/shipping";
 
 type Props = {
   router: AppRouterInstance;
@@ -40,7 +40,7 @@ type Props = {
   onCountryChange: (v: string) => void;
 };
 
-export default function CheckoutForm(props: Props) {
+const CheckoutForm = (props: Props) => {
   const {
     router,
     itemCount,
@@ -301,4 +301,5 @@ export default function CheckoutForm(props: Props) {
       )}
     </section>
   );
-}
+};
+export default CheckoutForm;

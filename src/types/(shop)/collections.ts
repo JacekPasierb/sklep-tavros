@@ -1,5 +1,7 @@
-import { ShopGender } from "../(shop)/product";
+import { ShopGender } from "./product";
 
+export type CollectionItem = { label: string; href: string; img?: string };
+export type CollectionsResponse = { items: CollectionItem[] };
 
 
 export type TypeCollection = {

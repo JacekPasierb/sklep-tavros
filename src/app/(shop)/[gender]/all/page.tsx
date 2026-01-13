@@ -5,7 +5,7 @@ import ProductsListPage from "@/components/products/ProductsListPage";
 import {
   getProducts,
   getAvailableProductFilters,
-} from "@/lib/services/shop/products.service";
+} from "@/lib/services/(shop)/products/products.service";
 
 import {SHOP_PRODUCTS_PAGE_SIZE} from "@/lib/config/shop/pagination";
 

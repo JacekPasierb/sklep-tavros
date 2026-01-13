@@ -1,9 +1,7 @@
 "use client";
 
 import useSWR from "swr";
-import { CartItem } from "../../../types/shop/cart";
-
-
+import {CartItem} from "../../../types/(shop)/cart";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -28,7 +26,7 @@ type CartApiEntry = {
   addedAt?: string | Date;
 };
 
-export function useUserCart(enabled: boolean = true) {
+export const useUserCart = (enabled: boolean = true) => {
   const {data, isLoading, mutate} = useSWR(
     enabled ? "/api/cart" : null, // jeśli enabled = false → brak requestu
     enabled ? fetcher : null,
@@ -44,9 +42,8 @@ export function useUserCart(enabled: boolean = true) {
 
     const productId = prod ? String(prod._id) : String(entry.product);
     const imagesArray = prod?.images ?? [];
-const imageSrc = imagesArray[0];
+    const imageSrc = imagesArray[0];
 
-    
     return {
       key: `${productId}_${entry.size || "nosize"}_${entry.color || "nocolor"}`,
       productId,
@@ -131,4 +128,4 @@ const imageSrc = imagesArray[0];
     removeItem,
     isLoading,
   };
-}
+};

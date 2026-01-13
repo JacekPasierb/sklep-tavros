@@ -1,10 +1,11 @@
-import { smartSortSizes } from "../smartSizeSort";
+import { smartSortSizes } from "./smartSizeSort";
 
-export function uniqSorted(values: string[]) {
+
+export const uniqSorted=(values: string[]) =>{
     return Array.from(new Set(values)).sort((a, b) => a.localeCompare(b));
   }
   
-  export function normalizeSizes(values: unknown): string[] {
+  export const normalizeSizes=(values: unknown): string[]=> {
     const arr = Array.isArray(values) ? values : [];
     const cleaned = arr
       .map((v) => String(v ?? "").trim().toUpperCase())
@@ -14,7 +15,7 @@ export function uniqSorted(values: string[]) {
     return smartSortSizes(uniq);
   }
   
-  export function normalizeColors(values: unknown[]): string[] {
+  export const normalizeColors=(values: unknown[]): string[] =>{
     const out = values
       .filter((v): v is string => typeof v === "string")
       .map((s) => s.trim())

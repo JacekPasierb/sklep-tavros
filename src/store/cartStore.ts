@@ -3,7 +3,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { CartItem } from "../types/shop/cart";
+import { CartItem } from "../types/(shop)/cart";
 
 
 type Entry = CartItem & { addedAt: number; key: string };

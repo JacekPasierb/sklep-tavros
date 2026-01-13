@@ -1,13 +1,13 @@
-import Collection from "../../../models/Collection";
-import { ShopGender } from "../../../types/(shop)/product";
-import {TypeCollection} from "../../../types/shop/collection";
+import Collection from "@/models/Collection";
+import { ShopGender } from "@/types/(shop)/product";
+import {TypeCollection} from "@/types/(shop)/collections";
 
 import {
   CollectionMongoDoc,
   mapCollectionDocToCollection,
-} from "../../mappers/collections/collections.mapper";
+} from "@/lib/mappers/collections/collections.mapper";
 
-import {connectToDatabase} from "../db/mongodb";
+import {connectToDatabase} from "../../db/mongodb";
 
 type GetCollectionsOptions = {
   gender?: ShopGender;

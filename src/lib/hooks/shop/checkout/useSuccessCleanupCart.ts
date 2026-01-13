@@ -4,9 +4,7 @@
 import {useEffect} from "react";
 
 import type {useRouter} from "next/navigation";
-import { clearServerCart } from "../../services/shop/cart.service";
-
-
+import {clearServerCart} from "../../../services/shop/cart.service";
 
 type SessionStatus = "loading" | "authenticated" | "unauthenticated";
 
@@ -18,27 +16,30 @@ type Params = {
   mutate: (key: string) => Promise<unknown>;
 };
 
-export function useSuccessCleanupCart({
+export const useSuccessCleanupCart = ({
   sessionId,
   status,
   router,
   clearGuestCart,
   mutate,
-}: Params) {
+}: Params) => {
+  //sprawdzamy czy ktos nie wchodzi recznie z url na strone i kieruje takiego na "/"
   useEffect(() => {
     if (!sessionId) {
       router.replace("/");
       return;
     }
-
+    //sprawdzam czy uzytkownik to zalogowany
     if (status === "loading") return;
 
     const run = async () => {
       try {
         if (status === "authenticated") {
+          //czysci koszyk zalogowanego DB
           await clearServerCart({clearAll: true});
           await mutate("/api/cart");
         } else {
+          //czyści koszyk zustand
           clearGuestCart();
         }
       } catch (error) {
@@ -48,4 +49,4 @@ export function useSuccessCleanupCart({
 
     run();
   }, [sessionId, status, router, clearGuestCart, mutate]);
-}
+};

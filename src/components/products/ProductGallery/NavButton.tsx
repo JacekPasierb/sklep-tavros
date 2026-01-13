@@ -3,7 +3,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function NavButton({
+const NavButton=({
   side,
   disabled,
   onClick,
@@ -11,7 +11,7 @@ export default function NavButton({
   side: "left" | "right";
   disabled?: boolean;
   onClick: (e?: React.MouseEvent) => void;
-}) {
+})=> {
   return (
     <button
       onClick={(e) => onClick(e)}
@@ -29,3 +29,4 @@ export default function NavButton({
     </button>
   );
 }
+export default NavButton;

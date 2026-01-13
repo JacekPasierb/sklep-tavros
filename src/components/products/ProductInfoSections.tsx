@@ -1,13 +1,14 @@
-
-import { normalizeMultiline, splitParagraphs } from "../../lib/utils/text/normalizeMultiLine";
-import { TypeProduct } from "../../types/(shop)/product";
-
+import {
+  normalizeMultiline,
+  splitParagraphs,
+} from "@/lib/utils/shared/formatText";
+import {TypeProduct} from "@/types/(shop)/product";
 
 type Props = {
   product: TypeProduct;
 };
 
-export default function ProductInfoSections({product}: Props) {
+const ProductInfoSections = ({product}: Props) => {
   const paragraphs = splitParagraphs(product.summary);
 
   const sections = product.sections ?? [];
@@ -117,4 +118,5 @@ export default function ProductInfoSections({product}: Props) {
       </div>
     </section>
   );
-}
+};
+export default ProductInfoSections;

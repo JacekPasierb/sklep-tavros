@@ -1,16 +1,17 @@
 // src/lib/utils/shop/smartSizeSort.ts
 
+// SizeKind klasyfikujemy rozmiary na 3 typy
 type SizeKind = "alpha" | "numeric" | "other";
 
-function normalizeSize(s: string) {
+const normalizeSize = (s: string) => {
   return s.trim().toUpperCase();
-}
+};
 
 // ile jest X w "XXL" -> 2
-function countLeadingX(s: string) {
+const countLeadingX = (s: string) => {
   const m = s.match(/^X+/);
   return m ? m[0].length : 0;
-}
+};
 
 /**
  * Zamienia rozmiar na klucz sortowania:
@@ -18,19 +19,21 @@ function countLeadingX(s: string) {
  * - numeric: 36, 36.5, 40
  * - other: ONE SIZE, OS, UNI itp.
  */
-function getSizeSortKey(raw: string): {
+const getSizeSortKey = (
+  raw: string
+): {
   kind: SizeKind;
   // im mniejsza liczba, tym wcześniej
   weight: number;
   // do stabilnego sortowania przy "other"
   label: string;
-} {
+} => {
   const s = normalizeSize(raw);
 
   // 1) Numeric (np. 36, 36.5)
   const num = Number(s.replace(",", "."));
   if (Number.isFinite(num) && s.match(/^\d+([.,]\d+)?$/)) {
-    return { kind: "numeric", weight: num, label: s };
+    return {kind: "numeric", weight: num, label: s};
   }
 
   // 2) Alpha sizes: XS/S/M/L/XL/XXL...
@@ -47,26 +50,26 @@ function getSizeSortKey(raw: string): {
   };
 
   if (baseMap[s] !== undefined) {
-    return { kind: "alpha", weight: baseMap[s], label: s };
+    return {kind: "alpha", weight: baseMap[s], label: s};
   }
 
   // X...L (XL, XXL, XXXL...)
   if (/^X+L$/.test(s)) {
     const x = countLeadingX(s); // XL=1 => 3, XXL=2 => 4, ...
-    return { kind: "alpha", weight: 2 + x, label: s };
+    return {kind: "alpha", weight: 2 + x, label: s};
   }
 
   // X...S (XXS, XXXS...) - jeśli nie złapane wyżej
   if (/^X+S$/.test(s)) {
     const x = countLeadingX(s); // XS=1 => -1, XXS=2 => -2 ...
-    return { kind: "alpha", weight: -x, label: s };
+    return {kind: "alpha", weight: -x, label: s};
   }
 
   // 3) Other
-  return { kind: "other", weight: 9999, label: s };
-}
+  return {kind: "other", weight: 9999, label: s};
+};
 
-export function smartSortSizes(input: string[]) {
+export const smartSortSizes = (input: string[]) => {
   return [...input].sort((a, b) => {
     const A = getSizeSortKey(a);
     const B = getSizeSortKey(b);
@@ -84,4 +87,4 @@ export function smartSortSizes(input: string[]) {
     if (A.weight !== B.weight) return A.weight - B.weight;
     return A.label.localeCompare(B.label);
   });
-}
+};

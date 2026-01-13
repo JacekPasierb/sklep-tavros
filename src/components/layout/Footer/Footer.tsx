@@ -6,11 +6,11 @@ type Props = {
   companyHref?: string;
 };
 
-export default function Footer({
+const Footer = ({
   company = "Tavros Limited",
   tagline = "We Do Style.",
   companyHref = "/",
-}: Props) {
+}: Props) => {
   const year = new Date().getFullYear();
 
   return (
@@ -31,4 +31,5 @@ export default function Footer({
       </div>
     </footer>
   );
-}
+};
+export default Footer;
