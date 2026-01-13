@@ -1,6 +1,6 @@
-
 import FavoritesClient from "./FavoritesClient";
 
-export default function FavoritesPage() {
+const FavoritesPage = () => {
   return <FavoritesClient />;
-}
+};
+export default FavoritesPage;
