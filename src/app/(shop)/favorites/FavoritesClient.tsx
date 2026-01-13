@@ -30,7 +30,7 @@ const FavoritesClient = () => {
   const isCustomer = isCustomerSession(session, status);
 
   const pageSize = FAVORITES_PAGE_SIZE;
-  const basePath = "/favourites";
+  const basePath = "/favorites";
 
   // ---- POBIERAMY PRODUKTY FAVORITES Z DB ----
   const {
