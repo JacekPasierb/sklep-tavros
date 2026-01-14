@@ -1,9 +1,9 @@
 // src/lib/services/(shop)/orders/payNow.service.ts
-import { stripe } from "@/lib/stripe";
-import { connectToDatabase } from "@/lib/services/db/mongodb";
+import {stripe} from "@/lib/stripe";
+import {connectToDatabase} from "@/lib/services/db/mongodb";
 import Order from "@/models/Order";
 
-export type PayNowResult = { url: string };
+export type PayNowResult = {url: string};
 
 export type PayNowErrorCode =
   | "ORDER_NOT_FOUND"
@@ -29,18 +29,18 @@ export async function payNowService(params: {
   orderId: string;
   userId: string;
 }): Promise<PayNowResult> {
-  const { orderId, userId } = params;
+  const {orderId, userId} = params;
 
   await connectToDatabase();
 
-  const order = await Order.findOne({ _id: orderId, userId }).lean<{
+  const order = await Order.findOne({_id: orderId, userId}).lean<{
     paymentStatus?: string;
     stripeSessionId?: string | null;
   }>();
 
   if (!order) {
     throw new PayNowError("ORDER_NOT_FOUND", "Order not found", 404);
-  }
+  } 
 
   if (order.paymentStatus === "paid") {
     throw new PayNowError("ORDER_ALREADY_PAID", "Order is already paid", 400);
@@ -86,5 +86,5 @@ export async function payNowService(params: {
     );
   }
 
-  return { url: checkoutSession.url };
+  return {url: checkoutSession.url};
 }
