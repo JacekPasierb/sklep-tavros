@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-
-import { connectToDatabase } from "../../../../lib/services/db/mongodb";
-import Order from "../../../../models/Order";
-import { authOptions } from "../../../../lib/services/auth/authOptions";
+import { authOptions } from "@/lib/services/auth/authOptions";
+import { getAccountOrders } from "@/lib/services/(shop)/orders/orders.service";
 
 
 export async function GET() {
@@ -13,12 +11,7 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await connectToDatabase();
-
-  const orders = await Order.find({ userId: session.user.id })
-  .sort({ createdAt: -1 })
-  .populate("items.productId", "images slug title price currency") // 👈 OBRAZKI
-  .lean();
+  const orders = await getAccountOrders(session.user.id);
 
   return NextResponse.json({ ok: true, orders });
 }

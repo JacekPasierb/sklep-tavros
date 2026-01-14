@@ -1,8 +1,8 @@
-// src/components/account/orders/PaymentStatusCard.tsx
+"use client";
 
 import {AccountOrder} from "@/types/(shop)/account/orders";
 import {getPaymentMeta} from "@/lib/utils/(shop)/account/orders/getPaymentMeta";
-import {payNow} from "@/lib/services/(shop)/orders/payNow.service";
+import {useState} from "react";
 
 type Props = {
   paymentStatus: AccountOrder["paymentStatus"];
@@ -14,19 +14,37 @@ export const PaymentStatusCard = ({paymentStatus, orderId}: Props) => {
     getPaymentMeta(paymentStatus);
 
   const isPending = paymentStatus === "pending";
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onPayNow = async (orderId: string) => {
+  const onPayNow = async () => {
+    if (isLoading) return;
+
     try {
-      const {url} = await payNow(orderId);
-      window.location.href = url;
-    } catch (e) {
-      if (e instanceof Error) {
-        alert(e.message);
-      } else {
-        alert("Something went wrong.");
+      setIsLoading(true);
+
+      const res = await fetch(`/api/account/orders/${orderId}/pay`, {
+        method: "POST",
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Unable to continue payment.");
       }
+
+      if (!data?.url) {
+        throw new Error("Missing payment URL.");
+      }
+
+      // 🔁 redirect do Stripe
+      window.location.href = data.url;
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Something went wrong.");
+    } finally {
+      setIsLoading(false);
     }
   };
+
   return (
     <div
       className={`mt-4 rounded-2xl border px-4 py-3 sm:px-5 sm:py-3.5 ${panelClass}`}
@@ -36,16 +54,18 @@ export const PaymentStatusCard = ({paymentStatus, orderId}: Props) => {
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-600">
             Payment status
           </p>
+
           <p className="text-sm font-semibold text-zinc-900">{label}</p>
           <p className="text-xs leading-snug text-zinc-700">{description}</p>
 
           {isPending && (
             <button
               type="button"
-              onClick={() => onPayNow(orderId)}
-              className="mt-2 inline-flex items-center justify-center rounded-full bg-zinc-900 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-50 hover:bg-zinc-800"
+              onClick={onPayNow}
+              disabled={isLoading}
+              className="mt-2 inline-flex items-center justify-center rounded-full bg-zinc-900 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-50 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Complete payment
+              {isLoading ? "Redirecting…" : "Complete payment"}
             </button>
           )}
         </div>

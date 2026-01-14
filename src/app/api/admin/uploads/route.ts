@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { UploadApiResponse } from "cloudinary";
 import { cloudinary } from "../../../../lib/cloudinary";
-import { requireAdmin } from "../../../../lib/utils/requireAdmin";
+import { requireAdmin } from "../../../../lib/auth/requireAdmin";
 
 type UploadedImage = {
   url: string;

@@ -1,7 +1,7 @@
 // src/app/api/admin/orders/route.ts
 import { NextResponse } from "next/server";
 
-import { requireAdmin } from "../../../../lib/utils/requireAdmin";
+import { requireAdmin } from "../../../../lib/auth/requireAdmin";
 import { normalizeOrdersQuery } from "../../../../lib/utils/admin/orders/query";
 import getAdminOrders from "../../../../lib/services/admin/orders.service";
 
