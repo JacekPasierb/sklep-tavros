@@ -1,10 +1,10 @@
 // app/(admin)/admin/page.tsx
 
-import { AdminStatsGrid } from "../../../components/admin/dashboard/AdminStatsGrid";
-import { FulfillmentSection } from "../../../components/admin/dashboard/FullfilmentSection";
-import { OrdersStatusSection } from "../../../components/admin/dashboard/OrdersStatusSection";
-import SectionHeader from "../../../components/admin/SectionHeader";
-import { getAdminMetrics } from "../../../lib/services/admin/metrics.service";
+import { AdminStatsGrid } from "@/components/admin/dashboard/AdminStatsGrid";
+import { FulfillmentSection } from "@/components/admin/dashboard/FullfilmentSection";
+import { OrdersStatusSection } from "@/components/admin/dashboard/OrdersStatusSection";
+import SectionHeader from "@/components/admin/SectionHeader";
+import { getAdminMetrics } from "@/lib/services/admin/metrics.service";
 
 
 const AdminDashboardPage = async () => {

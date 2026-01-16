@@ -2,7 +2,7 @@
 
 import {useState} from "react";
 import {useRouter} from "next/navigation";
-import { FulfillmentStatus, PaymentStatus } from "../../../types/(shop)/account/orders";
+import { FulfillmentStatus, PaymentStatus } from "@/types/(shop)/account/orders";
 
 
 type Props = {

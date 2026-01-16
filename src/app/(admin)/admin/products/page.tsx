@@ -1,13 +1,13 @@
 // src/app/(admin)/admin/products/page.tsx
 
-import SectionHeader from "../../../../components/admin/SectionHeader";
+import SectionHeader from "@/components/admin/SectionHeader";
 
-import {AdminProductsFilters} from "../../../../components/admin/products/AdminProductsFilter";
+import {AdminProductsFilters} from "@/components/admin/products/AdminProductsFilter";
 
-import normalizeAdminProductsQuery from "../../../../lib/utils/admin/products/normalizeAdminProductsQuery";
-import getAdminProducts from "../../../../lib/services/admin/products.service";
-import AdminProductsTopBar from "../../../../components/admin/products/AdminProductsTopBar";
-import AdminProductsList from "../../../../components/admin/products/AdminProductsList";
+import normalizeAdminProductsQuery from "@/lib/utils/admin/products/normalizeAdminProductsQuery";
+import getAdminProducts from "@/lib/services/admin/products.service";
+import AdminProductsTopBar from "@/components/admin/products/AdminProductsTopBar";
+import AdminProductsList from "@/components/admin/products/AdminProductsList";
 
 const AdminProductsPage = async (props: {
   searchParams: Record<string, string | string[] | undefined>;

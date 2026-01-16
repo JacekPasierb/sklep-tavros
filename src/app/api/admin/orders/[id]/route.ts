@@ -5,8 +5,10 @@ import mongoose from "mongoose";
 import {requireAdmin} from "../../../../../lib/auth/requireAdmin";
 import {connectToDatabase} from "../../../../../lib/services/db/mongodb";
 import Order from "../../../../../models/Order";
-import { FulfillmentStatus, PaymentStatus } from "../../../../../types/(shop)/account/orders";
-
+import {
+  FulfillmentStatus,
+  PaymentStatus,
+} from "../../../../../types/(shop)/account/orders";
 
 type PatchBody = Partial<{
   paymentStatus: PaymentStatus;

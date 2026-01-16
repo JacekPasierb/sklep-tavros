@@ -1,7 +1,7 @@
 
-import { AdminProductForm } from "../../../../../components/admin/products/AdminProductForm/AdminProductForm";
-import SectionHeader from "../../../../../components/admin/SectionHeader";
-import { DEFAULT_PRODUCT_INITIAL } from "../../../../../lib/utils/admin/products/defaultProductInitial";
+import { AdminProductForm } from "@/components/admin/products/AdminProductForm/AdminProductForm";
+import SectionHeader from "@/components/admin/SectionHeader";
+import { DEFAULT_PRODUCT_INITIAL } from "@/lib/utils/admin/products/defaultProductInitial";
 
 const AdminNewProductPage = () => {
   return (

@@ -1,11 +1,11 @@
+//app/(admin)/admin/orders/page.tsx
+import {normalizeOrdersQuery} from "@/lib/utils/admin/orders/query";
+import getAdminOrders from "@/lib/services/admin/orders.service";
 
-import {normalizeOrdersQuery} from "../../../../lib/utils/admin/orders/query";
-import getAdminOrders from "../../../../lib/services/admin/orders.service";
-
-import OrdersFilters from "../../../../components/admin/orders/OrdersFilters";
-import OrdersList from "../../../../components/admin/orders/OrdersList";
-import SectionHeader from "../../../../components/admin/SectionHeader";
-import type { OrdersSearchParams } from "../../../../types/admin/orders";
+import OrdersFilters from "@/components/admin/orders/OrdersFilters";
+import OrdersList from "@/components/admin/orders/OrdersList";
+import SectionHeader from "@/components/admin/SectionHeader";
+import type { OrdersSearchParams } from "@/types/admin/orders";
 
 const AdminOrdersPage = async ({
   searchParams,

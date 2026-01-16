@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR from "swr";
-import {CartItem} from "../../../types/(shop)/cart";
+import {CartItem} from "@/types/(shop)/cart";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -51,7 +51,7 @@ export const useUserCart = (enabled: boolean = true) => {
       title: prod?.title ?? "",
       price: prod?.price ?? 0,
       currency: prod?.currency,
-      image: imageSrc || prod?.heroImage || undefined, // UWAGA: używamy || i NIE dajemy ""
+      image: imageSrc || prod?.heroImage || undefined, 
       images: imagesArray,
       heroImage: prod?.heroImage,
       qty: entry.qty ?? 1,

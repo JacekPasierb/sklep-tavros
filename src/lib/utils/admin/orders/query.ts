@@ -1,5 +1,5 @@
-import { FulfillmentStatus, PaymentStatus } from "../../../../types/(shop)/account/orders";
-import {OrdersQuery, OrdersSearchParams} from "../../../../types/admin/orders";
+import { FulfillmentStatus, PaymentStatus } from "@/types/(shop)/account/orders";
+import {OrdersQuery, OrdersSearchParams} from "@/types/admin/orders";
 
 import { parsePositiveInt } from "../../shared/number";
 

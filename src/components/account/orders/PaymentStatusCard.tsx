@@ -22,7 +22,7 @@ export const PaymentStatusCard = ({paymentStatus, orderId}: Props) => {
     try {
       setIsLoading(true);
 
-      const res = await fetch(`/api/account/orders/${orderId}/pay`, {
+      const res = await fetch(`/api/account/orders/${orderId}/checkout-url`, {
         method: "POST",
       });
 

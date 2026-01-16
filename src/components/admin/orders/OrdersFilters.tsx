@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FulfillmentStatus, PaymentStatus } from "../../../types/(shop)/account/orders";
+import { FulfillmentStatus, PaymentStatus } from "@/types/(shop)/account/orders";
 
 
 type Props = {

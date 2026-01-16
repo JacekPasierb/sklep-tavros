@@ -25,7 +25,7 @@ export class PayNowError extends Error {
   }
 }
 
-export async function payNowService(params: {
+export async function getCheckoutUrlForOrder(params: {
   orderId: string;
   userId: string;
 }): Promise<PayNowResult> {

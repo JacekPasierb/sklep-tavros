@@ -1,7 +1,7 @@
 // lib/mappers/admin/productEdit.mapper.ts
 
-import {ProductLean} from "../../../types/admin/productEdit";
-import {AdminProductFormInitial} from "../../../types/admin/productForm";
+import {ProductLean} from "@/types/admin/productEdit";
+import {AdminProductFormInitial} from "@/types/admin/productForm";
 
 export const toAdminProductInitial = (
   p: ProductLean

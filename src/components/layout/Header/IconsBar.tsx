@@ -36,6 +36,7 @@ const IconsBar = () => {
 
   // ---- USER: licznik z API (/api/cart) ----
   const {cart} = useUserCart(isCustomer);
+
   const userCount = useMemo(
     () =>
       cart

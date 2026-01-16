@@ -1,4 +1,4 @@
-import type {PublicOrderItem} from "../../../types/admin/orders";
+import type {PublicOrderItem} from "@/types/admin/orders";
 
 export default function OrderItemsPreview({items}: {items: PublicOrderItem[]}) {
   if (!items?.length) {

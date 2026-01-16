@@ -1,7 +1,7 @@
 import {NextResponse} from "next/server";
-import {requireAdmin} from "../../../../lib/auth/requireAdmin";
-import {getCollections} from "../../../../lib/services/(shop)/collections/collections.service";
-import { ShopGender } from "../../../../types/(shop)/product";
+import {requireAdmin} from "@/lib/auth/requireAdmin";
+import {getCollections} from "@/lib/services/(shop)/collections/collections.service";
+import { ShopGender } from "@/types/(shop)/product";
 
 
 const ALLOWED_GENDERS: ShopGender[] = ["mens", "womens", "kids"];

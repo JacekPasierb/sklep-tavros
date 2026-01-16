@@ -2,15 +2,14 @@
 import {NextResponse} from "next/server";
 import {getServerSession} from "next-auth";
 
-import {connectToDatabase} from "../../../lib/services/db/mongodb";
+import {connectToDatabase} from "@/lib/services/db/mongodb";
 
+import User from "@/models/User";
+import Product from "@/models/Product"; 
+import type {CartEntry} from "@/types/(shop)/cart";
+import {authOptions} from "@/lib/services/auth/authOptions";
 
-import User from "../../../models/User";
-import Product from "../../../models/Product"; // ✅ rejestruje model "Product" dla populate
-import type {CartEntry} from "../../../types/(shop)/cart";
-import { authOptions } from "../../../lib/services/auth/authOptions";
-
-void Product; // ✅ ucisza "unused import" i gwarantuje rejestrację
+void Product; 
 
 type CartBody = {
   productId: string;
@@ -21,7 +20,12 @@ type CartBody = {
 
 type DeleteBody =
   | {clearAll: true}
-  | {clearAll?: false; productId: string; size?: string | null; color?: string | null};
+  | {
+      clearAll?: false;
+      productId: string;
+      size?: string | null;
+      color?: string | null;
+    };
 
 function normalizeOpt(v: unknown): string | null {
   if (typeof v !== "string") return null;

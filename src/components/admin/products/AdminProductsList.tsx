@@ -1,4 +1,4 @@
-import {AdminProductListItem} from "../../../types/admin/products";
+import {AdminProductListItem} from "@/types/admin/products";
 import {Pagination} from "../../products/Pagination";
 import {ProductRow} from "./ProductRow";
 
