@@ -9,7 +9,7 @@ import {SignInFormValues, SignInReason} from "@/types/(shop)/(auth)/signin";
 import {getSignInReasonMessage} from "@/lib/utils/(shop)/(auth)/normalizeSignInReason";
 
 import {SignInSchema} from "@/lib/validations/(shop)/(auth)/signin.schema";
-import { signInUser } from "@/lib/services/(shop)/(auth)/signin.service";
+import {signInUser} from "@/lib/services/(shop)/(auth)/signin.service";
 
 const toneClasses = (tone: "success" | "warning") => {
   if (tone === "success") {
@@ -168,6 +168,15 @@ const SignInClient = () => {
                   Create account
                 </button>
               </p>
+              <div className="mt-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => router.push("/forgot-password")}
+                  className="text-xs font-medium text-zinc-700 underline-offset-2 hover:text-black hover:underline"
+                >
+                  Forgot password?
+                </button>
+              </div>
             </Form>
           )}
         </Formik>

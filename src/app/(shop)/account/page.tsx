@@ -80,7 +80,7 @@ import {useAuthRedirect} from "@/lib/hooks/shop/auth/useAuthRedirect";
           </Link>
 
           <Link
-            href="/account/details"
+            href="/account/personal-details"
             className="flex items-center justify-between rounded-lg border px-4 py-3 hover:bg-zinc-50"
           >
             <span className="text-sm font-medium">Personal details</span>
